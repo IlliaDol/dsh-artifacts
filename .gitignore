@@ -1,0 +1,14 @@
+# runtime
+node_modules/
+*.log
+
+# local artifact stores and exports
+.dsh/
+artifacts/
+exports/
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,12 @@
+# dsh-artifacts bundle for DeepSeek Harness (dsh).
+#
+# One plugin row mounts both halves:
+#   - the node half (lib/index.js) teaches the model the ```dsh-artifact fence
+#     and the `artifact` tool, stores artifacts under $DSH_HOME/artifacts, and
+#     serves the viewer / gallery / export routes;
+#   - the browser half (lib/client.js, declared by package.json#dsh.client) is
+#     served by the harness at /plugins/dsh-artifacts/client.js and renders
+#     artifacts inline, plus relays card actions back into the conversation.
+- insert:
+    - id: dsh-artifacts
+      name: dsh-artifacts

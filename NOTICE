@@ -1,0 +1,51 @@
+dsh-artifacts
+=============
+
+This package is an independent, from-scratch implementation of three public
+protocol ideas, with new code throughout. No source files from the projects
+below are copied or vendored; their contracts were read to make the merged
+surface compatible, and their licenses are reproduced here for attribution.
+
+1. dsh-genui — MIT
+   Repository: https://github.com/omdsh-dev/dsh-genui
+   Package:    @changfenhuang/dsh-genui
+   Contributed: the declarative `spec` channel (a JSON component tree rendered
+   inline), its action-event loop back to the model, and its bundled-skill
+   posture.
+
+2. dsh-visualize — BSD-3-Clause
+   Repository: https://github.com/Nagi-ovo/dsh-visualize
+   Contributed: the sandboxed inline-HTML card (fragment wrapped in a frame
+   with its own CSP), the streaming/partial-render posture, and the
+   `inline | wide | page` surface modes.
+
+3. dsh-generative-ui — Apache-2.0
+   Repository: https://github.com/MindLab-Research/dsh-generative-ui
+   Contributed: the live-compiled TSX channel, the side canvas surface, and the
+   "card reports its own failure back to the model" loop.
+
+Claude artifact taxonomy (inline widgets, published pages, Slides, Design,
+Docs, downloadable files) is modelled on Anthropic's published behaviour as
+described by the user; this project is not affiliated with Anthropic.
+
+License texts of the upstream projects
+--------------------------------------
+
+MIT (dsh-genui): see https://github.com/omdsh-dev/dsh-genui/blob/main/LICENSE
+
+BSD-3-Clause (dsh-visualize):
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+  1. Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice,
+     this list of conditions and the following disclaimer in the documentation
+     and/or other materials provided with the distribution.
+  3. Neither the name of the copyright holder nor the names of its
+     contributors may be used to endorse or promote products derived from this
+     software without specific prior written permission.
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED.
+
+Apache-2.0 (dsh-generative-ui): see
+  https://github.com/MindLab-Research/dsh-generative-ui/blob/main/LICENSE

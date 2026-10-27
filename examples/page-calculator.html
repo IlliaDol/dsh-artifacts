@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wobble calculator</title>
+<style>:root{--bg:#faf9f5;--text:#141413;--accent:#d97757;--border:#e4e0d7}@media (prefers-color-scheme:dark){:root{--bg:#141413;--text:#f0efec;--border:#33332f}}body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,-apple-system,sans-serif}
+main{max-width:640px;margin:0 auto;padding:56px 24px}h1{font-family:Georgia,serif;font-size:34px;margin:0 0 8px}p{color:#52514e}
+label{display:block;font-size:13px;margin:22px 0 6px;color:#52514e}input[type=range]{width:100%}output{font-variant-numeric:tabular-nums;font-weight:600}
+.result{margin-top:28px;padding:18px;border:1px solid var(--border);border-radius:12px;background:#fff}@media (prefers-color-scheme:dark){.result{background:#1c1c1a}}
+.value{font-size:40px;font-family:Georgia,serif;margin:4px 0 0}</style></head><body><main>
+<h1>How big is a wobble?</h1><p>Pick an expected share and a sample size. The bands are the range a fair count lands in most of the time.</p>
+<label for="share">Expected share <output id="share-out">5.17%</output></label><input id="share" type="range" min="1" max="20" step="0.01" value="5.17">
+<label for="n">Sample size <output id="n-out">1000</output></label><input id="n" type="range" min="100" max="5000" step="100" value="1000">
+<div class="result"><p style="margin:0;font-size:13px">±1 wobble</p><p class="value" id="band">4.06% – 6.28%</p></div>
+<script>
+var share=document.getElementById('share'),n=document.getElementById('n');
+function update(){var p=Number(share.value)/100,nn=Number(n.value);var sd=Math.sqrt(p*(1-p)/nn)*100;
+document.getElementById('share-out').textContent=(p*100).toFixed(2)+'%';
+document.getElementById('n-out').textContent=nn;
+document.getElementById('band').textContent=(p*100-sd).toFixed(2)+'% – '+(p*100+sd).toFixed(2)+'%';}
+share.addEventListener('input',update);n.addEventListener('input',update);update();
+</script></main><script>
+(function(){
+  var root = document.documentElement;
+  function post(message){ try { if (parent !== window) parent.postMessage(message, '*'); } catch (e) {} }
+  function theme(){ try { var t = new URLSearchParams(location.search).get('theme'); if (t) root.dataset.theme = t; } catch (e) {} }
+  theme();
+  addEventListener('message', function(event){
+    var data = event.data;
+    if (!data || typeof data !== 'object') return;
+    if (data.type === 'dsh-artifact:theme' && (data.theme === 'light' || data.theme === 'dark')) root.dataset.theme = data.theme;
+  });
+  function height(){
+    var body = document.body;
+    if (!body) return;
+    var value = Math.max(body.scrollHeight, root.scrollHeight);
+    post({ type: 'dsh-artifact:height', height: value });
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(height).observe(document.body);
+  addEventListener('load', height);
+  setTimeout(height, 60); setTimeout(height, 300);
+  var api = {
+    send: function(action, payload){ post({ type: 'dsh-artifact:action', action: String(action), payload: payload || {} }); },
+    prompt: function(text){ post({ type: 'dsh-artifact:prompt', text: String(text) }); },
+    open: function(url){ post({ type: 'dsh-artifact:open', url: String(url) }); },
+    state: {
+      get: function(key){ try { return JSON.parse(localStorage.getItem('dsh-artifact:' + key) || 'null'); } catch (e) { return null; } },
+      set: function(key, value){ try { localStorage.setItem('dsh-artifact:' + key, JSON.stringify(value)); } catch (e) {} }
+    }
+  };
+  window.dshArtifact = api;
+  window.dsh = api;
+})();
+</script></body></html>

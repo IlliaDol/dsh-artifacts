@@ -73,6 +73,19 @@ test('apply registers the prompt, one tool, one skill and four routes', async ()
   }
 });
 
+test('the skill is registered before the first prompt is assembled', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'dsh-artifacts-skill-'));
+  try {
+    const { ctx, log } = fakeContext(directory);
+    apply(ctx, { directory });
+    assert.equal(log.sections.length, 1);
+    assert.equal(log.skills.length, 1);
+    assert.match(log.skills[0].content, /# Artifacts/u);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
 test('the tool creates, lists and exports an artifact', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'dsh-artifacts-tool-'));
   try {

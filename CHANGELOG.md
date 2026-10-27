@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.1 — 2026-10-27
+
+Reliability: the same first-turn gap that made dsh-memory intermittent, plus
+the store's cold-start race.
+
+- The bundled `artifacts` skill is read with a synchronous `readFileSync` and
+  registered inside `apply`, before the first prompt is assembled. An awaited
+  read left the first turn of every fresh process without the skill.
+- `ArtifactStore.init()` shares one in-flight open, and `get()` awaits it. Two
+  cold callers could each write an empty index, and the slower write dropped
+  the entry the other had just recorded; a `get()` on a missing root threw
+  instead of returning `undefined`.
+- Regression tests: the skill is registered with no timer, 8 parallel first
+  writes on a cold store keep every entry, and a cold `get()` does not throw.
+
 ## 0.1.0 — 2026-10-27
 
 First release.

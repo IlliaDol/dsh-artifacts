@@ -120,3 +120,20 @@ test('slug is filename-safe and never empty', () => {
   assert.equal(slug('   ***   '), 'artifact');
   assert.equal(slug('Ünïcode / path\\name'), 'unicode-pathname');
 });
+
+test('a cold store opens once: a first read does not throw and a parallel batch keeps every entry', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'dsh-artifacts-cold-'));
+  const store = new ArtifactStore(join(root, 'nested', 'artifacts'));
+  try {
+    assert.equal(await store.get('art_0000000000'), undefined);
+
+    const cold = new ArtifactStore(join(root, 'second'));
+    await Promise.all(Array.from({ length: 8 }, (_value, index) => (
+      cold.create({ ...doc, title: `Cold ${index}` }, '<html></html>')
+    )));
+    const index = JSON.parse(await readFile(join(cold.root, 'index.json'), 'utf8'));
+    assert.equal(index.artifacts.length, 8);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

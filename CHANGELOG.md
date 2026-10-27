@@ -18,6 +18,8 @@ First release.
 - Verified end to end in a throwaway dsh profile: plugin row composed, host
   log clean, routes 200, client bundle served in the shell's module combo,
   gallery and artifact documents render in Chromium.
+- Exports opened by real parsers: `python-docx` (3 paragraphs), `python-pptx`
+  (2 slides), `openpyxl` (sheet `Data`, header and values intact).
 
 ### Known limits
 

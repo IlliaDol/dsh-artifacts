@@ -42,17 +42,38 @@ test('an svg widget is centred and scaled', () => {
   assert.match(html, /svg-wrap/u);
 });
 
-test('a chart uses Chart.js and carries an accessible fallback', () => {
+test('a chart is drawn by the bundled interactive kit, with no CDN', () => {
   const { html } = renderArtifact(artifact('chart', JSON.stringify({
     type: 'line',
     labels: ['Q1', 'Q2'],
     series: [{ name: 'Revenue', values: [12, 19] }],
   })));
-  assert.match(html, /cdnjs\.cloudflare\.com\/ajax\/libs\/Chart\.js/u);
-  assert.match(html, /role="img"/u);
+  // Self-contained: the kit is inlined, so the document works offline and inside
+  // a sandbox with the network blocked.
+  assert.equal(html.includes('cdnjs.cloudflare.com'), false);
+  assert.match(html, /root\.VC = api/u);
+  assert.match(html, /VC\.render\(host/u);
+  assert.match(html, /role="group"/u);
   assert.match(html, /aria-label="chart fixture/u);
   assert.match(html, /<details class="data">/u);
   assert.match(html, /Revenue/u);
+});
+
+test('every chart form the schema accepts reaches the kit', () => {
+  const forms = [
+    { type: 'bar', labels: ['a', 'b'], series: [{ name: 'S', values: [1, 2] }] },
+    { type: 'hbar', labels: ['a', 'b'], series: [{ name: 'S', values: [1, 2] }] },
+    { type: 'stacked', labels: ['a', 'b'], series: [{ name: 'S', values: [1, 2] }, { name: 'T', values: [2, 1] }] },
+    { type: 'hist', labels: [], series: [{ name: 'S', values: [1, 2, 2, 3, 5, 8] }] },
+    { type: 'box', labels: [], series: [{ name: 'S', values: [1, 2, 2, 3, 5, 8] }] },
+    { type: 'donut', labels: ['a', 'b'], series: [{ name: 'S', values: [1, 2] }] },
+    { type: 'scatter', series: [{ name: 'S', points: [{ x: 1, y: 2 }] }] },
+  ];
+  for (const spec of forms) {
+    const { data, html } = renderArtifact(artifact('chart', JSON.stringify(spec)));
+    assert.equal(data.type, spec.type);
+    assert.match(html, /VC\.render\(host/u, spec.type);
+  }
 });
 
 test('chart data cannot break out of the inline script', () => {

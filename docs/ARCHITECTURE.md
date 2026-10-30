@@ -49,7 +49,7 @@ half-written index. A missing or corrupt `index.json` is rebuilt by scanning
 | Kind | Renderer |
 | --- | --- |
 | `widget` | fragment in the shared shell; `<svg>` gets a centred wrapper |
-| `chart` | Chart.js 4.4.1 from cdnjs, palette by slot, accessible fallback table |
+| `chart` | the bundled kit (`kit/charts.js`, embedded as `lib/kit.js`): SVG marks, pointer interaction, accessible fallback table |
 | `cards` | one of ten layouts, quiz scoring in-page |
 | `page` | the document as given, or a fragment in the page shell |
 | `slides` | 1280×720 stage, scale-to-fit, keyboard + print CSS |

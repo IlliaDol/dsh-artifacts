@@ -74,7 +74,7 @@ default). The gallery is the index; every artifact has **Open**, **Source** and
 | Kind | Renders | Dynamic | Exports |
 | --- | --- | --- | --- |
 | `widget` | inline HTML fragment or SVG | yes | html |
-| `chart` | line / bar / scatter / area / donut | hover | html, csv, json, xlsx |
+| `chart` | line / area / bar / hbar / stacked / scatter / donut / hist / box | hover, click, legend, bin slider, drag-zoom | html, csv, json, xlsx |
 | `cards` | recipe, itinerary, quiz, steps, compare, metric, profile, weather, translation, message | quiz scores locally | html, json, csv |
 | `page` | full published document | yes | html, pdf |
 | `slides` | 16:9 deck, arrow-key paging, print pagination | paging | html, pptx, md, pdf |
@@ -85,6 +85,28 @@ default). The gallery is the index; every artifact has **Open**, **Source** and
 The exhaustive catalogue — every artifact type, static or dynamic, inline,
 published or downloadable, with the exact call — is
 [docs/ARTIFACT-TYPES.md](docs/ARTIFACT-TYPES.md).
+
+## Interactive by default
+
+A chart is not a picture. It is drawn by the bundled kit in `kit/` — plain
+JavaScript, no CDN, no chart library — and it reads the pointer:
+
+- **hover** gives the exact value at that mark;
+- **click** isolates one bar, slice or series;
+- **the legend** toggles a series off without redrawing anything;
+- **a histogram** has a bin slider, because the shape depends on the width;
+- **a line** zooms when you drag across it and resets on double-click;
+- **a widget** can use the same kit for a 3D scene: `VK` (scales, drag, frame
+  loop), `V3` (rotation, projection) and `VC` (the chart renderer) are loaded
+  in every artifact frame.
+
+Nothing is fetched: the kit is inlined into each document by
+`scripts/build-kit.mjs`, so an artifact renders offline, in an export, and
+inside the sandbox with the network blocked.
+
+[gallery.html](gallery.html) is the live surface for the same recipes — open it
+directly, or `node scripts/serve-gallery.mjs 8777`. [PROMPT.md](PROMPT.md) is the
+master prompt that rebuilds or extends this material in one go.
 
 ## How it works
 

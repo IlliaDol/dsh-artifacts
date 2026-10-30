@@ -46,7 +46,7 @@ fence. They can be downloaded (HTML), but they are not shareable links.
 | Quiz | Multiple choice with explanations and score | `cards` → `quiz` (scores locally, no round trip) |
 | Flashcards | Reveal-on-click cards | `cards` → `quiz` with one option and an explanation, or a `widget` |
 | Simulator | Small physics/logic model | `widget` with `requestAnimationFrame`; respect `prefers-reduced-motion` |
-| Chart with controls | Toggle series, switch period | `widget` with Chart.js from `cdnjs.cloudflare.com` |
+| Chart with controls | Toggle series, switch period | `chart` — legend, click and sliders are built in; `widget` when the interaction is bespoke |
 | Form | Fields that collect a brief, then submit | `widget` + `dshArtifact.prompt(...)` on submit |
 | Drag/sort | Reorder a list, rank options | `widget`; persist with `dshArtifact.state` |
 | Game | Small deterministic game | `widget`; keep the rules in JS, not in the model |
@@ -60,6 +60,9 @@ and accessible.
 | Type | Kind | Shape |
 | --- | --- | --- |
 | Line chart | `chart` | `{"type":"line","labels":[…],"series":[{"name":…,"values":[…]}]}` |
+| Horizontal bars | `chart` | `type:"hbar"`, sorted long→short when rank is the finding |
+| Histogram | `chart` | `{"type":"hist","series":[{"name":"durations","values":[…]}]}` — raw observations; `labels` may be empty |
+| Box plot | `chart` | `{"type":"box","series":[{"name":"Group A","values":[…]}, …]}` — one series per group |
 | Bar / column | `chart` | `type:"bar"` |
 | Stacked/grouped bars | `chart` | several series in one bar chart |
 | Scatter | `chart` | `{"type":"scatter","series":[{"name":…,"points":[{"x":1,"y":2}]}]}` |

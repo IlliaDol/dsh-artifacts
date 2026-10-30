@@ -60,8 +60,11 @@ Available tokens (both themes): `--text`, `--text-2`, `--muted`, `--surface`,
 `--surface-2`, `--border`, `--accent`, `--accent-ink`, `--font-serif`,
 `--font-sans`, `--font-mono`, `--radius`. Never hardcode colors.
 
-Interaction: score, sort, toggle and compute locally. Use
-`dshArtifact.send("action-name", {…})` only when the next step needs the model;
+Interaction: score, sort, toggle and compute locally. A widget also gets the
+bundled kit as globals — `VK` (scales, axes, tooltip, pointer drag, frame loop),
+`V3` (rotation, projection, orbit) and `VC` (the chart renderer). Use them
+instead of hand-writing a chart or loading a library; the frame has no network.
+Use `dshArtifact.send("action-name", {…})` only when the next step needs the model;
 `dshArtifact.prompt("text")` posts a message; `dshArtifact.state.get/set` keeps
 per-viewer state.
 
@@ -71,9 +74,22 @@ per-viewer state.
 {"type":"line","labels":["Jan","Feb"],"series":[{"name":"Signups","values":[120,180]}]}
 ```
 
+`type` is one of `line`, `area`, `bar`, `hbar`, `stacked`, `scatter`, `donut`,
+`hist`, `box`.
+
 Rules: one y-axis; ≤8 series (the palette has eight, never cycled); ≤2000
 points; scatter uses `points:[{x,y}]` and ignores `labels`; `donut` uses the
-first series. A data table is rendered under the chart for accessibility.
+first series; `hist` and `box` read raw observations from `values` and do not
+need labels. A data table is rendered under the chart for accessibility.
+
+Every chart is interactive without extra work: hover for values, click to
+isolate, legend to toggle, a bin slider on histograms, drag-to-zoom on lines and
+areas. Do not describe those controls in prose — write what the shape means.
+
+Pick the form from the question: distribution → `hist` or `box`; comparison →
+`bar` / `hbar`; change → `line`; parts → `stacked` or `donut`; relationship →
+`scatter`. Draw when the picture carries information the prose cannot, even when
+the user did not say "chart".
 
 ### cards
 

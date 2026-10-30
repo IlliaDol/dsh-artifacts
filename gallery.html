@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Artifacts — interactive visualisation cookbook</title>
+<link rel="stylesheet" href="kit/artifacts.css">
+</head>
+<body>
+<div class="vz-wrap">
+  <header class="vz-head">
+    <h1>Artifacts</h1>
+    <p>Every visual on this page is live. Hover, click, drag and use the sliders; the code under each card is the exact source that ran, not a transcription. Data is generated demo data.</p>
+  </header>
+
+  <div class="vz-toolbar" role="toolbar" aria-label="Filters">
+    <input class="vz-search" id="search" type="search" placeholder="Search recipes…" aria-label="Search recipes">
+    <span id="families" style="display:flex;gap:8px;flex-wrap:wrap"></span>
+  </div>
+
+  <main class="vz-grid" id="grid"></main>
+</div>
+
+<script src="kit/viz-kit.js"></script>
+<script src="kit/viz3d.js"></script>
+<script src="kit/charts.js"></script>
+<script src="recipes/index.js"></script>
+<script>
+(function () {
+  'use strict'
+  const grid = document.getElementById('grid')
+  const search = document.getElementById('search')
+  const familyBar = document.getElementById('families')
+  const all = window.RECIPES.recipes
+  const families = window.RECIPES.families
+  let family = 'all'
+  let query = ''
+  const mounted = new Map()
+
+  /** Build the filter chips once. */
+  function buildFilters() {
+    const chips = [{ id: 'all', label: `All ${all.length}` }].concat(
+      families.map((f) => ({ id: f, label: `${f} ${all.filter((r) => r.family === f).length}` })),
+    )
+    for (const chip of chips) {
+      const button = document.createElement('button')
+      button.className = 'vz-chip'
+      button.type = 'button'
+      button.textContent = chip.label
+      button.setAttribute('aria-pressed', String(chip.id === family))
+      button.addEventListener('click', () => {
+        family = chip.id
+        for (const other of familyBar.children) other.setAttribute('aria-pressed', String(other === button))
+        paint()
+      })
+      familyBar.appendChild(button)
+    }
+  }
+
+  /** Mount one recipe card. */
+  function card(recipe) {
+    const article = document.createElement('article')
+    article.className = 'vz-card'
+    article.dataset.id = recipe.id
+
+    const label = document.createElement('p')
+    label.className = 'vz-family'
+    label.textContent = recipe.family
+    article.appendChild(label)
+
+    const title = document.createElement('h2')
+    title.textContent = recipe.name
+    article.appendChild(title)
+
+    const when = document.createElement('p')
+    when.className = 'vz-when'
+    when.textContent = recipe.when
+    article.appendChild(when)
+
+    const host = document.createElement('div')
+    host.className = 'vz-plot'
+    article.appendChild(host)
+
+    const actions = document.createElement('div')
+    actions.className = 'vz-actions'
+    const toggle = document.createElement('button')
+    toggle.className = 'vz-button'
+    toggle.type = 'button'
+    toggle.textContent = 'Show code'
+    toggle.setAttribute('aria-expanded', 'false')
+    const copy = document.createElement('button')
+    copy.className = 'vz-button'
+    copy.type = 'button'
+    copy.textContent = 'Copy'
+    const status = document.createElement('span')
+    status.style.cssText = 'font-size:11px;color:var(--vz-faint)'
+    actions.append(toggle, copy, status)
+    article.appendChild(actions)
+
+    const pre = document.createElement('pre')
+    pre.className = 'vz-code'
+    pre.hidden = true
+    const code = window.RECIPES.codeOf(recipe)
+    pre.textContent = code
+    article.appendChild(pre)
+
+    toggle.addEventListener('click', () => {
+      pre.hidden = !pre.hidden
+      toggle.textContent = pre.hidden ? 'Show code' : 'Hide code'
+      toggle.setAttribute('aria-expanded', String(!pre.hidden))
+    })
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code)
+        status.textContent = 'Copied'
+      } catch {
+        status.textContent = 'Select the code and copy it manually'
+      }
+      setTimeout(() => { status.textContent = '' }, 2200)
+    })
+
+    // Mount after layout so the SVG can measure itself.
+    const instance = { recipe, host, destroy: null, mounted: false }
+    mounted.set(recipe.id, instance)
+    return { article, instance }
+  }
+
+  /** Draw a card's visual exactly once. */
+  function draw(instance) {
+    if (instance.mounted) return
+    instance.mounted = true
+    try {
+      if (instance.recipe.spec) {
+        instance.destroy = window.VC.render(instance.host, instance.recipe.spec).destroy
+      } else {
+        instance.destroy = instance.recipe.scene(instance.host, window.VK, window.V3)
+      }
+    } catch (error) {
+      instance.host.innerHTML = `<p style="color:#c0453d;font-size:12px">This recipe failed: ${String(error && error.message ? error.message : error)}</p>`
+    }
+  }
+
+  /** Rebuild the grid for the current filter. */
+  function paint() {
+    const needle = query.trim().toLowerCase()
+    const shown = all.filter((r) => (family === 'all' || r.family === family)
+      && (needle === '' || `${r.name} ${r.id} ${r.when} ${r.family}`.toLowerCase().includes(needle)))
+    grid.textContent = ''
+    mounted.clear()
+    if (shown.length === 0) {
+      const empty = document.createElement('p')
+      empty.textContent = 'Nothing matches that filter.'
+      empty.style.color = 'var(--vz-faint)'
+      grid.appendChild(empty)
+      return
+    }
+    const built = shown.map(card)
+    for (const { article } of built) grid.appendChild(article)
+    // One frame later the cards are laid out; draw only what is near the viewport.
+    requestAnimationFrame(() => {
+      for (const { instance } of built) visible(instance) ? draw(instance) : observer.observe(instance.host)
+    })
+  }
+
+  /** Is this card close to the viewport? */
+  function visible(instance) {
+    const rect = instance.host.getBoundingClientRect()
+    return rect.top < innerHeight + 260 && rect.bottom > -260
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue
+      const instance = [...mounted.values()].find((item) => item.host === entry.target)
+      if (instance) {
+        draw(instance)
+        observer.unobserve(entry.target)
+      }
+    }
+  }, { rootMargin: '260px' })
+
+  search.addEventListener('input', () => { query = search.value; paint() })
+  buildFilters()
+  paint()
+})()
+</script>
+</body>
+</html>

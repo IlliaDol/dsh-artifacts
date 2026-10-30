@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.2.0 — 2026-10-30
+
+Charts stop being pictures. The renderer is now the bundled interactive kit,
+and the same kit is available to every artifact.
+
+- **No CDN.** `renderChart` used Chart.js 4.4.1 from cdnjs. That failed offline,
+  failed inside a sandbox with the network blocked, and gave the reader nothing
+  to touch. It is replaced by `kit/charts.js`, inlined per document by
+  `scripts/build-kit.mjs` → `lib/kit.js`. Every artifact is self-contained
+  again.
+- **Interaction is the default, not a feature.** Hover readouts, click to
+  isolate, legend toggles, a bin slider on histograms, drag-to-zoom and
+  double-click reset on lines and areas.
+- **Four new chart forms:** `hbar`, `stacked`, `hist`, `box`. The original five
+  keep working unchanged; the wire shape (`labels` + `series[].values`) is
+  untouched, so stored artifacts render exactly as before — only better.
+- **The kit is loaded in widget frames too.** `VK`, `V3` and `VC` are globals, so
+  a hand-written SVG or 3D scene can use the same scales, drag and frame loop
+  instead of re-implementing them.
+- **`kit/`, `recipes/`, `gallery.html`, `PROMPT.md`.** The recipe set and the
+  live gallery are in the repo, with `scripts/build-kit.mjs` and
+  `scripts/serve-gallery.mjs`. `PROMPT.md` rebuilds or extends the material in
+  one prompt.
+- Tests: 58 pass, including a new case that every accepted chart form reaches
+  `VC.render`, and an assertion that no CDN URL survives.
+
 ## 0.1.1 — 2026-10-27
 
 Reliability: the same first-turn gap that made dsh-memory intermittent, plus

@@ -1,6 +1,6 @@
 {
   "name": "dsh-artifacts",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "One generative-UI plugin for DeepSeek Harness: inline widgets, charts, cards, published pages, slides, a design canvas, docs and downloadable files. Merges the protocols of dsh-genui, dsh-visualize and dsh-generative-ui into a single artifact surface.",
   "type": "module",
   "main": "lib/index.js",

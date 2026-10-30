@@ -63,6 +63,17 @@ and accessible.
 | Horizontal bars | `chart` | `type:"hbar"`, sorted long→short when rank is the finding |
 | Histogram | `chart` | `{"type":"hist","series":[{"name":"durations","values":[…]}]}` — raw observations; `labels` may be empty |
 | Box plot | `chart` | `{"type":"box","series":[{"name":"Group A","values":[…]}, …]}` — one series per group |
+| Density | `chart` | `type:"density"`, one series per group, raw `values` |
+| ECDF | `chart` | `type:"ecdf"`, raw `values`; compare percentiles without bins |
+| Violin | `chart` | `type:"violin"`, raw `values`; shape plus median and IQR |
+| Heatmap | `chart` | `{"type":"heat","rows":[…],"cols":[…],"values":[[…]]}` |
+| Stat row | `chart` | `{"type":"stat","items":[{"label":"Revenue","value":"€1.2M","delta":"+12%"}]}` |
+| Waterfall | `chart` | `type:"waterfall"`, one series, optional `totals:[indices]` |
+| Dumbbell | `chart` | `type:"dumbbell"`, exactly two series (before, after), optional `sort:"gap"` |
+| Slope | `chart` | `type:"slope"`, exactly two series; direction is the colour |
+| Pareto | `chart` | `type:"pareto"`, one non-negative series; cumulative share on the same axis |
+| Funnel | `chart` | `type:"funnel"`, one non-negative series; stage widths and conversion |
+| Bullet | `chart` | `type:"bullet"`, one series plus optional `targets:[…]` |
 | Bar / column | `chart` | `type:"bar"` |
 | Stacked/grouped bars | `chart` | several series in one bar chart |
 | Scatter | `chart` | `{"type":"scatter","series":[{"name":…,"points":[{"x":1,"y":2}]}]}` |

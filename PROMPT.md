@@ -44,15 +44,16 @@ Structure:
   plugin/              the host integration, if the host supports one
 
 CHART TYPES (all interactive, no exceptions)
-bar, hbar, stacked, line, area, scatter, hist, box, heat, donut, stat.
+bar, hbar, stacked, line, area, scatter, hist, box, density, ecdf, violin,
+heat, donut, stat, waterfall, dumbbell, slope, pareto, funnel, bullet.
 Interaction is the renderer's job: hover readout, click to isolate, legend
 toggle, bin slider (hist), drag to zoom (line), brush (scatter), orbit (3D).
 
 RECIPES
 Each is {id, family, name, when, spec | scene, orbit?}. `when` is one sentence on
 the question the form answers. Families: comparison, time, part-to-whole,
-distribution, relationship, structure, motion. Minimum 14 recipes, at least
-three of them scenes (a dynamical system, a field, a chaotic divergence).
+distribution, relationship, structure, motion. Minimum 23 recipes (one per form),
+at least three of them scenes (a dynamical system, a field, a chaotic divergence).
 
 QUALITY GATES (none optional)
 1. Structure: every recipe runs in a DOM stand-in; fail on exceptions and on

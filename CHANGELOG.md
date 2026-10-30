@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.3.0 — 2026-10-30
+
+The cookbook lands in the renderer. Every form below is drawn by the same
+interactive kit, so it works offline and inside the artifact sandbox.
+
+- **Nine new chart forms:** `waterfall`, `dumbbell`, `slope`, `pareto`,
+  `funnel`, `bullet`, `density`, `ecdf` and `violin`. Each answers a question
+  the earlier eleven could not: a running total, two moments per item, the few
+  causes that dominate, loss through stages, a value against a target, and
+  distributions read by shape rather than by box.
+- **`heat` and `stat` are now reachable.** The kit already drew them and the
+  gallery already showed them, but the schema rejected both because every
+  chart was assumed to be `labels` plus `series`. They have their own shapes
+  and their own validation now.
+- **Validation follows the form.** `dumbbell` and `slope` require exactly two
+  equal-length series; `pareto` and `funnel` reject negative values; `bullet`
+  checks `targets`; `waterfall` checks `totals`; heatmaps check the matrix;
+  stat rows check each item. Errors name the field and the expected length.
+- **Accessible data tables** for the new shapes: a matrix table for `heat`, a
+  metric table for `stat`, and sample counts for the distribution forms.
+- **The chooser is documented** in `docs/COOKBOOK.md`, and the same rules are
+  in `SKILL.md` so the model picks the form from the question rather than from
+  habit. `README.md`, `ARTIFACT-TYPES.md` and `PROMPT.md` list all twenty forms.
+- **The gallery has 23 recipes**, including demos for every new form, and the
+  inlined `lib/kit.js` is rebuilt from `kit/*.js`.
+- Tests: 60 pass (schema, render, markdown, OOXML, store, client and plugin),
+  plus the package-shape check. The gallery was mounted in Chromium and all 23
+  recipes drew without a console error or a `NaN` attribute.
+
 ## 0.2.0 — 2026-10-30
 
 Charts stop being pictures. The renderer is now the bundled interactive kit,

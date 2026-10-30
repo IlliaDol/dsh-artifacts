@@ -18,7 +18,7 @@
   'use strict'
   if (!K) throw new Error('charts.js needs viz-kit.js loaded first')
 
-  const TYPES = ['bar', 'hbar', 'stacked', 'line', 'area', 'scatter', 'hist', 'box', 'heat', 'donut', 'stat']
+  const TYPES = ['bar', 'hbar', 'stacked', 'line', 'area', 'scatter', 'hist', 'box', 'heat', 'donut', 'stat', 'waterfall', 'dumbbell', 'slope', 'pareto', 'funnel', 'bullet', 'density', 'ecdf', 'violin']
 
   /** Normalise `[[label, value]]` and `[{label, value}]` into one row shape. */
   function rows(input) {
@@ -502,7 +502,8 @@
     rowsLabels.forEach((row, i) => {
       K.el('text', { x: st.x0 - 8, y: st.y0 + i * cell + cell / 2 + 3, 'text-anchor': 'end', 'font-size': 10.5, fill: palette.dim, text: truncate(row, 22) }, st.g)
       cols.forEach((col, j) => {
-        const value = Number(values[i]?.[j])
+        const raw = values[i]?.[j]
+        const value = raw === null || raw === undefined ? Number.NaN : Number(raw)
         const rect = K.el('rect', {
           x: st.x0 + j * cell, y: st.y0 + i * cell, width: cell - 1.5, height: cell - 1.5,
           fill: Number.isFinite(value) ? K.ramp((value - lo) / ((hi - lo) || 1)) : 'transparent',
@@ -574,9 +575,481 @@
       const cell = K.el('div', { style: { minWidth: '120px', padding: '10px 12px', border: '1px solid var(--vz-line,#e4e2da)', borderRadius: '8px' } }, box)
       K.el('div', { text: String(item.label ?? ''), style: { fontSize: '11px', color: 'var(--vz-faint,#8a8782)', marginBottom: '4px' } }, cell)
       K.el('div', { text: String(item.value ?? ''), style: { fontSize: '22px', color: 'var(--vz-text,#1b1b19)', fontVariantNumeric: 'tabular-nums' } }, cell)
-      if (item.delta) K.el('div', { text: String(item.delta), style: { fontSize: '11px', color: item.delta.startsWith('-') ? '#c0453d' : '#1b7a4b', marginTop: '3px' } }, cell)
+      if (item.delta) K.el('div', { text: String(item.delta), style: { fontSize: '11px', color: String(item.delta).startsWith('-') ? '#c0453d' : '#1b7a4b', marginTop: '3px' } }, cell)
     }
     ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  /* -------------------------------------------------- cookbook forms (0.3.0) */
+
+  /**
+   * Waterfall: how a starting value becomes an end value through gains and
+   * losses. The first and last bars are totals unless `spec.totals` names the
+   * total rows; every other bar floats from the running total to the next.
+   */
+  function drawWaterfall(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const values = (spec.series?.[0]?.values ?? []).map(Number)
+    const count = Math.min(labels.length, values.length)
+    if (count === 0) return drawEmpty(ui)
+    const totalRows = new Set(Array.isArray(spec.totals) ? spec.totals.map(Number) : [0, count - 1])
+    let running = 0
+    const bars = []
+    for (let i = 0; i < count; i += 1) {
+      const value = Number.isFinite(values[i]) ? values[i] : 0
+      if (totalRows.has(i)) {
+        const to = i === 0 ? value : running
+        running = to
+        bars.push({ label: labels[i], from: 0, to, delta: value, total: true })
+      } else {
+        const from = running
+        running += value
+        bars.push({ label: labels[i], from, to: running, delta: value, total: false })
+      }
+    }
+    const top = Math.max(0, ...bars.map((bar) => Math.max(bar.from, bar.to)))
+    const bottom = Math.min(0, ...bars.map((bar) => Math.min(bar.from, bar.to)))
+    const st = K.stage(ui.body, {
+      width: 680,
+      height: spec.height ?? 300,
+      margin: { t: 18, r: 16, b: labels.length > 8 ? 54 : 40, l: 50 },
+      label: spec.title ?? 'waterfall chart',
+    })
+    const y = K.linear([bottom, top * 1.06 || 1], [st.y0 + st.ph, st.y0])
+    const x = K.band(labels, [st.x0, st.x0 + st.pw], 0.34)
+    K.gridY(st, y, { count: 5, color: palette.line })
+    K.axisX(st, x, { every: labels.length > 10 ? Math.ceil(labels.length / 10) : 1, rotate: labels.length > 8 })
+    bars.forEach((bar, index) => {
+      const color = bar.total ? palette.faint : bar.delta >= 0 ? K.PALETTE[2] : K.PALETTE[7]
+      const topPx = y(Math.max(bar.from, bar.to))
+      const bottomPx = y(Math.min(bar.from, bar.to))
+      const rect = K.el('rect', {
+        x: x(bar.label), y: topPx, width: x.bw, height: Math.max(1, bottomPx - topPx), fill: color, rx: 2,
+      }, st.g)
+      if (index < bars.length - 1) {
+        K.el('line', {
+          x1: x(bar.label) + x.bw, x2: x(bars[index + 1].label), y1: y(bar.to), y2: y(bar.to),
+          stroke: palette.line, 'stroke-dasharray': '3 3',
+        }, st.g)
+      }
+      K.el('text', {
+        x: x(bar.label) + x.bw / 2, y: topPx - 5, 'text-anchor': 'middle', 'font-size': 10.5,
+        fill: palette.faint, text: (spec.format ?? K.fmt)(bar.total ? bar.to : bar.delta),
+      }, st.g)
+      rect.addEventListener('pointerenter', () => {
+        const change = bar.total ? 'total' : bar.delta >= 0 ? 'gain' : 'loss'
+        ui.tooltip.show(x(bar.label) + x.bw / 2, topPx, `${escapeHtml(bar.label)}<br>${change} <b>${(spec.format ?? K.fmt)(bar.total ? bar.to : bar.delta)}</b><br>running ${(spec.format ?? K.fmt)(bar.to)}`)
+      })
+      rect.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? 'Hover a bar for the change and the running total'
+    return () => {}
+  }
+
+  /**
+   * Dumbbell: before vs after per row on one shared axis. The connecting line
+   * is the finding; the two circles are the values.
+   */
+  function drawDumbbell(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const before = (spec.series?.[0]?.values ?? []).map(Number)
+    const after = (spec.series?.[1]?.values ?? []).map(Number)
+    if (labels.length === 0 || before.length === 0 || after.length === 0) return drawEmpty(ui)
+    let rows = labels.map((label, index) => ({ label, before: before[index], after: after[index] }))
+      .filter((row) => Number.isFinite(row.before) && Number.isFinite(row.after))
+    if (spec.sort === 'gap') rows.sort((a, b) => Math.abs(b.after - b.before) - Math.abs(a.after - a.before))
+    if (rows.length === 0) return drawEmpty(ui)
+    const all = rows.flatMap((row) => [row.before, row.after])
+    const [lo, hi] = K.extent(all)
+    const pad = (hi - lo) * 0.08 || 1
+    const st = K.stage(ui.body, {
+      width: 680,
+      height: spec.height ?? Math.max(190, rows.length * 34 + 58),
+      margin: { t: 14, r: 26, b: 34, l: Math.min(190, Math.max(92, longest(rows.map((row) => row.label)) * 6.6)) },
+      label: spec.title ?? 'dumbbell chart',
+    })
+    const x = K.linear([lo - pad, hi + pad], [st.x0, st.x0 + st.pw])
+    const y = K.band(rows.map((row) => row.label), [st.y0, st.y0 + st.ph], 0.3)
+    x.ticks(5).forEach((value) => {
+      K.el('line', { x1: x(value), x2: x(value), y1: st.y0, y2: st.y0 + st.ph, stroke: palette.line, 'stroke-width': 0.6 }, st.g)
+    })
+    K.axisXLinear(st, x, { count: 5 })
+    rows.forEach((row) => {
+      const cy = y(row.label) + y.bw / 2
+      const beforeColor = K.PALETTE[1]
+      const afterColor = K.PALETTE[0]
+      K.el('line', { x1: x(row.before), x2: x(row.after), y1: cy, y2: cy, stroke: palette.line, 'stroke-width': 3 }, st.g)
+      K.el('text', { x: st.x0 - 8, y: cy + 4, 'text-anchor': 'end', 'font-size': 11, fill: palette.dim, text: truncate(row.label, 26) }, st.g)
+      const a = K.el('circle', { cx: x(row.before), cy, r: 5.5, fill: beforeColor, style: { cursor: 'pointer' } }, st.g)
+      const b = K.el('circle', { cx: x(row.after), cy, r: 5.5, fill: afterColor, style: { cursor: 'pointer' } }, st.g)
+      const show = (which) => {
+        const value = which === 'before' ? row.before : row.after
+        const delta = row.after - row.before
+        ui.tooltip.show(x(value), cy - 8, `${escapeHtml(row.label)}<br>${which} <b>${(spec.format ?? K.fmt)(value)}</b><br>change ${delta >= 0 ? '+' : ''}${(spec.format ?? K.fmt)(delta)}`)
+      }
+      a.addEventListener('pointerenter', () => show('before'))
+      b.addEventListener('pointerenter', () => show('after'))
+      a.addEventListener('pointerleave', () => ui.tooltip.hide())
+      b.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? 'Hover either end for the values and the gap'
+    return () => {}
+  }
+
+  /**
+   * Slope: exactly two moments, one line per item. Direction is the colour.
+   */
+  function drawSlope(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const before = (spec.series?.[0]?.values ?? []).map(Number)
+    const after = (spec.series?.[1]?.values ?? []).map(Number)
+    if (labels.length === 0) return drawEmpty(ui)
+    const rows = labels.map((label, index) => ({ label, before: before[index], after: after[index] }))
+      .filter((row) => Number.isFinite(row.before) && Number.isFinite(row.after))
+    if (rows.length === 0) return drawEmpty(ui)
+    const all = rows.flatMap((row) => [row.before, row.after])
+    const [lo, hi] = K.extent(all)
+    const pad = (hi - lo) * 0.12 || 1
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? 300,
+      margin: { t: 18, r: 84, b: 42, l: 84 },
+      label: spec.title ?? 'slope chart',
+    })
+    const y = K.linear([lo - pad, hi + pad], [st.y0 + st.ph, st.y0])
+    const left = st.x0 + 14
+    const right = st.x0 + st.pw - 14
+    // A slope chart labels both ends of every line; numeric y ticks would
+    // collide with those row labels, so draw the grid without them.
+    y.ticks(5).forEach((value) => {
+      K.el('line', { x1: left, x2: right, y1: y(value), y2: y(value), stroke: palette.line, 'stroke-width': 0.6 }, st.g)
+    })
+    rows.forEach((row) => {
+      const up = row.after >= row.before
+      const color = up ? K.PALETTE[2] : K.PALETTE[1]
+      const line = K.el('line', { x1: left, y1: y(row.before), x2: right, y2: y(row.after), stroke: color, 'stroke-width': 2, 'stroke-linecap': 'round' }, st.g)
+      const a = K.el('circle', { cx: left, cy: y(row.before), r: 4, fill: color }, st.g)
+      const b = K.el('circle', { cx: right, cy: y(row.after), r: 4, fill: color }, st.g)
+      K.el('text', { x: left - 10, y: y(row.before) + 4, 'text-anchor': 'end', 'font-size': 11, fill: palette.dim, text: `${truncate(row.label, 16)} ${(spec.format ?? K.fmt)(row.before)}` }, st.g)
+      K.el('text', { x: right + 10, y: y(row.after) + 4, 'font-size': 11, fill: palette.dim, text: (spec.format ?? K.fmt)(row.after) }, st.g)
+      const show = () => ui.tooltip.show(right, y(row.after), `${escapeHtml(row.label)}<br>${(spec.format ?? K.fmt)(row.before)} → <b>${(spec.format ?? K.fmt)(row.after)}</b>`)
+      for (const node of [line, a, b]) {
+        node.addEventListener('pointerenter', show)
+        node.addEventListener('pointerleave', () => ui.tooltip.hide())
+      }
+    })
+    K.el('text', { x: left, y: st.y0 + st.ph + 24, 'text-anchor': 'middle', 'font-size': 11, fill: palette.faint, text: spec.beforeLabel ?? 'before' }, st.g)
+    K.el('text', { x: right, y: st.y0 + st.ph + 24, 'text-anchor': 'middle', 'font-size': 11, fill: palette.faint, text: spec.afterLabel ?? 'after' }, st.g)
+    ui.note.textContent = spec.hint ?? 'Hover a line for both values; colour is the direction of change'
+    return () => {}
+  }
+
+  /**
+   * Pareto: bars sorted long to short, with the cumulative share on the same
+   * 0–100% axis. The 80% rule is a reference line, not a second axis.
+   */
+  function drawPareto(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const values = (spec.series?.[0]?.values ?? []).map(Number)
+    const data = labels.map((label, index) => ({ label, value: values[index] }))
+      .filter((row) => Number.isFinite(row.value) && row.value >= 0)
+      .sort((a, b) => b.value - a.value)
+    if (data.length === 0) return drawEmpty(ui)
+    const total = K.sum(data.map((row) => row.value)) || 1
+    let cumulative = 0
+    const cumulativeAt = data.map((row) => { cumulative += row.value / total; return cumulative })
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? 300,
+      margin: { t: 16, r: 20, b: data.length > 7 ? 58 : 42, l: 52 },
+      label: spec.title ?? 'pareto chart',
+    })
+    const x = K.band(data.map((row) => row.label), [st.x0, st.x0 + st.pw], 0.32)
+    const y = K.linear([0, 1], [st.y0 + st.ph, st.y0])
+    K.gridY(st, y, { count: 5, color: palette.line, format: (value) => `${Math.round(value * 100)}%` })
+    K.axisX(st, x, { every: data.length > 10 ? Math.ceil(data.length / 10) : 1, rotate: data.length > 7 })
+    K.el('line', { x1: st.x0, x2: st.x0 + st.pw, y1: y(0.8), y2: y(0.8), stroke: palette.faint, 'stroke-dasharray': '4 4' }, st.g)
+    K.el('text', { x: st.x0 + st.pw - 2, y: y(0.8) - 5, 'text-anchor': 'end', 'font-size': 10.5, fill: palette.faint, text: '80%' }, st.g)
+    data.forEach((row, index) => {
+      const bar = K.el('rect', {
+        x: x(row.label), y: y(row.value / total), width: x.bw, height: Math.max(1, st.y0 + st.ph - y(row.value / total)),
+        fill: K.PALETTE[0], 'fill-opacity': 0.9, rx: 2,
+      }, st.g)
+      bar.addEventListener('pointerenter', () => {
+        ui.tooltip.show(x(row.label) + x.bw / 2, y(row.value / total), `${escapeHtml(row.label)}<br><b>${(spec.format ?? K.fmt)(row.value)}</b> · ${((row.value / total) * 100).toFixed(1)}%<br>cumulative ${(cumulativeAt[index] * 100).toFixed(1)}%`)
+      })
+      bar.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    const points = data.map((row, index) => [x(row.label) + x.bw / 2, y(cumulativeAt[index])])
+    K.el('path', { d: linePath(points), fill: 'none', stroke: K.PALETTE[1], 'stroke-width': 2 }, st.g)
+    points.forEach((point, index) => {
+      const dot = K.el('circle', { cx: point[0], cy: point[1], r: 3.5, fill: K.PALETTE[1] }, st.g)
+      dot.addEventListener('pointerenter', () => {
+        ui.tooltip.show(point[0], point[1], `${escapeHtml(data[index].label)}<br>cumulative <b>${(cumulativeAt[index] * 100).toFixed(1)}%</b>`)
+      })
+      dot.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? 'Hover a bar for its share, a point for the cumulative share'
+    return () => {}
+  }
+
+  /**
+   * Funnel: stage widths are the value relative to the largest stage. Labels
+   * live in a column on the right so a narrow final stage stays readable.
+   */
+  function drawFunnel(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const values = (spec.series?.[0]?.values ?? []).map(Number)
+    const data = labels.map((label, index) => ({ label, value: values[index] }))
+      .filter((row) => Number.isFinite(row.value) && row.value >= 0)
+    if (data.length === 0) return drawEmpty(ui)
+    const max = Math.max(...data.map((row) => row.value), 1)
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? Math.max(210, data.length * 54 + 26),
+      margin: { t: 12, r: 12, b: 12, l: 12 },
+      label: spec.title ?? 'funnel chart',
+    })
+    const center = st.x0 + st.pw * 0.33
+    const maxHalf = st.pw * 0.29
+    const step = st.ph / data.length
+    data.forEach((row, index) => {
+      const half = Math.max(0.008, row.value / max) * maxHalf
+      const next = index < data.length - 1 ? Math.max(0.008, data[index + 1].value / max) * maxHalf : half * 0.86
+      const top = st.y0 + index * step
+      const bottom = top + step - 3
+      const points = [
+        [center - half, top], [center + half, top],
+        [center + next, bottom], [center - next, bottom],
+      ]
+      const polygon = K.el('polygon', {
+        points: points.map((point) => point.join(',')).join(' '),
+        fill: K.PALETTE[index % K.PALETTE.length], 'fill-opacity': Math.max(0.45, 1 - index * 0.09),
+      }, st.g)
+      const labelX = st.x0 + st.pw * 0.7
+      K.el('text', { x: labelX, y: top + step / 2 - 2, 'font-size': 12, fill: palette.text, text: `${row.label} ${(spec.format ?? K.fmt)(row.value)}` }, st.g)
+      if (index > 0) {
+        const rate = data[index - 1].value === 0 ? 0 : Math.round((row.value / data[index - 1].value) * 100)
+        K.el('text', { x: labelX, y: top + step / 2 + 14, 'font-size': 10.5, fill: palette.faint, text: `${rate}% of previous` }, st.g)
+      }
+      polygon.addEventListener('pointerenter', () => {
+        ui.tooltip.show(center, top, `${escapeHtml(row.label)}<br><b>${(spec.format ?? K.fmt)(row.value)}</b>`)
+      })
+      polygon.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? 'Hover a stage for its value'
+    return () => {}
+  }
+
+  /**
+   * Bullet: one value against a target and qualitative ranges. The value bar is
+   * thinner than the bands so all three layers remain visible.
+   */
+  function drawBullet(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const values = (spec.series?.[0]?.values ?? []).map(Number)
+    const targets = Array.isArray(spec.targets) ? spec.targets.map(Number) : []
+    const rows = labels.map((label, index) => ({ label, value: values[index], target: targets[index] }))
+      .filter((row) => Number.isFinite(row.value))
+    if (rows.length === 0) return drawEmpty(ui)
+    const top = Math.max(...rows.map((row) => Math.max(row.value, Number.isFinite(row.target) ? row.target : 0)), 1) * 1.05
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? Math.max(170, rows.length * 48 + 54),
+      margin: { t: 14, r: 22, b: 30, l: Math.min(190, Math.max(88, longest(rows.map((row) => row.label)) * 6.6)) },
+      label: spec.title ?? 'bullet chart',
+    })
+    const x = K.linear([0, top], [st.x0, st.x0 + st.pw])
+    const y = K.band(rows.map((row) => row.label), [st.y0, st.y0 + st.ph], 0.34)
+    x.ticks(5).forEach((value) => {
+      K.el('line', { x1: x(value), x2: x(value), y1: st.y0, y2: st.y0 + st.ph, stroke: palette.line, 'stroke-width': 0.6 }, st.g)
+    })
+    K.axisXLinear(st, x, { count: 5 })
+    const ranges = (Array.isArray(spec.ranges) && spec.ranges.length === 3 ? spec.ranges.map(Number) : [top * 0.6, top * 0.85, top])
+      .map((value) => K.clamp(Number.isFinite(value) ? value : top, 0, top))
+    rows.forEach((row) => {
+      const cy = y(row.label) + y.bw / 2
+      K.el('rect', { x: st.x0, y: y(row.label), width: x(ranges[2]) - st.x0, height: y.bw, fill: palette.line, 'fill-opacity': 0.55, rx: 2 }, st.g)
+      K.el('rect', { x: st.x0, y: y(row.label), width: x(ranges[1]) - st.x0, height: y.bw, fill: palette.line, 'fill-opacity': 0.9, rx: 2 }, st.g)
+      K.el('rect', { x: st.x0, y: y(row.label), width: x(ranges[0]) - st.x0, height: y.bw, fill: palette.faint, 'fill-opacity': 0.35, rx: 2 }, st.g)
+      const bar = K.el('rect', { x: st.x0, y: cy - y.bw / 6, width: Math.max(1, x(row.value) - st.x0), height: y.bw / 3, fill: K.PALETTE[0], rx: 1.5 }, st.g)
+      if (Number.isFinite(row.target)) {
+        K.el('line', { x1: x(row.target), x2: x(row.target), y1: y(row.label) + 2, y2: y(row.label) + y.bw - 2, stroke: palette.text, 'stroke-width': 2.5 }, st.g)
+      }
+      K.el('text', { x: st.x0 - 8, y: cy + 4, 'text-anchor': 'end', 'font-size': 11, fill: palette.dim, text: truncate(row.label, 26) }, st.g)
+      bar.addEventListener('pointerenter', () => {
+        ui.tooltip.show(x(row.value), cy, `${escapeHtml(row.label)}<br>value <b>${(spec.format ?? K.fmt)(row.value)}</b>${Number.isFinite(row.target) ? `<br>target ${(spec.format ?? K.fmt)(row.target)}` : ''}`)
+      })
+      bar.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? 'Hover a bar for the value and target'
+    return () => {}
+  }
+
+  /**
+   * Density: a kernel estimate per group on one shared value axis. A histogram
+   * shows the bins; this shows the shape without committing to a bin width.
+   */
+  function drawDensity(host, spec, ui, state) {
+    const palette = K.theme(host)
+    const all = densitySeries(spec)
+    const series = all.filter((entry) => state.hidden[entry.name] !== true && entry.values.length > 1)
+    if (series.length === 0) return drawEmpty(ui)
+    const values = series.flatMap((entry) => entry.values)
+    const [lo0, hi0] = K.extent(values)
+    const pad = (hi0 - lo0) * 0.06 || 1
+    const lo = lo0 - pad
+    const hi = hi0 + pad
+    const xs = seriesRange(lo, hi, 140)
+    const curves = series.map((entry) => {
+      const bw = bandwidthOf(entry.values)
+      return { entry, ys: xs.map((value) => kdeOf(entry.values, bw, value)) }
+    })
+    const max = Math.max(...curves.flatMap((curve) => curve.ys)) * 1.08 || 1
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? 300,
+      margin: { t: 16, r: 18, b: 40, l: 54 },
+      label: spec.title ?? 'density plot',
+    })
+    const x = K.linear([lo, hi], [st.x0, st.x0 + st.pw])
+    const y = K.linear([0, max], [st.y0 + st.ph, st.y0])
+    K.gridY(st, y, { count: 4, color: palette.line, format: (value) => value.toFixed(2) })
+    K.axisXLinear(st, x, { count: 6 })
+    curves.forEach((curve) => {
+      const points = xs.map((value, index) => [x(value), y(curve.ys[index])])
+      const area = `${linePath(points)} L${x(hi).toFixed(1)},${(st.y0 + st.ph).toFixed(1)} L${x(lo).toFixed(1)},${(st.y0 + st.ph).toFixed(1)} Z`
+      K.el('path', { d: area, fill: curve.entry.color, 'fill-opacity': 0.16, stroke: 'none' }, st.g)
+      K.el('path', { d: linePath(points), fill: 'none', stroke: curve.entry.color, 'stroke-width': 2 }, st.g)
+    })
+    if (all.length > 1) {
+      K.legend(ui.head, all.map((entry) => ({ name: entry.name, color: entry.color, on: state.hidden[entry.name] !== true })), (name, on) => {
+        if (on) delete state.hidden[name]
+        else state.hidden[name] = true
+        rerender(host, spec, ui, state)
+      })
+    }
+    const move = (event) => {
+      const rect = st.svg.getBoundingClientRect()
+      const scale = 680 / (rect.width || 680)
+      const px = (event.clientX - rect.left) * scale
+      if (px < st.x0 || px > st.x0 + st.pw) { ui.tooltip.hide(); return }
+      const value = x.invert(px)
+      const lines = curves.map((curve) => `<span style="color:${curve.entry.color}">●</span> ${escapeHtml(curve.entry.name)} <b>${kdeOf(curve.entry.values, bandwidthOf(curve.entry.values), value).toFixed(3)}</b>`)
+      ui.tooltip.show(px, st.y0 + 12, `${(spec.format ?? K.fmt)(value)}<br>${lines.join('<br>')}`)
+    }
+    st.svg.addEventListener('pointermove', move)
+    st.svg.addEventListener('pointerleave', () => ui.tooltip.hide())
+    ui.note.textContent = spec.hint ?? 'Hover for the estimated density at a value'
+    return () => { st.svg.removeEventListener('pointermove', move) }
+  }
+
+  /**
+   * ECDF: the share of observations at or below each value. No bins, so two
+   * groups compare without choosing a bin width.
+   */
+  function drawEcdf(host, spec, ui, state) {
+    const palette = K.theme(host)
+    const all = densitySeries(spec).map((entry) => ({ ...entry, values: unitSorted(entry.values) }))
+    const series = all.filter((entry) => state.hidden[entry.name] !== true && entry.values.length > 0)
+    if (series.length === 0) return drawEmpty(ui)
+    const values = series.flatMap((entry) => entry.values)
+    const [lo0, hi0] = K.extent(values)
+    const pad = (hi0 - lo0) * 0.04 || 1
+    const lo = lo0 - pad
+    const hi = hi0 + pad
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? 300,
+      margin: { t: 16, r: 18, b: 40, l: 54 },
+      label: spec.title ?? 'ecdf plot',
+    })
+    const x = K.linear([lo, hi], [st.x0, st.x0 + st.pw])
+    const y = K.linear([0, 1], [st.y0 + st.ph, st.y0])
+    K.gridY(st, y, { count: 5, color: palette.line, format: (value) => `${Math.round(value * 100)}%` })
+    K.axisXLinear(st, x, { count: 6 })
+    series.forEach((entry) => {
+      const sorted = entry.values
+      const n = sorted.length
+      let d = `M${x(sorted[0]).toFixed(1)},${y(0).toFixed(1)}`
+      sorted.forEach((value, index) => {
+        d += `L${x(value).toFixed(1)},${y(index / n).toFixed(1)}L${x(value).toFixed(1)},${y((index + 1) / n).toFixed(1)}`
+      })
+      d += `L${x(sorted[n - 1]).toFixed(1)},${y(1).toFixed(1)}`
+      K.el('path', { d, fill: 'none', stroke: entry.color, 'stroke-width': 2 }, st.g)
+    })
+    if (all.length > 1) {
+      K.legend(ui.head, all.map((entry) => ({ name: entry.name, color: entry.color, on: state.hidden[entry.name] !== true })), (name, on) => {
+        if (on) delete state.hidden[name]
+        else state.hidden[name] = true
+        rerender(host, spec, ui, state)
+      })
+    }
+    const move = (event) => {
+      const rect = st.svg.getBoundingClientRect()
+      const scale = 680 / (rect.width || 680)
+      const px = (event.clientX - rect.left) * scale
+      if (px < st.x0 || px > st.x0 + st.pw) { ui.tooltip.hide(); return }
+      const value = x.invert(px)
+      const lines = series.map((entry) => {
+        const share = entry.values.filter((item) => item <= value).length / entry.values.length
+        return `<span style="color:${entry.color}">●</span> ${escapeHtml(entry.name)} <b>${(share * 100).toFixed(1)}%</b>`
+      })
+      ui.tooltip.show(px, st.y0 + 12, `${(spec.format ?? K.fmt)(value)}<br>${lines.join('<br>')}`)
+    }
+    st.svg.addEventListener('pointermove', move)
+    st.svg.addEventListener('pointerleave', () => ui.tooltip.hide())
+    ui.note.textContent = spec.hint ?? 'Hover for the share at or below a value'
+    return () => { st.svg.removeEventListener('pointermove', move) }
+  }
+
+  /**
+   * Violin: the full shape of each group, mirrored around its band, with a
+   * narrow box and median inside. Bimodality shows here; a box hides it.
+   */
+  function drawViolin(host, spec, ui) {
+    const palette = K.theme(host)
+    const groups = densitySeries(spec).filter((entry) => entry.values.length > 0)
+    if (groups.length === 0) return drawEmpty(ui)
+    const all = groups.flatMap((group) => group.values)
+    const [lo0, hi0] = K.extent(all)
+    const pad = (hi0 - lo0) * 0.06 || 1
+    const lo = lo0 - pad
+    const hi = hi0 + pad
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? 300,
+      margin: { t: 16, r: 18, b: 44, l: 50 },
+      label: spec.title ?? 'violin plot',
+    })
+    const x = K.band(groups.map((group) => group.name), [st.x0, st.x0 + st.pw], 0.32)
+    const y = K.linear([lo, hi], [st.y0 + st.ph, st.y0])
+    K.gridY(st, y, { count: 5, color: palette.line })
+    K.axisX(st, x)
+    groups.forEach((group) => {
+      const sorted = unitSorted(group.values)
+      const min = sorted[0]
+      const max = sorted[sorted.length - 1]
+      const ys = seriesRange(min, max, 70)
+      const bw = bandwidthOf(sorted)
+      const density = ys.map((value) => kdeOf(sorted, bw, value))
+      const peak = Math.max(...density) || 1
+      const half = x.bw / 2
+      const center = x(group.name) + half
+      const right = ys.map((value, index) => [center + (density[index] / peak) * half, y(value)])
+      const left = ys.map((value, index) => [center - (density[index] / peak) * half, y(value)]).reverse()
+      const shape = K.el('path', { d: `${linePath(right.concat(left))} Z`, fill: group.color, 'fill-opacity': 0.24, stroke: group.color, 'stroke-width': 1.5 }, st.g)
+      const q1 = quantileOf(sorted, 0.25)
+      const median = quantileOf(sorted, 0.5)
+      const q3 = quantileOf(sorted, 0.75)
+      K.el('rect', { x: center - 4, y: y(q3), width: 8, height: Math.max(1, y(q1) - y(q3)), fill: group.color, 'fill-opacity': 0.55 }, st.g)
+      K.el('line', { x1: center - 7, x2: center + 7, y1: y(median), y2: y(median), stroke: palette.surface, 'stroke-width': 2 }, st.g)
+      shape.addEventListener('pointerenter', () => {
+        ui.tooltip.show(center, y(q3), `${escapeHtml(group.name)}<br>median <b>${(spec.format ?? K.fmt)(median)}</b><br>IQR ${(spec.format ?? K.fmt)(q1)}–${(spec.format ?? K.fmt)(q3)}<br>n = ${sorted.length}`)
+      })
+      shape.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? 'Hover a violin for median, IQR and n'
     return () => {}
   }
 
@@ -603,6 +1076,65 @@
     return text.length <= max ? text : `${text.slice(0, max - 1)}…`
   }
 
+  /** Distribution specs carry raw observations in `series[].values`. */
+  function densitySeries(spec) {
+    const list = Array.isArray(spec.series)
+      ? spec.series
+      : Array.isArray(spec.values) ? [{ name: spec.name ?? spec.title ?? 'Values', values: spec.values }] : []
+    return list.map((entry, index) => ({
+      name: String(entry?.name ?? `Series ${index + 1}`),
+      color: entry?.color ?? K.PALETTE[index % K.PALETTE.length],
+      values: (entry?.values ?? entry?.data ?? []).map(Number).filter(Number.isFinite),
+    })).filter((entry) => entry.values.length > 0)
+  }
+
+  /** Sorted copy without mutating the spec. */
+  function unitSorted(values) {
+    return [...values].sort((a, b) => a - b)
+  }
+
+  /** Linear-interpolated quantile, matching the box-plot definition. */
+  function quantileOf(sorted, probability) {
+    const position = (sorted.length - 1) * probability
+    const base = Math.floor(position)
+    const rest = position - base
+    return sorted[base + 1] !== undefined
+      ? sorted[base] + rest * (sorted[base + 1] - sorted[base])
+      : sorted[base]
+  }
+
+  function meanOf(values) {
+    return K.sum(values) / (values.length || 1)
+  }
+
+  function sdOf(values) {
+    const mean = meanOf(values)
+    return Math.sqrt(K.sum(values.map((value) => (value - mean) ** 2)) / Math.max(1, values.length - 1))
+  }
+
+  /** Silverman's rule; a flat group still needs a positive width. */
+  function bandwidthOf(values) {
+    const width = 1.06 * sdOf(values) * Math.pow(values.length || 1, -0.2)
+    return Number.isFinite(width) && width > 0 ? width : 1
+  }
+
+  function kdeOf(values, bandwidth, at) {
+    const n = values.length || 1
+    const total = K.sum(values.map((value) => Math.exp(-0.5 * ((at - value) / bandwidth) ** 2)))
+    return total / (n * bandwidth * Math.sqrt(2 * Math.PI))
+  }
+
+  /** Evenly spaced samples, including both ends. */
+  function seriesRange(lo, hi, count) {
+    if (count <= 1 || hi === lo) return Array.from({ length: Math.max(2, count) }, () => lo)
+    return Array.from({ length: count }, (_, index) => lo + ((hi - lo) * index) / (count - 1))
+  }
+
+  /** An SVG path through [x, y] points, with stable decimals. */
+  function linePath(points) {
+    return points.map((point, index) => `${index === 0 ? 'M' : 'L'}${Number(point[0]).toFixed(1)},${Number(point[1]).toFixed(1)}`).join(' ')
+  }
+
   function escapeHtml(text) {
     return String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
   }
@@ -626,6 +1158,8 @@
   const DRAW = {
     bar: drawBar, hbar: drawBar, stacked: drawStacked, line: drawLine, area: drawLine,
     scatter: drawScatter, hist: drawHist, box: drawBox, heat: drawHeat, donut: drawDonut, stat: drawStat,
+    waterfall: drawWaterfall, dumbbell: drawDumbbell, slope: drawSlope, pareto: drawPareto,
+    funnel: drawFunnel, bullet: drawBullet, density: drawDensity, ecdf: drawEcdf, violin: drawViolin,
   }
 
   /**

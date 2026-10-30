@@ -333,6 +333,51 @@
       ] },
     },
     {
+      id: 'waterfall-bridge', family: 'comparison', name: 'Waterfall bridge',
+      when: 'How a starting value becomes an end value through gains and losses; the running total is the spine.',
+      spec: { type: 'waterfall', title: 'Demo: from 100 to 147', labels: ['Start', 'New', 'Expansion', 'Churn', 'End'], series: [{ name: 'Change', values: [100, 40, 25, -18, 147] }], totals: [0, 4], height: 280, hint: 'Hover a bar for the change and the running total' },
+    },
+    {
+      id: 'dumbbell-skills', family: 'comparison', name: 'Dumbbell before / after',
+      when: 'Two moments per item; the gap is the finding. Sort by gap so the biggest change leads.',
+      spec: { type: 'dumbbell', title: 'Demo: score before and after', labels: ['Maths', 'Stats', 'Coding', 'ML'], series: [{ name: 'Before', values: [52, 60, 45, 38] }, { name: 'After', values: [71, 78, 83, 66] }], sort: 'gap', height: 260, hint: 'Hover either end for the values and the gap' },
+    },
+    {
+      id: 'slope-cohorts', family: 'comparison', name: 'Slope chart',
+      when: 'Exactly two moments, one line per item; the direction of change is the message.',
+      spec: { type: 'slope', title: 'Demo: before vs after', labels: ['A', 'B', 'C', 'D'], series: [{ name: 'Before', values: [30, 50, 22, 65] }, { name: 'After', values: [55, 42, 60, 48] }], height: 290, hint: 'Hover a line for both values' },
+    },
+    {
+      id: 'pareto-causes', family: 'comparison', name: 'Pareto chart',
+      when: 'The few causes that explain most of the total. Bars are shares; the line is cumulative.',
+      spec: { type: 'pareto', title: 'Demo: where the defects come from', labels: ['Bugs', 'Perf', 'UX', 'Docs', 'Other'], series: [{ name: 'Defects', values: [48, 27, 14, 8, 3] }], height: 290, hint: 'Hover a bar for its share, a point for the cumulative share' },
+    },
+    {
+      id: 'funnel-signups', family: 'comparison', name: 'Funnel',
+      when: 'Stages where each step loses some of the previous one; conversion is the reading.',
+      spec: { type: 'funnel', title: 'Demo: from visit to paid', labels: ['Visits', 'Signups', 'Trials', 'Paid'], series: [{ name: 'People', values: [1000, 420, 180, 60] }], height: 250, hint: 'Hover a stage for its value' },
+    },
+    {
+      id: 'bullet-kpis', family: 'comparison', name: 'Bullet chart',
+      when: 'One value against a target, with qualitative bands. Compact enough for a KPI panel.',
+      spec: { type: 'bullet', title: 'Demo: value against target', labels: ['Revenue', 'Profit', 'Retention'], series: [{ name: 'Actual', values: [72, 45, 88] }], targets: [80, 60, 75], height: 220, hint: 'Hover a bar for the value and target' },
+    },
+    {
+      id: 'density-groups', family: 'distribution', name: 'Density overlay',
+      when: 'Compare two distributions without choosing a bin width; the overlap is the finding.',
+      spec: { type: 'density', title: 'Demo: quiz score by condition', series: [{ name: 'Control', values: scoreGroups[0].values }, { name: 'Tutor', values: scoreGroups[1].values }], height: 290, hint: 'Hover for the estimated density at a value' },
+    },
+    {
+      id: 'ecdf-groups', family: 'distribution', name: 'ECDF comparison',
+      when: 'Read percentiles directly; the vertical gap between curves is the difference at that value.',
+      spec: { type: 'ecdf', title: 'Demo: share scoring at or below', series: [{ name: 'Control', values: scoreGroups[0].values }, { name: 'Tutor', values: scoreGroups[1].values }], height: 290, hint: 'Hover for the share at or below a value' },
+    },
+    {
+      id: 'violin-groups', family: 'distribution', name: 'Violin plot',
+      when: 'Shape plus summary: bimodality and outliers show here where a box would hide them.',
+      spec: { type: 'violin', title: 'Demo: score shape by condition', series: [{ name: 'Control', values: scoreGroups[0].values }, { name: 'Tutor + quiz', values: scoreGroups[3].values }], height: 300, hint: 'Hover a violin for median, IQR and n' },
+    },
+    {
       id: 'scene-lorenz', family: 'motion', name: 'Lorenz attractor',
       when: 'A dynamical system where the shape is the answer. Drag to orbit; ρ reshapes the attractor.',
       scene: lorenz, orbit: true,

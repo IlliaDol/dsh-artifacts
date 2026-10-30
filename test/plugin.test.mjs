@@ -124,18 +124,23 @@ test('the tool creates, lists and exports an artifact', async () => {
   }
 });
 
-test('the tool rejects an invalid artifact with every reason at once', async () => {
+test('the tool rejects an invalid artifact with every reason it can report', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'dsh-artifacts-reject-'));
   try {
     const { ctx, log } = fakeContext(directory);
     apply(ctx, { directory });
     await new Promise((resolve) => setTimeout(resolve, 60));
     const tool = log.tools[0];
+    const content = JSON.stringify({
+      type: 'bar',
+      labels: ['a'],
+      series: [{ name: 'S', values: [1, 2] }, { name: 'T' }],
+    });
     await assert.rejects(
-      () => tool.execute({ action: 'create', kind: 'chart', title: 'Bad', content: '{"type":"pie"}' }),
+      () => tool.execute({ action: 'create', kind: 'chart', title: 'Bad', content }),
       (error) => {
-        assert.match(error.message, /chart\.type/u);
-        assert.match(error.message, /series/u);
+        assert.match(error.message, /one label per value/u);
+        assert.match(error.message, /series\[1\] needs values/u);
         return true;
       },
     );

@@ -75,21 +75,49 @@ per-viewer state.
 ```
 
 `type` is one of `line`, `area`, `bar`, `hbar`, `stacked`, `scatter`, `donut`,
-`hist`, `box`.
+`hist`, `box`, `density`, `ecdf`, `violin`, `heat`, `stat`, `waterfall`,
+`dumbbell`, `slope`, `pareto`, `funnel`, `bullet`.
+
+Most forms take `labels` and `series:[{name, values}]`. The exceptions:
+
+- `dumbbell` and `slope` need exactly two series: before, then after.
+- `heat` takes `rows`, `cols` and a `values` matrix (numbers or null).
+- `stat` takes `items:[{label, value, delta?}]`.
+- `bullet` takes one series and an optional `targets` array, one per label.
+- `waterfall`, `pareto` and `funnel` read the first series.
+- `density`, `ecdf` and `violin` read raw observations from each series'
+  `values`; they do not need labels.
+- `hist` and `box` also read raw observations; `scatter` takes
+  `points:[{x,y}]` and ignores `labels`.
 
 Rules: one y-axis; ≤8 series (the palette has eight, never cycled); ≤2000
-points; scatter uses `points:[{x,y}]` and ignores `labels`; `donut` uses the
-first series; `hist` and `box` read raw observations from `values` and do not
-need labels. A data table is rendered under the chart for accessibility.
+points; `pareto` and `funnel` need non-negative values; a heatmap is limited to
+4,000 cells. A data table is rendered under the chart for accessibility.
 
 Every chart is interactive without extra work: hover for values, click to
 isolate, legend to toggle, a bin slider on histograms, drag-to-zoom on lines and
 areas. Do not describe those controls in prose — write what the shape means.
 
-Pick the form from the question: distribution → `hist` or `box`; comparison →
-`bar` / `hbar`; change → `line`; parts → `stacked` or `donut`; relationship →
-`scatter`. Draw when the picture carries information the prose cannot, even when
-the user did not say "chart".
+Pick the form from the question, not from habit:
+
+| The question | Use |
+| --- | --- |
+| Compare categories | `bar`, `hbar` (long names or many rows) |
+| Parts of each total | `stacked`; `donut` for five slices or fewer |
+| Two moments per item | `dumbbell` (gap) or `slope` (direction) |
+| A start becoming an end | `waterfall` |
+| The few causes that dominate | `pareto` |
+| Loss through stages | `funnel` |
+| One value against a target | `bullet` |
+| Shape of one variable | `hist`; `density` removes the bin-width choice |
+| Compare distributions | `box` (summary), `violin` (shape), `ecdf` (percentiles) |
+| Two variables | `scatter` |
+| Change over time | `line`; `area` when magnitude matters |
+| Two categorical axes | `heat` |
+| The headline number | `stat` |
+
+Draw when the picture carries information the prose cannot, even when the user
+did not say "chart". Full chooser and design rules: [docs/COOKBOOK.md](docs/COOKBOOK.md).
 
 ### cards
 

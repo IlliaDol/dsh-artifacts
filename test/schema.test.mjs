@@ -55,6 +55,53 @@ test('chart labels must match the first series', () => {
   assert.match(verdict.errors.join(' '), /one label per value/u);
 });
 
+test('every chart form is accepted with its own shape', () => {
+  const base = (type, extra = {}) => ({ type, labels: ['a', 'b'], series: [{ name: 'S', values: [1, 2] }], ...extra });
+  const sources = {
+    line: base('line'),
+    area: base('area'),
+    bar: base('bar'),
+    hbar: base('hbar'),
+    stacked: base('stacked', { series: [{ name: 'S', values: [1, 2] }, { name: 'T', values: [2, 1] }] }),
+    donut: base('donut'),
+    waterfall: base('waterfall', { totals: [0, 1] }),
+    pareto: base('pareto'),
+    funnel: base('funnel'),
+    bullet: base('bullet', { targets: [2, 3] }),
+    dumbbell: base('dumbbell', { series: [{ name: 'Before', values: [1, 2] }, { name: 'After', values: [2, 3] }] }),
+    slope: base('slope', { series: [{ name: 'Before', values: [1, 2] }, { name: 'After', values: [2, 3] }] }),
+    scatter: { type: 'scatter', series: [{ name: 'S', points: [{ x: 1, y: 2 }, { x: 2, y: 3 }] }] },
+    hist: { type: 'hist', series: [{ name: 'S', values: [1, 2, 3] }] },
+    box: { type: 'box', series: [{ name: 'S', values: [1, 2, 3] }] },
+    density: { type: 'density', series: [{ name: 'S', values: [1, 2, 3] }] },
+    ecdf: { type: 'ecdf', series: [{ name: 'S', values: [1, 2, 3] }] },
+    violin: { type: 'violin', series: [{ name: 'S', values: [1, 2, 3] }] },
+    heat: { type: 'heat', rows: ['a', 'b'], cols: ['x', 'y'], values: [[1, 2], [3, null]] },
+    stat: { type: 'stat', items: [{ label: 'Sessions', value: '1.8k' }, { label: 'Churn', value: '2%' }] },
+  };
+  for (const [type, spec] of Object.entries(sources)) {
+    const verdict = validate({ kind: 'chart', title: `A ${type}`, content: JSON.stringify(spec) });
+    assert.equal(verdict.ok, true, `${type}: ${verdict.errors.join('; ')}`);
+    assert.equal(verdict.artifact.kind, 'chart');
+  }
+});
+
+test('chart forms reject the shapes they cannot draw', () => {
+  const twoSeriesForm = (type, series) => validate({
+    kind: 'chart', title: type, content: JSON.stringify({ type, labels: ['a', 'b'], series }),
+  });
+  assert.equal(twoSeriesForm('dumbbell', [{ name: 'Before', values: [1, 2] }]).ok, false);
+  assert.equal(twoSeriesForm('slope', [{ name: 'Before', values: [1, 2] }, { name: 'After', values: [2] }]).ok, false);
+  const negative = validate({ kind: 'chart', title: 'p', content: JSON.stringify({ type: 'pareto', labels: ['a'], series: [{ name: 'S', values: [-1] }] }) });
+  assert.equal(negative.ok, false);
+  const badTargets = validate({ kind: 'chart', title: 'b', content: JSON.stringify({ type: 'bullet', labels: ['a', 'b'], series: [{ name: 'S', values: [1, 2] }], targets: [1] }) });
+  assert.equal(badTargets.ok, false);
+  const badHeat = validate({ kind: 'chart', title: 'h', content: JSON.stringify({ type: 'heat', rows: ['a'], cols: ['x', 'y'], values: [[1]] }) });
+  assert.equal(badHeat.ok, false);
+  const shortDensity = validate({ kind: 'chart', title: 'd', content: JSON.stringify({ type: 'density', series: [{ name: 'S', values: [1] }] }) });
+  assert.equal(shortDensity.ok, false);
+});
+
 test('chart series ceiling is enforced', () => {
   const series = Array.from({ length: 13 }, (_value, index) => ({ name: `S${index}`, values: [1] }));
   const verdict = validate({ kind: 'chart', title: 'x', content: JSON.stringify({ type: 'line', labels: ['a'], series }) });

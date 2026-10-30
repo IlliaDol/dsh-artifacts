@@ -74,7 +74,7 @@ default). The gallery is the index; every artifact has **Open**, **Source** and
 | Kind | Renders | Dynamic | Exports |
 | --- | --- | --- | --- |
 | `widget` | inline HTML fragment or SVG | yes | html |
-| `chart` | line / area / bar / hbar / stacked / scatter / donut / hist / box | hover, click, legend, bin slider, drag-zoom | html, csv, json, xlsx |
+| `chart` | 20 forms: line / area / bar / hbar / stacked / scatter / donut / hist / box / density / ecdf / violin / heat / stat / waterfall / dumbbell / slope / pareto / funnel / bullet | hover, click, legend, bin slider, drag-zoom | html, csv, json, xlsx |
 | `cards` | recipe, itinerary, quiz, steps, compare, metric, profile, weather, translation, message | quiz scores locally | html, json, csv |
 | `page` | full published document | yes | html, pdf |
 | `slides` | 16:9 deck, arrow-key paging, print pagination | paging | html, pptx, md, pdf |
@@ -107,6 +107,21 @@ inside the sandbox with the network blocked.
 [gallery.html](gallery.html) is the live surface for the same recipes — open it
 directly, or `node scripts/serve-gallery.mjs 8777`. [PROMPT.md](PROMPT.md) is the
 master prompt that rebuilds or extends this material in one go.
+
+## The cookbook, now in the renderer
+
+The twenty forms are not a list of chart names: they are the questions from the
+visualisation cookbook, each with the interaction it needs. `waterfall` shows a
+running total, `dumbbell` and `slope` show two moments per item, `pareto` puts
+the cumulative share on the same 0–100% axis, `funnel` keeps narrow stages
+readable, `bullet` puts a value against a target, and `density`, `ecdf` and
+`violin` compare distributions without hiding the shape behind a box.
+
+[docs/COOKBOOK.md](docs/COOKBOOK.md) is the chooser: which form answers which
+question, the design rules every chart follows, and the four composition
+patterns (layering, small multiples, linked views, annotation). The model reads
+the same rules in [SKILL.md](SKILL.md), so the artifact and the gallery stay in
+step.
 
 ## How it works
 
@@ -146,7 +161,7 @@ print dialog, not a PDF writer.
 ## Development
 
 ```sh
-npm test        # 47 unit tests: schema, markdown, zip/OOXML, store, renderers
+npm test        # 60 unit tests: schema, markdown, zip/OOXML, store, renderers
 npm run check   # tests + package-shape checks
 npm run render  # write examples/ for a visual check
 ```

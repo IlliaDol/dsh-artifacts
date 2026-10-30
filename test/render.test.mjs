@@ -68,11 +68,24 @@ test('every chart form the schema accepts reaches the kit', () => {
     { type: 'box', labels: [], series: [{ name: 'S', values: [1, 2, 2, 3, 5, 8] }] },
     { type: 'donut', labels: ['a', 'b'], series: [{ name: 'S', values: [1, 2] }] },
     { type: 'scatter', series: [{ name: 'S', points: [{ x: 1, y: 2 }] }] },
+    { type: 'waterfall', labels: ['a', 'b', 'c'], series: [{ name: 'S', values: [10, 5, 15] }], totals: [0, 2] },
+    { type: 'dumbbell', labels: ['a', 'b'], series: [{ name: 'Before', values: [1, 2] }, { name: 'After', values: [2, 4] }] },
+    { type: 'slope', labels: ['a', 'b'], series: [{ name: 'Before', values: [1, 2] }, { name: 'After', values: [2, 1] }] },
+    { type: 'pareto', labels: ['a', 'b'], series: [{ name: 'S', values: [8, 2] }] },
+    { type: 'funnel', labels: ['a', 'b'], series: [{ name: 'S', values: [10, 4] }] },
+    { type: 'bullet', labels: ['a', 'b'], series: [{ name: 'S', values: [6, 8] }], targets: [7, 7] },
+    { type: 'density', series: [{ name: 'S', values: [1, 2, 3, 4] }] },
+    { type: 'ecdf', series: [{ name: 'S', values: [1, 2, 3, 4] }] },
+    { type: 'violin', series: [{ name: 'S', values: [1, 2, 3, 4] }] },
+    { type: 'heat', rows: ['r'], cols: ['a', 'b'], values: [[1, 2]] },
+    { type: 'stat', items: [{ label: 'Sessions', value: '1.8k' }, { label: 'Churn', value: '2%' }] },
   ];
   for (const spec of forms) {
     const { data, html } = renderArtifact(artifact('chart', JSON.stringify(spec)));
     assert.equal(data.type, spec.type);
     assert.match(html, /VC\.render\(host/u, spec.type);
+    assert.match(html, new RegExp(`"type":"${spec.type}"`, 'u'), spec.type);
+    assert.match(html, /<details class="data">/u, `${spec.type} data table`);
   }
 });
 

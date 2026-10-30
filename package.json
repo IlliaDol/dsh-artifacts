@@ -1,7 +1,7 @@
 {
   "name": "dsh-artifacts",
-  "version": "0.3.0",
-  "description": "One generative-UI plugin for DeepSeek Harness: inline widgets, charts, cards, published pages, slides, a design canvas, docs and downloadable files. Merges the protocols of dsh-genui, dsh-visualize and dsh-generative-ui into a single artifact surface.",
+  "version": "0.4.0",
+  "description": "One generative-UI plugin for DeepSeek Harness: inline widgets, native charts, the 164-recipe visualization cookbook, cards, published pages, slides, a design canvas, docs and downloadable files. Merges the protocols of dsh-genui, dsh-visualize and dsh-generative-ui into a single artifact surface.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -13,6 +13,7 @@
   "files": [
     "lib",
     "kit",
+    "cookbook",
     "recipes",
     "docs",
     "examples",
@@ -70,6 +71,7 @@
     "check": "node --test \"test/*.test.mjs\" && node scripts/check-package.mjs",
     "render": "node scripts/render-example.mjs",
     "build:kit": "node scripts/build-kit.mjs",
+    "build:cookbook": "node scripts/build-cookbook.mjs",
     "gallery": "node scripts/serve-gallery.mjs 8777"
   }
 }

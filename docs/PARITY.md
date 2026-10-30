@@ -17,6 +17,7 @@ be read before trusting a claim in the README.
 | Editable docs, export to Word/PDF/Markdown | `doc`, `docx`/print/`md` exports |
 | Downloadable Word/Excel/PowerPoint/PDF/CSV | `export` and `file` |
 | Native line/bar/scatter charts | `chart` |
+| A large library of prepared visual forms | 164 `recipe` artifacts + `/cookbook` gallery |
 | Native cards (recipe, itinerary, quiz, steps, comparison, …) | `cards` |
 | Strict design system, sentence case, 400/500 weights, no gradients | token sheet + prompt + skill |
 | CSS theme variables that follow light/dark | `--text`, `--surface`, … plus `data-theme` flips from the host |
@@ -31,7 +32,7 @@ be read before trusting a claim in the README.
 | Artifact picker / gallery UI inside the chat | `/plugins/dsh-artifacts/gallery` | Another tab, not a chat panel |
 | Streaming render while the model types | Renders when the tool call settles; fences render when the fence closes | No partial widget; a half-written JSON spec is never shown |
 | React/TSX artifacts | `widget`/`page` with markup | No hooks, no npm imports inside the artifact |
-| Native chart interactivity (zoom, brush) | Chart.js hover tooltips | No zoom/brush |
+| Native chart interactivity | bundled kit: hover, click-to-isolate, legend toggle, bin slider, drag-to-zoom | No cross-chart brush in a native chart; `combo-linked` is the recipe |
 | PDF generated server-side | Browser print dialog | Pagination follows print CSS; no headless PDF engine |
 | Editable in-place docs | Source is editable via `update`; no rich-text editor | Round-trips are text |
 | Slides with images, notes, transitions | Text layouts; `image` accepts `data:` URIs only | No speaker notes export, no transitions |

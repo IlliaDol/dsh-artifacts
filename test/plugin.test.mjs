@@ -48,7 +48,7 @@ test('the plugin declares its name, required service and prompt', () => {
   assert.match(PROMPT, /dsh-artifact/u);
 });
 
-test('apply registers the prompt, one tool, one skill and four routes', async () => {
+test('apply registers the prompt, one tool, one skill and five routes', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'dsh-artifacts-plugin-'));
   try {
     const { ctx, log } = fakeContext(directory);
@@ -60,6 +60,7 @@ test('apply registers the prompt, one tool, one skill and four routes', async ()
     assert.equal(log.tools.length, 1);
     assert.equal(log.tools[0].name, 'artifact');
     assert.deepEqual(log.routes.map((route) => route.path).sort(), [
+      '/plugins/dsh-artifacts/cookbook',
       '/plugins/dsh-artifacts/export',
       '/plugins/dsh-artifacts/gallery',
       '/plugins/dsh-artifacts/source',
@@ -119,6 +120,20 @@ test('the tool creates, lists and exports an artifact', async () => {
 
     const text = tool.output.render({}, created);
     assert.match(text[0].text, /artifact created/u);
+
+    const exact = await tool.execute({ action: 'cookbook', recipe: 'qq' });
+    assert.equal(exact.recipe.id, 'qq');
+    assert.match(exact.recipe.code, /function draw\(host, K\)/u);
+    assert.match(tool.output.render({}, exact).at(-1).text, /function draw/u);
+    assert.equal(tool.output.presentationMeta({}, exact), undefined);
+
+    const listedRecipes = await tool.execute({ action: 'cookbook', family: 'distribution', limit: 3 });
+    assert.equal(listedRecipes.recipes.length, 3);
+    assert.equal(listedRecipes.recipes.every((entry) => entry.family === 'distribution'), true);
+
+    const recipe = await tool.execute({ action: 'create', kind: 'recipe', title: 'Q-Q', content: 'qq' });
+    assert.equal(recipe.kind, 'recipe');
+    assert.match(recipe.viewUrl, /\/view\?id=/u);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

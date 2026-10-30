@@ -50,12 +50,18 @@ half-written index. A missing or corrupt `index.json` is rebuilt by scanning
 | --- | --- |
 | `widget` | fragment in the shared shell; `<svg>` gets a centred wrapper |
 | `chart` | the bundled kit (`kit/charts.js`, embedded as `lib/kit.js`): SVG marks, pointer interaction, accessible fallback table |
+| `recipe` | the vendored cookbook pack (`cookbook/recipes*.js`) and its kit (`cookbook/viz-kit.js`): exact `fn(host, Kit)`, wrapped in its own scope |
 | `cards` | one of ten layouts, quiz scoring in-page |
 | `page` | the document as given, or a fragment in the page shell |
 | `slides` | 1280×720 stage, scale-to-fit, keyboard + print CSS |
 | `design` | absolutely placed artboards, each in a sandboxed iframe |
 | `doc` | Markdown → typographic reading surface, A4 print CSS |
 | `file` | no document; the export path writes the bytes |
+
+The cookbook's manifest (`cookbook/manifest.json`) is generated from the packs;
+`lib/cookbook.js` reads it lazily, searches it and loads one pack on demand. The
+`/cookbook` route serves the generated `cookbook/gallery.html`; it is not a
+second renderer.
 
 Every document carries `BRIDGE_SCRIPT` (`lib/theme.js`): height reporting,
 theme flips, `dshArtifact.send/prompt/open/state`. It is inert when the
@@ -68,6 +74,7 @@ document is opened as a standalone tab.
 | `GET /plugins/dsh-artifacts/view?id=` | rendered document, artifact CSP |
 | `GET /plugins/dsh-artifacts/source?id=` | the stored source, plain text |
 | `GET /plugins/dsh-artifacts/export?id=&format=` | attachment in one of eight formats |
+| `GET /plugins/dsh-artifacts/cookbook` | the generated 164-recipe gallery |
 | `GET /plugins/dsh-artifacts/gallery` | index of every artifact |
 
 `ARTIFACT_CSP` is `default-src 'none'` plus the asset allowlist. There is no

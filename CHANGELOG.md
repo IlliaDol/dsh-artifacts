@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.4.0 — 2026-10-30
+
+The 164-recipe cookbook becomes part of the plugin, not just its documentation.
+
+- **A ninth kind: `recipe`.** `content` is a cookbook id such as `"qq"` or
+  `{"id":"qq"}`; the renderer loads that recipe's own pack and calls its exact
+  `fn(host, Kit)`. The pack is wrapped in its own scope so top-level helpers
+  stay in the function's closure. No recipe code is retyped or paraphrased.
+- **The whole library is vendored** under `cookbook/`: 164 recipes in 15
+  families, the kit, 3D helpers, 18 guide chapters, 7 Python file-output scripts
+  and the standalone visual examples. `scripts/build-cookbook.mjs` generates
+  `manifest.json`, a self-contained `gallery.html`, and `docs/RECIPES.md`.
+- **The gallery is in the app**: `/plugins/dsh-artifacts/cookbook` with search,
+  family filters, code and copy. The plugin gallery links to it.
+- **The model can search the library**: `artifact` now has
+  `action:"cookbook"` with `recipe`, `family` and `limit`. An exact id returns
+  metadata **and** the exact code; a family or query returns metadata only.
+- **The cookbook kit is loaded in every widget frame** as `Kit` and `C3`, so a
+  copied recipe runs verbatim. `lib/kit.js` now embeds it; chart documents stay
+  lean and do not load it.
+- **Docs and prompt follow the new surface**: `docs/COOKBOOK.md` gains the
+  family map, recipe-vs-chart guidance, a statistics section on the log
+  transform and Shapiro–Wilk, and the full combination patterns.
+  `docs/ARTIFACT-TYPES.md`, `docs/PARITY.md`, `README.md` and `SKILL.md` list
+  nine kinds and the cookbook routes; `NOTICE` records provenance.
+- **Verified in a real browser**: all 164 recipes mounted in Chromium with zero
+  failures, 149 SVGs, 6 canvases, 9 HTML-only cards, no `NaN`/`undefined`/
+  `Infinity` attributes and no console errors. The `recipe` path was checked
+  separately for `qq`, `sankey`, `globe`, `lorenz` and `combo-layers`.
+- Tests: 63 pass (schema, render, markdown, OOXML, store, client and plugin),
+  plus the package-shape check and the 164-recipe manifest check.
+
 ## 0.3.0 — 2026-10-30
 
 The cookbook lands in the renderer. Every form below is drawn by the same

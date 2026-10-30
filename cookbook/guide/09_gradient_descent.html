@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive explainer: gradient descent</title>
+
+<style>
+:root{--text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#898781;--border:rgba(11,11,11,.12);--border-strong:rgba(11,11,11,.3);--surface-0:#ffffff;--surface-1:#f5f4f0;--surface-2:#ffffff;--bg-accent:#dbeafe;--text-accent:#1d4ed8;--text-danger:#b91c1c;--radius:8px;--font-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme: dark){:root{--text-primary:#f0efec;--text-secondary:#c3c2b7;--text-muted:#898781;--border:rgba(255,255,255,.12);--border-strong:rgba(255,255,255,.3);--surface-0:#1a1a19;--surface-1:#242422;--surface-2:#2c2c2a;--bg-accent:#1e3a5f;--text-accent:#93c5fd;--text-danger:#fca5a5}}
+body{font-family:var(--font-sans);background:var(--surface-0);color:var(--text-primary);max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.6}
+h1{font-size:22px;font-weight:500;margin:0 0 1.25rem}
+button{font:inherit;font-size:14px;border:.5px solid var(--border-strong);background:transparent;color:var(--text-primary);padding:6px 14px;border-radius:var(--radius);cursor:pointer}
+button:hover{background:var(--surface-1)}
+input[type=range]{accent-color:#2a78d6}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+svg text{fill:var(--text-primary);font-family:var(--font-sans)}
+.t{font-size:14px}.ts{font-size:12px;fill:var(--text-secondary)}.th{font-size:14px;font-weight:500}
+.node{cursor:pointer}.node:hover{opacity:.8}
+.arr{stroke:var(--text-secondary);stroke-width:1.5;fill:none}
+.c-teal>rect,rect.c-teal{fill:#E1F5EE;stroke:#0F6E56}.c-teal>.th{fill:#085041}
+.c-purple>rect,rect.c-purple{fill:#EEEDFE;stroke:#534AB7}.c-purple>.th{fill:#3C3489}
+@media (prefers-color-scheme: dark){.c-teal>rect,rect.c-teal{fill:#085041;stroke:#5DCAA5}.c-teal>.th{fill:#E1F5EE}.c-purple>rect,rect.c-purple{fill:#3C3489;stroke:#AFA9EC}.c-purple>.th{fill:#EEEDFE}}
+</style>
+<script>window.sendPrompt=function(t){console.log('sendPrompt (chat only):',t);};</script>
+</head><body>
+<h1>Interactive explainer: gradient descent</h1>
+
+<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 8px;">
+  <label for="lr" style="font-size:14px;color:var(--text-secondary);">Learning rate</label>
+  <input type="range" id="lr" min="0.05" max="1.05" step="0.05" value="0.3" style="flex:1;min-width:140px;">
+  <span id="lro" style="font-size:14px;font-weight:500;min-width:32px;">0.30</span>
+  <button id="go">Run</button><button id="rs">Reset</button>
+</div>
+<div style="font-size:13px;color:var(--text-secondary);margin:0 0 4px;">step <b id="stp" style="font-weight:500;color:var(--text-primary);">0</b> &nbsp; x = <b id="xv" style="font-weight:500;color:var(--text-primary);">-4.00</b> &nbsp; loss = <b id="lv" style="font-weight:500;color:var(--text-primary);">16.00</b></div>
+<svg id="gd" viewBox="0 0 680 280" width="100%" role="img" aria-label="Parabola loss curve with a ball that moves toward the minimum in steps"></svg>
+<script>
+(function(){
+var X0=-4,x=X0,n=0,trail=[X0],timer=null;
+var sx=function(v){return 60+(v+5)/10*560;},sy=function(v){return 250-v/25*220;};
+var svg=document.getElementById('gd');
+function draw(){
+  var s='<line x1="60" y1="250" x2="620" y2="250" stroke="var(--border-strong)" stroke-width="0.5"/>';
+  var p='';for(var v=-5;v<=5.001;v+=0.2){p+=(p?'L':'M')+sx(v)+' '+sy(v*v);}
+  s+='<path d="'+p+'" fill="none" stroke="var(--text-secondary)" stroke-width="2"/>';
+  s+='<line x1="'+sx(0)+'" y1="250" x2="'+sx(0)+'" y2="258" stroke="var(--border-strong)"/><text x="'+sx(0)+'" y="274" text-anchor="middle" style="font-size:12px;fill:var(--text-muted)">minimum at 0</text>';
+  for(var i=1;i<trail.length;i+=1){var a=trail[i-1],b=trail[i];
+    s+='<line x1="'+sx(a)+'" y1="'+sy(a*a)+'" x2="'+sx(b)+'" y2="'+sy(Math.min(b*b,25))+'" stroke="#eb6834" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.8"/>';
+    s+='<circle cx="'+sx(b)+'" cy="'+sy(Math.min(b*b,25))+'" r="3" fill="#eb6834" opacity="0.6"/>';}
+  var cx=Math.max(-5,Math.min(5,x));
+  s+='<circle cx="'+sx(cx)+'" cy="'+sy(Math.min(cx*cx,25))+'" r="9" fill="#2a78d6"/>';
+  svg.innerHTML=s;
+  document.getElementById('stp').textContent=n;
+  document.getElementById('xv').textContent=(Math.abs(x)>999?'diverged':x.toFixed(2));
+  document.getElementById('lv').textContent=(Math.abs(x)>999?'huge':(x*x).toFixed(2));
+}
+function step(){var lr=parseFloat(document.getElementById('lr').value);x=x-lr*2*x;n+=1;trail.push(x);draw();if(n>=25||Math.abs(x)<0.005||Math.abs(x)>5){stop();}}
+function stop(){if(timer){clearInterval(timer);timer=null;}}
+function reset(){stop();x=X0;n=0;trail=[X0];draw();}
+document.getElementById('go').onclick=function(){reset();timer=setInterval(step,350);};
+document.getElementById('rs').onclick=reset;
+document.getElementById('lr').oninput=function(){document.getElementById('lro').textContent=parseFloat(this.value).toFixed(2);reset();};
+draw();
+})();
+</script>
+</body></html>

@@ -1,6 +1,6 @@
 ---
 name: artifacts
-description: "Build visual artifacts in DeepSeek Harness with the `artifact` tool: inline widgets, charts, native cards, published pages, slide decks, design canvases, documents and downloadable files. Use when a visual, a deck, a mockup, a document or a file explains better than prose."
+description: "Build visual artifacts in DeepSeek Harness with the `artifact` tool: inline widgets, native charts, the 164-recipe visualization cookbook, native cards, published pages, slide decks, design canvases, documents and downloadable files. Use when a visual, a deck, a mockup, a document or a file explains better than prose."
 ---
 
 # Artifacts
@@ -15,6 +15,7 @@ URL. The card renders inline; your prose stays in the reply.
 | --- | --- | --- | --- |
 | A diagram, a plotted mechanism, a small interactive explainer | `widget` | HTML fragment or one `<svg>` | inline |
 | A line/bar/scatter/area/donut chart of real numbers | `chart` | JSON | inline |
+| A known form outside the twenty native charts: Q-Q, treemap, Sankey, ridgeline, map, 3D scene, sortable table | `recipe` | a recipe id such as `"qq"` | inline |
 | A recipe, itinerary, quiz, checklist, comparison, stat row, profile, weather strip, translation, draft message | `cards` | JSON | inline |
 | A shareable page, app, dashboard, calculator | `page` | full HTML or fragment | page |
 | A presentation | `slides` | JSON deck | canvas |
@@ -57,13 +58,16 @@ An inline HTML fragment. No `<!doctype>`, `<html>`, `<head>`, `<body>`. No
 ```
 
 Available tokens (both themes): `--text`, `--text-2`, `--muted`, `--surface`,
-`--surface-2`, `--border`, `--accent`, `--accent-ink`, `--font-serif`,
-`--font-sans`, `--font-mono`, `--radius`. Never hardcode colors.
+`--surface-2`, `--border`, `--accent`, `--accent-ink`, `--grid`, `--axis`,
+`--card`, `--font-serif`, `--font-sans`, `--font-mono`, `--radius`. Never
+hardcode colors.
 
 Interaction: score, sort, toggle and compute locally. A widget also gets the
 bundled kit as globals — `VK` (scales, axes, tooltip, pointer drag, frame loop),
-`V3` (rotation, projection, orbit) and `VC` (the chart renderer). Use them
-instead of hand-writing a chart or loading a library; the frame has no network.
+`V3` (rotation, projection, orbit) and `VC` (the chart renderer) — plus the
+cookbook kit as `Kit` and its 3D helpers as `C3`. Use them instead of
+hand-writing a chart or loading a library. Charts fetch nothing; a widget may
+load an allowlisted CDN library when it genuinely needs one.
 Use `dshArtifact.send("action-name", {…})` only when the next step needs the model;
 `dshArtifact.prompt("text")` posts a message; `dshArtifact.state.get/set` keeps
 per-viewer state.
@@ -118,6 +122,35 @@ Pick the form from the question, not from habit:
 
 Draw when the picture carries information the prose cannot, even when the user
 did not say "chart". Full chooser and design rules: [docs/COOKBOOK.md](docs/COOKBOOK.md).
+
+### recipe
+
+One of the **164 recipes in 15 families** vendored from the visualization
+cookbook. `content` is the id, either bare or as an object:
+
+```json
+{"action":"create","kind":"recipe","title":"Q-Q plot","content":"qq"}
+```
+
+The renderer loads the recipe's own pack and calls its exact function, so there
+is no code to retype and no second transcription to drift. Use a recipe when the
+form is not one of the twenty native charts: `qq`, `treemap`, `sankey`, `chord`,
+`network`, `ridgeline`, `beeswarm`, `calendar`, `gantt`, `bump`, `stream`,
+`radar`, `forest`, `roc`, `confusion`, `choropleth`, `globe`, `flowmap`,
+`pipeline`, `kanban`, `quiz`, `lorenz`, `wave3d`, `combo-layers`,
+`combo-multiples`, `combo-linked`, and the rest in
+[docs/RECIPES.md](docs/RECIPES.md).
+
+Search and read code with the same tool:
+
+```json
+{"action":"cookbook","family":"distribution","limit":8}
+{"action":"cookbook","recipe":"qq"}
+```
+
+The second returns metadata **and the exact code**. A recipe is demo data unless
+you pass your own data — the native `chart` kind is for real numbers. Maps need
+an internet connection (D3 + world-atlas); every other recipe is self-contained.
 
 ### cards
 
@@ -203,8 +236,15 @@ Nothing else in that fence is read.
   paragraphs of explanation inside it.
 - Sentence case. Two weights (400/500). Headings 22/18/16px (decks scale up).
   Body 16px. No emoji, no gradients, no glow.
+- Pick the form from the question, not from habit. Bars start at zero. One
+  y-axis, never two. Four to six ticks per axis; round every number that reaches
+  the screen. Direct labels beat a legend when there are few series. Draw back to
+  front: bands, grid, marks, annotations, labels.
+- The fixed eight-colour order is the palette. Never cycle past eight; fold the
+  rest into “Other” or use small multiples. Use CSS tokens so both themes work.
 - One idea per artifact. Three to eight artifacts per answer is a lot.
 - Never invent data, quotes, names or statistics. Use bracketed placeholders.
+  Generated demo data teaches a form; label it as demo, never as a measurement.
 - Contrast 4.5:1; never color alone to distinguish series.
 - No credentials, tokens or private file contents in an artifact.
 
@@ -214,7 +254,10 @@ Nothing else in that fence is read.
 - Slides ≤40, artboards ≤24, cards ≤40 rows, chart series ≤12 (8 in practice).
 - Remote assets: `cdnjs.cloudflare.com`, `esm.sh`, `cdn.jsdelivr.net`,
   `unpkg.com`, `fonts.googleapis.com`, `fonts.gstatic.com`. Everything else is
-  blocked by CSP.
+  blocked by CSP. Maps are the main legitimate use (D3 + world-atlas).
+- Cookbook: 164 recipes, 15 families; gallery at
+  `/plugins/dsh-artifacts/cookbook`; full index at
+  [docs/RECIPES.md](docs/RECIPES.md).
 - Artifacts live under `$DSH_HOME/artifacts`; `artifact` `list` shows what is there.
 
 ## Worked examples

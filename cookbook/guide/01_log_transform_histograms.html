@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log transform: raw vs log histograms</title>
+
+<style>
+:root{--text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#898781;--border:rgba(11,11,11,.12);--border-strong:rgba(11,11,11,.3);--surface-0:#ffffff;--surface-1:#f5f4f0;--surface-2:#ffffff;--bg-accent:#dbeafe;--text-accent:#1d4ed8;--text-danger:#b91c1c;--radius:8px;--font-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme: dark){:root{--text-primary:#f0efec;--text-secondary:#c3c2b7;--text-muted:#898781;--border:rgba(255,255,255,.12);--border-strong:rgba(255,255,255,.3);--surface-0:#1a1a19;--surface-1:#242422;--surface-2:#2c2c2a;--bg-accent:#1e3a5f;--text-accent:#93c5fd;--text-danger:#fca5a5}}
+body{font-family:var(--font-sans);background:var(--surface-0);color:var(--text-primary);max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.6}
+h1{font-size:22px;font-weight:500;margin:0 0 1.25rem}
+button{font:inherit;font-size:14px;border:.5px solid var(--border-strong);background:transparent;color:var(--text-primary);padding:6px 14px;border-radius:var(--radius);cursor:pointer}
+button:hover{background:var(--surface-1)}
+input[type=range]{accent-color:#2a78d6}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+svg text{fill:var(--text-primary);font-family:var(--font-sans)}
+.t{font-size:14px}.ts{font-size:12px;fill:var(--text-secondary)}.th{font-size:14px;font-weight:500}
+.node{cursor:pointer}.node:hover{opacity:.8}
+.arr{stroke:var(--text-secondary);stroke-width:1.5;fill:none}
+.c-teal>rect,rect.c-teal{fill:#E1F5EE;stroke:#0F6E56}.c-teal>.th{fill:#085041}
+.c-purple>rect,rect.c-purple{fill:#EEEDFE;stroke:#534AB7}.c-purple>.th{fill:#3C3489}
+@media (prefers-color-scheme: dark){.c-teal>rect,rect.c-teal{fill:#085041;stroke:#5DCAA5}.c-teal>.th{fill:#E1F5EE}.c-purple>rect,rect.c-purple{fill:#3C3489;stroke:#AFA9EC}.c-purple>.th{fill:#EEEDFE}}
+</style>
+<script>window.sendPrompt=function(t){console.log('sendPrompt (chat only):',t);};</script>
+</head><body>
+<h1>Log transform: raw vs log histograms</h1>
+
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 1rem;">
+  <label for="sg" style="font-size:14px;color:var(--text-secondary);white-space:nowrap;">Spread (sigma)</label>
+  <input type="range" id="sg" min="0.2" max="1.2" step="0.05" value="0.8" style="flex:1;" />
+  <span id="sgo" style="font-size:14px;font-weight:500;min-width:32px;">0.80</span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+      <span style="font-size:14px;font-weight:500;">Raw: completion_time_min</span>
+      <span style="font-size:13px;color:var(--text-secondary);">skew <span id="s1" style="font-weight:500;color:var(--text-primary);"></span></span>
+    </div>
+    <div style="position:relative;width:100%;height:240px;"><canvas id="c1" role="img" aria-label="Histogram of raw completion times"></canvas></div>
+    <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:4px;">minutes</div>
+  </div>
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+      <span style="font-size:14px;font-weight:500;">np.log(completion_time_min)</span>
+      <span style="font-size:13px;color:var(--text-secondary);">skew <span id="s2" style="font-weight:500;color:var(--text-primary);"></span></span>
+    </div>
+    <div style="position:relative;width:100%;height:240px;"><canvas id="c2" role="img" aria-label="Histogram of log-transformed completion times"></canvas></div>
+    <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:4px;">log(minutes)</div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+(function(){
+  var N=2000, mu=3, seed=42;
+  function rnd(){ seed=(seed*1664525+1013904223)%4294967296; return seed/4294967296; }
+  var z=[];
+  for(var i=0;i<N;i+=1){
+    var u=rnd()||1e-9, v=rnd();
+    z.push(Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v));
+  }
+  function skew(a){
+    var n=a.length, m=a.reduce(function(s,x){return s+x;},0)/n;
+    var m2=0,m3=0;
+    a.forEach(function(x){var d=x-m;m2+=d*d;m3+=d*d*d;});
+    m2/=n;m3/=n;
+    var g=m3/Math.pow(m2,1.5);
+    return g*Math.sqrt(n*(n-1))/(n-2);
+  }
+  function hist(a,lo,hi,k){
+    var w=(hi-lo)/k, c=new Array(k).fill(0), lab=[];
+    a.forEach(function(x){var b=Math.floor((x-lo)/w); if(b<0)b=0; if(b>=k)b=k-1; c[b]+=1;});
+    for(var i=0;i<k;i+=1){lab.push((lo+w*(i+0.5)).toFixed(1));}
+    return {c:c,lab:lab};
+  }
+  var dark=matchMedia('(prefers-color-scheme: dark)').matches;
+  var tick='#898781', grid=dark?'#2c2c2a':'#e1e0d9';
+  var col1=dark?'#d95926':'#eb6834', col2=dark?'#3987e5':'#2a78d6';
+  function opts(){
+    return {responsive:true,maintainAspectRatio:false,animation:{duration:200},
+      plugins:{legend:{display:false}},
+      scales:{x:{grid:{display:false},ticks:{color:tick,maxTicksLimit:7,autoSkip:true},border:{color:grid}},
+              y:{grid:{color:grid},ticks:{color:tick,maxTicksLimit:5},border:{display:false}}},
+      datasets:{bar:{categoryPercentage:1,barPercentage:0.92,borderRadius:2}}};
+  }
+  var ch1=new Chart(document.getElementById('c1'),{type:'bar',data:{labels:[],datasets:[{data:[],backgroundColor:col1}]},options:opts()});
+  var ch2=new Chart(document.getElementById('c2'),{type:'bar',data:{labels:[],datasets:[{data:[],backgroundColor:col2}]},options:opts()});
+  function update(){
+    var s=parseFloat(document.getElementById('sg').value);
+    document.getElementById('sgo').textContent=s.toFixed(2);
+    var raw=z.map(function(q){return Math.exp(mu+s*q);});
+    var lg=raw.map(function(x){return Math.log(x);});
+    var sorted=raw.slice().sort(function(a,b){return a-b;});
+    var cap=sorted[Math.floor(N*0.99)];
+    var h1=hist(raw,0,cap,30);
+    var lmin=Math.min.apply(null,lg), lmax=Math.max.apply(null,lg);
+    var h2=hist(lg,lmin,lmax,30);
+    ch1.data.labels=h1.lab; ch1.data.datasets[0].data=h1.c; ch1.update();
+    ch2.data.labels=h2.lab; ch2.data.datasets[0].data=h2.c; ch2.update();
+    document.getElementById('s1').textContent=skew(raw).toFixed(2);
+    document.getElementById('s2').textContent=skew(lg).toFixed(2);
+  }
+  document.getElementById('sg').addEventListener('input',update);
+  update();
+})();
+</script>
+</body></html>

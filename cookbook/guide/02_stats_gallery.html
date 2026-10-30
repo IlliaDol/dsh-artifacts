@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Statistics gallery: histogram, Q-Q, box plot, log curve</title>
+
+<style>
+:root{--text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#898781;--border:rgba(11,11,11,.12);--border-strong:rgba(11,11,11,.3);--surface-0:#ffffff;--surface-1:#f5f4f0;--surface-2:#ffffff;--bg-accent:#dbeafe;--text-accent:#1d4ed8;--text-danger:#b91c1c;--radius:8px;--font-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme: dark){:root{--text-primary:#f0efec;--text-secondary:#c3c2b7;--text-muted:#898781;--border:rgba(255,255,255,.12);--border-strong:rgba(255,255,255,.3);--surface-0:#1a1a19;--surface-1:#242422;--surface-2:#2c2c2a;--bg-accent:#1e3a5f;--text-accent:#93c5fd;--text-danger:#fca5a5}}
+body{font-family:var(--font-sans);background:var(--surface-0);color:var(--text-primary);max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.6}
+h1{font-size:22px;font-weight:500;margin:0 0 1.25rem}
+button{font:inherit;font-size:14px;border:.5px solid var(--border-strong);background:transparent;color:var(--text-primary);padding:6px 14px;border-radius:var(--radius);cursor:pointer}
+button:hover{background:var(--surface-1)}
+input[type=range]{accent-color:#2a78d6}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+svg text{fill:var(--text-primary);font-family:var(--font-sans)}
+.t{font-size:14px}.ts{font-size:12px;fill:var(--text-secondary)}.th{font-size:14px;font-weight:500}
+.node{cursor:pointer}.node:hover{opacity:.8}
+.arr{stroke:var(--text-secondary);stroke-width:1.5;fill:none}
+.c-teal>rect,rect.c-teal{fill:#E1F5EE;stroke:#0F6E56}.c-teal>.th{fill:#085041}
+.c-purple>rect,rect.c-purple{fill:#EEEDFE;stroke:#534AB7}.c-purple>.th{fill:#3C3489}
+@media (prefers-color-scheme: dark){.c-teal>rect,rect.c-teal{fill:#085041;stroke:#5DCAA5}.c-teal>.th{fill:#E1F5EE}.c-purple>rect,rect.c-purple{fill:#3C3489;stroke:#AFA9EC}.c-purple>.th{fill:#EEEDFE}}
+</style>
+<script>window.sendPrompt=function(t){console.log('sendPrompt (chat only):',t);};</script>
+</head><body>
+<h1>Statistics gallery: histogram, Q-Q, box plot, log curve</h1>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 20px;margin:0 0 1.25rem;">
+  <div><label for="sg" style="font-size:13px;color:var(--text-secondary);">Spread sigma: <b id="sgo" style="font-weight:500;color:var(--text-primary);">0.80</b></label><input type="range" id="sg" min="0.2" max="1.2" step="0.05" value="0.8" style="width:100%;"></div>
+  <div><label for="lm" style="font-size:13px;color:var(--text-secondary);">Transform power lambda: <b id="lmo" style="font-weight:500;color:var(--text-primary);">0.0 (log)</b></label><input type="range" id="lm" min="-0.5" max="1" step="0.1" value="0" style="width:100%;"></div>
+  <div><label for="bn" style="font-size:13px;color:var(--text-secondary);">Histogram bins: <b id="bno" style="font-weight:500;color:var(--text-primary);">30</b></label><input type="range" id="bn" min="8" max="60" step="1" value="30" style="width:100%;"></div>
+  <div style="display:flex;align-items:flex-end;"><label style="font-size:13px;color:var(--text-secondary);display:flex;gap:8px;align-items:center;"><input type="checkbox" id="nc" checked>Show normal curve</label></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:20px;">
+  <div>
+    <div style="font-size:14px;font-weight:500;">Histogram (interactive, hover bars)</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin:2px 0 4px;">skew after transform: <b id="sk" style="font-weight:500;color:var(--text-primary);"></b></div>
+    <div id="p1"></div>
+  </div>
+  <div>
+    <div style="font-size:14px;font-weight:500;">Q-Q plot (interactive)</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin:2px 0 4px;">points on the diagonal means normal</div>
+    <div id="p2"></div>
+  </div>
+  <div>
+    <div style="font-size:14px;font-weight:500;">Box plot, raw vs log (static, sigma 0.8)</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin:2px 0 4px;">both standardized to mean 0, sd 1</div>
+    <div id="p3"></div>
+  </div>
+  <div>
+    <div style="font-size:14px;font-weight:500;">What log does (static)</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin:2px 0 4px;">equal 3-minute gaps shrink on the log scale</div>
+    <div id="p4"></div>
+  </div>
+</div>
+<script>
+(function(){
+var N=1500,mu=3,seed=7,Z=[];
+function rnd(){seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296;}
+for(var i=0;i<N;i+=1){var u=rnd()||1e-9,v=rnd();Z.push(Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v));}
+var W=320,H=220,L=36,R=8,T=8,B=26,BL='#2a78d6',OR='#eb6834',AQ='#1baf7a';
+var TX='style="font-size:11px;fill:var(--text-muted)"';
+function mk(xl,xh,yl,yh){return{x:function(v){return L+(v-xl)/(xh-xl)*(W-L-R);},y:function(v){return H-B-(v-yl)/(yh-yl)*(H-T-B);}};}
+function ticks(lo,hi,n){var st=(hi-lo)/n,s=Math.pow(10,Math.floor(Math.log10(st))),m=st/s,nc=m<1.5?1:m<3.5?2:m<7.5?5:10;st=nc*s;var o=[];for(var v=Math.ceil(lo/st)*st;v<=hi+1e-9;v+=st){o.push(+v.toFixed(6));}return o;}
+function frame(sc,xl,xh,yl,yh,xn,yn){var s='';ticks(yl,yh,yn).forEach(function(v){s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+sc.y(v)+'" y2="'+sc.y(v)+'" stroke="var(--border)" stroke-width="0.5"/><text x="'+(L-4)+'" y="'+(sc.y(v)+4)+'" text-anchor="end" '+TX+'>'+v+'</text>';});ticks(xl,xh,xn).forEach(function(v){s+='<text x="'+sc.x(v)+'" y="'+(H-B+14)+'" text-anchor="middle" '+TX+'>'+v+'</text>';});return s;}
+function svg(inner,label){return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="'+label+'">'+inner+'</svg>';}
+function tf(x,l){return l===0?Math.log(x):(Math.pow(x,l)-1)/l;}
+function std(a){var n=a.length,m=a.reduce(function(s,x){return s+x;},0)/n,v=a.reduce(function(s,x){return s+(x-m)*(x-m);},0)/n,sd=Math.sqrt(v);return a.map(function(x){return(x-m)/sd;});}
+function skew(a){var n=a.length,m3=0;a.forEach(function(x){m3+=x*x*x;});return m3/n*Math.sqrt(n*(n-1))/(n-2);}
+function f(p){var t=Math.sqrt(-2*Math.log(p));return t-(2.515517+0.802853*t+0.010328*t*t)/(1+1.432788*t+0.189269*t*t+0.001308*t*t*t);}
+function qn(p){return p<0.5?-f(p):f(1-p);}
+function quant(s,q){var i=(s.length-1)*q,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function data(sg,l){return std(Z.map(function(q){return tf(Math.exp(mu+sg*q),l);}));}
+function hist(d,k,nc){
+  var s=d.slice().sort(function(a,b){return a-b;}),lo=s[0],hi=Math.min(s[s.length-1],5),w=(hi-lo)/k,c=new Array(k).fill(0);
+  d.forEach(function(x){var b=Math.floor((x-lo)/w);if(b<0)b=0;if(b>=k)b=k-1;c[b]+=1;});
+  var pk=function(x){return N*w*Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);};
+  var ymax=Math.max.apply(null,c);if(nc){ymax=Math.max(ymax,pk(0));}ymax*=1.08;
+  var sc=mk(lo,hi,0,ymax),o=frame(sc,lo,hi,0,ymax,6,4);
+  c.forEach(function(n,i){var x0=sc.x(lo+i*w),x1=sc.x(lo+(i+1)*w),y=sc.y(n);o+='<rect x="'+(x0+0.5)+'" y="'+y+'" width="'+Math.max(x1-x0-1,0.5)+'" height="'+(H-B-y)+'" fill="'+BL+'" rx="1.5"><title>'+(lo+i*w).toFixed(2)+' to '+(lo+(i+1)*w).toFixed(2)+' sd: '+n+' observations</title></rect>';});
+  if(nc){var p='';for(var x=lo;x<=hi;x+=(hi-lo)/80){p+=(p?'L':'M')+sc.x(x)+' '+sc.y(pk(x));}o+='<path d="'+p+'" fill="none" stroke="'+OR+'" stroke-width="2" stroke-linejoin="round"/>';}
+  return svg(o,'Histogram of transformed completion times in standard deviation units');
+}
+function qq(d){
+  var s=d.slice().sort(function(a,b){return a-b;}),yh=Math.max(3.5,Math.ceil(s[s.length-1])),yl=Math.min(-3.5,Math.floor(s[0])),sc=mk(-3.5,3.5,yl,yh),o=frame(sc,-3.5,3.5,yl,yh,7,5);
+  o+='<line x1="'+sc.x(-3.5)+'" y1="'+sc.y(-3.5)+'" x2="'+sc.x(3.5)+'" y2="'+sc.y(3.5)+'" stroke="'+OR+'" stroke-width="2" stroke-dasharray="5 4"/>';
+  for(var i=2;i<s.length;i+=6){var t=qn((i+0.5)/s.length);o+='<circle cx="'+sc.x(t)+'" cy="'+sc.y(s[i])+'" r="2.5" fill="'+BL+'" fill-opacity="0.75"/>';}
+  o+='<text x="'+(W/2+14)+'" y="'+(H-2)+'" text-anchor="middle" '+TX+'>theoretical normal quantile</text>';
+  return svg(o,'Q-Q plot of transformed completion times against normal quantiles');
+}
+function box(){
+  var A=data(0.8,1),Bl=data(0.8,0),sc=mk(-4,8,0,1),o='';
+  ticks(-4,8,6).forEach(function(v){o+='<line x1="'+sc.x(v)+'" x2="'+sc.x(v)+'" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--border)" stroke-width="0.5"/><text x="'+sc.x(v)+'" y="'+(H-B+14)+'" text-anchor="middle" '+TX+'>'+v+'</text>';});
+  [[A,'raw',OR,60],[Bl,'log',BL,140]].forEach(function(r){
+    var s=r[0].slice().sort(function(a,b){return a-b;}),q1=quant(s,0.25),q2=quant(s,0.5),q3=quant(s,0.75),iq=q3-q1,
+    lw=s.filter(function(x){return x>=q1-1.5*iq;})[0],uw=s.filter(function(x){return x<=q3+1.5*iq;}).pop(),y=r[3];
+    o+='<line x1="'+sc.x(lw)+'" x2="'+sc.x(uw)+'" y1="'+y+'" y2="'+y+'" stroke="var(--text-secondary)" stroke-width="1.5"/>';
+    o+='<rect x="'+sc.x(q1)+'" y="'+(y-18)+'" width="'+(sc.x(q3)-sc.x(q1))+'" height="36" fill="'+r[2]+'" fill-opacity="0.35" stroke="'+r[2]+'" stroke-width="2" rx="3"/>';
+    o+='<line x1="'+sc.x(q2)+'" x2="'+sc.x(q2)+'" y1="'+(y-18)+'" y2="'+(y+18)+'" stroke="'+r[2]+'" stroke-width="3"/>';
+    s.forEach(function(x,i){if((x<q1-1.5*iq||x>q3+1.5*iq)&&i%3===0){o+='<circle cx="'+sc.x(x)+'" cy="'+y+'" r="2.5" fill="none" stroke="var(--text-secondary)" stroke-width="1"/>';}});
+    o+='<text x="'+(L-4)+'" y="'+(y+4)+'" text-anchor="end" '+TX+'>'+r[1]+'</text>';
+  });
+  o+='<text x="'+(W/2+14)+'" y="'+(H-2)+'" text-anchor="middle" '+TX+'>standard deviations from mean</text>';
+  return svg(o,'Box plots of raw and log-transformed completion times');
+}
+function curve(){
+  var sc=mk(0,60,0,4.2),o=frame(sc,0,60,0,4.2,6,4),p='';
+  for(var x=1;x<=60;x+=0.5){p+=(p?'L':'M')+sc.x(x)+' '+sc.y(Math.log(x));}
+  o+='<path d="'+p+'" fill="none" stroke="'+BL+'" stroke-width="2" stroke-linejoin="round"/>';
+  [[2,5,OR],[50,53,AQ]].forEach(function(g){
+    var ya=Math.log(g[0]),yb=Math.log(g[1]);
+    o+='<line x1="'+sc.x(g[0])+'" x2="'+sc.x(g[1])+'" y1="'+(H-B)+'" y2="'+(H-B)+'" stroke="'+g[2]+'" stroke-width="5" stroke-linecap="round"/>';
+    o+='<line x1="'+(L)+'" x2="'+(L)+'" y1="'+sc.y(ya)+'" y2="'+sc.y(yb)+'" stroke="'+g[2]+'" stroke-width="5" stroke-linecap="round"/>';
+    o+='<line x1="'+sc.x(g[0])+'" x2="'+sc.x(g[0])+'" y1="'+(H-B)+'" y2="'+sc.y(ya)+'" stroke="'+g[2]+'" stroke-width="1" stroke-dasharray="3 3"/><line x1="'+sc.x(g[1])+'" x2="'+sc.x(g[1])+'" y1="'+(H-B)+'" y2="'+sc.y(yb)+'" stroke="'+g[2]+'" stroke-width="1" stroke-dasharray="3 3"/>';
+    o+='<circle cx="'+sc.x(g[0])+'" cy="'+sc.y(ya)+'" r="3.5" fill="'+g[2]+'"/><circle cx="'+sc.x(g[1])+'" cy="'+sc.y(yb)+'" r="3.5" fill="'+g[2]+'"/>';
+  });
+  o+='<text x="'+sc.x(8)+'" y="'+sc.y(1.45)+'" '+TX+'>2 to 5 min: +0.92</text><text x="'+sc.x(26)+'" y="'+sc.y(3.62)+'" '+TX+'>50 to 53 min: +0.06</text>';
+  o+='<text x="'+(W/2+14)+'" y="'+(H-2)+'" text-anchor="middle" '+TX+'>minutes</text>';
+  return svg(o,'Plot of the natural log curve');
+}
+function $(i){return document.getElementById(i);}
+function upd(){
+  var sg=parseFloat($('sg').value),l=Math.round(parseFloat($('lm').value)*10)/10,k=parseInt($('bn').value,10),d=data(sg,l);
+  $('sgo').textContent=sg.toFixed(2);$('bno').textContent=k;
+  $('lmo').textContent=l.toFixed(1)+(l===0?' (log)':l===1?' (raw)':'');
+  $('sk').textContent=skew(d).toFixed(2);
+  $('p1').innerHTML=hist(d,k,$('nc').checked);$('p2').innerHTML=qq(d);
+}
+['sg','lm','bn','nc'].forEach(function(i){$(i).addEventListener('input',upd);});
+$('p3').innerHTML=box();$('p4').innerHTML=curve();upd();
+})();
+</script>
+</body></html>

@@ -52,8 +52,17 @@ toggle, bin slider (hist), drag to zoom (line), brush (scatter), orbit (3D).
 RECIPES
 Each is {id, family, name, when, spec | scene, orbit?}. `when` is one sentence on
 the question the form answers. Families: comparison, time, part-to-whole,
-distribution, relationship, structure, motion. Minimum 23 recipes (one per form),
-at least three of them scenes (a dynamical system, a field, a chaotic divergence).
+distribution, relationship, structure, motion. Minimum 23 native recipes (one per
+form), at least three of them scenes (a dynamical system, a field, a chaotic
+divergence).
+
+THE 164-RECIPE LIBRARY
+Vendor the user's cookbook (9 packs, kit + viz3d, guide chapters, Python
+scripts) under `cookbook/` and generate `manifest.json`, a self-contained
+`gallery.html` and `docs/RECIPES.md` from it. Expose every recipe as a first-class
+artifact by id (`kind:"recipe"`) and a search action (`action:"cookbook"`). Load
+the cookbook kit as `Kit` and `C3` in widget frames so the code printed under a
+recipe is the code that runs. Never retype a recipe.
 
 QUALITY GATES (none optional)
 1. Structure: every recipe runs in a DOM stand-in; fail on exceptions and on
@@ -65,17 +74,20 @@ QUALITY GATES (none optional)
 4. Print the pass count. Never report a gate you did not run.
 
 HOST INTEGRATION (only if the host has one)
-One tool named `visualise` taking {title, spec|html, height, caption}. One
-renderer registered where the host draws tool calls, so the widget replaces the
-generic tool card at the tool call's position. The widget runs in a sandboxed
-iframe with no network and no storage. The same kit is inlined, so the gallery
-and the chat render identically.
+One tool named `artifact` taking {kind, title, content, surface} and the actions
+create/update/list/export/open/delete/cookbook. One renderer registered where the
+host draws tool calls, so the widget replaces the generic tool card at the tool
+call's position. The frame is sandboxed; charts inline their kit and fetch
+nothing; allowlisted CDNs are available for maps and genuine library needs. The
+same kit is inlined, so the gallery and the chat render identically.
 
 BEHAVIOUR RULES FOR THE MODEL USING IT
 - Call `visualise` when a shape, a distribution, a comparison, a process or a
   3D object explains the answer better than prose. Do not wait to be asked.
 - Always call it when the user says artifact, visualise, visualisation, chart,
   diagram, or uses /visualise.
+- Search `action:"cookbook"` before building a form by hand; a prepared recipe
+  beats a retyped one. Use `kind:"recipe"` with its id.
 - Place it between paragraphs; write the lead-in and the reading of the picture.
 - One idea per visual. If two visuals are needed, put prose between them.
 - Never describe the tool; describe the finding.

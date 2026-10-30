@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive explainer: bubble sort</title>
+
+<style>
+:root{--text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#898781;--border:rgba(11,11,11,.12);--border-strong:rgba(11,11,11,.3);--surface-0:#ffffff;--surface-1:#f5f4f0;--surface-2:#ffffff;--bg-accent:#dbeafe;--text-accent:#1d4ed8;--text-danger:#b91c1c;--radius:8px;--font-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme: dark){:root{--text-primary:#f0efec;--text-secondary:#c3c2b7;--text-muted:#898781;--border:rgba(255,255,255,.12);--border-strong:rgba(255,255,255,.3);--surface-0:#1a1a19;--surface-1:#242422;--surface-2:#2c2c2a;--bg-accent:#1e3a5f;--text-accent:#93c5fd;--text-danger:#fca5a5}}
+body{font-family:var(--font-sans);background:var(--surface-0);color:var(--text-primary);max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.6}
+h1{font-size:22px;font-weight:500;margin:0 0 1.25rem}
+button{font:inherit;font-size:14px;border:.5px solid var(--border-strong);background:transparent;color:var(--text-primary);padding:6px 14px;border-radius:var(--radius);cursor:pointer}
+button:hover{background:var(--surface-1)}
+input[type=range]{accent-color:#2a78d6}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+svg text{fill:var(--text-primary);font-family:var(--font-sans)}
+.t{font-size:14px}.ts{font-size:12px;fill:var(--text-secondary)}.th{font-size:14px;font-weight:500}
+.node{cursor:pointer}.node:hover{opacity:.8}
+.arr{stroke:var(--text-secondary);stroke-width:1.5;fill:none}
+.c-teal>rect,rect.c-teal{fill:#E1F5EE;stroke:#0F6E56}.c-teal>.th{fill:#085041}
+.c-purple>rect,rect.c-purple{fill:#EEEDFE;stroke:#534AB7}.c-purple>.th{fill:#3C3489}
+@media (prefers-color-scheme: dark){.c-teal>rect,rect.c-teal{fill:#085041;stroke:#5DCAA5}.c-teal>.th{fill:#E1F5EE}.c-purple>rect,rect.c-purple{fill:#3C3489;stroke:#AFA9EC}.c-purple>.th{fill:#EEEDFE}}
+</style>
+<script>window.sendPrompt=function(t){console.log('sendPrompt (chat only):',t);};</script>
+</head><body>
+<h1>Interactive explainer: bubble sort</h1>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px;">
+  <button id="st">Step</button><button id="pl">Play</button><button id="sh">Shuffle</button>
+  <span style="font-size:13px;color:var(--text-secondary);margin-left:auto;">comparisons: <b id="cm" style="font-weight:500;color:var(--text-primary);">0</b> &nbsp; swaps: <b id="sw" style="font-weight:500;color:var(--text-primary);">0</b></span>
+</div>
+<div id="bars" style="display:flex;align-items:flex-end;gap:6px;height:200px;"></div>
+<div id="msg" style="font-size:13px;color:var(--text-secondary);margin-top:10px;min-height:20px;">Press Step or Play.</div>
+<script>
+(function(){
+var a,i,j,cmp,swp,done,timer=null,N=12;
+function reset(){a=[];for(var k=1;k<=N;k+=1){a.push(k);}for(var k2=N-1;k2>0;k2-=1){var r=Math.floor(Math.random()*(k2+1));var t=a[k2];a[k2]=a[r];a[r]=t;}
+  i=0;j=0;cmp=0;swp=0;done=false;stop();draw(-1,-1);document.getElementById('msg').textContent='Press Step or Play.';}
+function draw(p,q){
+  var el=document.getElementById('bars');el.innerHTML='';
+  a.forEach(function(v,k){
+    var d=document.createElement('div');
+    var sorted=k>=N-i;
+    d.style.cssText='flex:1;border-radius:4px 4px 0 0;height:'+(v/N*100)+'%;background:'+(k===p||k===q?'#eb6834':sorted?'#1baf7a':'#2a78d6')+';transition:height .15s;';
+    d.title=String(v);el.appendChild(d);});
+  document.getElementById('cm').textContent=cmp;document.getElementById('sw').textContent=swp;
+}
+function step(){
+  if(done){return;}
+  if(i>=N-1){done=true;stop();draw(-1,-1);document.getElementById('msg').textContent='Sorted. Green bars are in their final place.';return;}
+  cmp+=1;var msg;
+  if(a[j]>a[j+1]){var t=a[j];a[j]=a[j+1];a[j+1]=t;swp+=1;msg='Swapped '+a[j+1]+' and '+a[j]+' because the left one was larger.';}
+  else{msg='Compared '+a[j]+' and '+a[j+1]+', already in order.';}
+  draw(j,j+1);document.getElementById('msg').textContent=msg;
+  j+=1;if(j>=N-1-i){j=0;i+=1;}
+}
+function stop(){if(timer){clearInterval(timer);timer=null;}document.getElementById('pl').textContent='Play';}
+document.getElementById('st').onclick=function(){stop();step();};
+document.getElementById('pl').onclick=function(){if(timer){stop();return;}if(done){reset();}document.getElementById('pl').textContent='Pause';timer=setInterval(step,260);};
+document.getElementById('sh').onclick=reset;
+reset();
+})();
+</script>
+</body></html>

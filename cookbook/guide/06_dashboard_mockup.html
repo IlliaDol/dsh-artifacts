@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI mockup: study dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<style>
+:root{--text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#898781;--border:rgba(11,11,11,.12);--border-strong:rgba(11,11,11,.3);--surface-0:#ffffff;--surface-1:#f5f4f0;--surface-2:#ffffff;--bg-accent:#dbeafe;--text-accent:#1d4ed8;--text-danger:#b91c1c;--radius:8px;--font-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme: dark){:root{--text-primary:#f0efec;--text-secondary:#c3c2b7;--text-muted:#898781;--border:rgba(255,255,255,.12);--border-strong:rgba(255,255,255,.3);--surface-0:#1a1a19;--surface-1:#242422;--surface-2:#2c2c2a;--bg-accent:#1e3a5f;--text-accent:#93c5fd;--text-danger:#fca5a5}}
+body{font-family:var(--font-sans);background:var(--surface-0);color:var(--text-primary);max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.6}
+h1{font-size:22px;font-weight:500;margin:0 0 1.25rem}
+button{font:inherit;font-size:14px;border:.5px solid var(--border-strong);background:transparent;color:var(--text-primary);padding:6px 14px;border-radius:var(--radius);cursor:pointer}
+button:hover{background:var(--surface-1)}
+input[type=range]{accent-color:#2a78d6}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+svg text{fill:var(--text-primary);font-family:var(--font-sans)}
+.t{font-size:14px}.ts{font-size:12px;fill:var(--text-secondary)}.th{font-size:14px;font-weight:500}
+.node{cursor:pointer}.node:hover{opacity:.8}
+.arr{stroke:var(--text-secondary);stroke-width:1.5;fill:none}
+.c-teal>rect,rect.c-teal{fill:#E1F5EE;stroke:#0F6E56}.c-teal>.th{fill:#085041}
+.c-purple>rect,rect.c-purple{fill:#EEEDFE;stroke:#534AB7}.c-purple>.th{fill:#3C3489}
+@media (prefers-color-scheme: dark){.c-teal>rect,rect.c-teal{fill:#085041;stroke:#5DCAA5}.c-teal>.th{fill:#E1F5EE}.c-purple>rect,rect.c-purple{fill:#3C3489;stroke:#AFA9EC}.c-purple>.th{fill:#EEEDFE}}
+</style>
+<script>window.sendPrompt=function(t){console.log('sendPrompt (chat only):',t);};</script>
+</head><body>
+<h1>UI mockup: study dashboard</h1>
+
+<div style="background:var(--surface-1);border-radius:12px;padding:16px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div style="display:flex;align-items:center;gap:8px;"><i class="ti ti-chart-bar" style="font-size:20px;color:var(--text-accent);" aria-hidden="true"></i><span style="font-size:15px;font-weight:500;">Study dashboard</span></div>
+    <div style="display:flex;gap:12px;font-size:18px;color:var(--text-secondary);"><i class="ti ti-search" aria-hidden="true"></i><i class="ti ti-bell" aria-hidden="true"></i><i class="ti ti-settings" aria-hidden="true"></i></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:14px;">
+    <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;"><div style="font-size:13px;color:var(--text-secondary);">Study streak</div><div style="font-size:24px;font-weight:500;">12 days</div></div>
+    <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;"><div style="font-size:13px;color:var(--text-secondary);">Hours this week</div><div style="font-size:24px;font-weight:500;">14.5</div></div>
+    <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;"><div style="font-size:13px;color:var(--text-secondary);">Next exam</div><div style="font-size:24px;font-weight:500;">9 days</div></div>
+  </div>
+  <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:4px 14px;">
+    <div style="padding:12px 0;border-bottom:0.5px solid var(--border);"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;"><span>Statistics</span><span style="color:var(--text-secondary);">72%</span></div><div style="height:6px;border-radius:3px;background:var(--surface-1);"><div style="width:72%;height:100%;border-radius:3px;background:#2a78d6;"></div></div></div>
+    <div style="padding:12px 0;border-bottom:0.5px solid var(--border);"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;"><span>Linear algebra</span><span style="color:var(--text-secondary);">45%</span></div><div style="height:6px;border-radius:3px;background:var(--surface-1);"><div style="width:45%;height:100%;border-radius:3px;background:#1baf7a;"></div></div></div>
+    <div style="padding:12px 0;"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;"><span>Programming</span><span style="color:var(--text-secondary);">88%</span></div><div style="height:6px;border-radius:3px;background:var(--surface-1);"><div style="width:88%;height:100%;border-radius:3px;background:#6250d6;"></div></div></div>
+  </div>
+</div>
+<p style="font-size:12px;color:var(--text-muted);margin:8px 0 0;">Placeholder numbers, for layout only. Icons need an internet connection (Tabler icons webfont).</p>
+</body></html>

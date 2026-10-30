@@ -18,6 +18,7 @@ test('every rendered kind is a complete document with the frame bridge', () => {
   const sources = {
     widget: '<h2 class="sr-only">A chart</h2><p>5%</p>',
     chart: JSON.stringify({ type: 'bar', labels: ['a'], series: [{ name: 'S', values: [1] }] }),
+    recipe: 'qq',
     cards: JSON.stringify({ type: 'steps', steps: [{ title: 'One' }, { title: 'Two' }] }),
     page: '<!doctype html><html><body><h1>Page</h1></body></html>',
     slides: JSON.stringify({ slides: [{ title: 'One' }] }),
@@ -57,6 +58,20 @@ test('a chart is drawn by the bundled interactive kit, with no CDN', () => {
   assert.match(html, /aria-label="chart fixture/u);
   assert.match(html, /<details class="data">/u);
   assert.match(html, /Revenue/u);
+});
+
+test('a recipe draws with the vendored kit and its exact pack', () => {
+  const { html, data } = renderArtifact(artifact('recipe', 'qq'));
+  assert.equal(data.id, 'qq');
+  assert.match(html, /root\.Kit = K/u);
+  assert.match(html, /__dshRecipePack/u);
+  assert.match(html, /Q-Q plot/u);
+  assert.match(html, /class="sr-only"/u);
+  assert.match(renderExport(artifact('recipe', 'qq'), 'md').bytes.toString(), /## Code/u);
+});
+
+test('an unknown recipe fails with the nearest ids', () => {
+  assert.throws(() => renderArtifact(artifact('recipe', 'qqq')), /unknown recipe/u);
 });
 
 test('every chart form the schema accepts reaches the kit', () => {

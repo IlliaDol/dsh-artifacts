@@ -1,6 +1,6 @@
 # Every artifact type, and how to build it in dsh
 
-This is the full catalogue: the Claude artifact taxonomy mapped onto the eight
+This is the full catalogue: the Claude artifact taxonomy mapped onto the nine
 kinds this plugin implements. Each entry says whether it is **dynamic** or
 **static**, where it lives (**inline / published / downloadable**), and the
 exact call that produces it.
@@ -88,6 +88,43 @@ and accessible.
 | Profile / record | `cards` | `{"type":"profile","name":…,"role":…,"meta":[{"label":"Email","value":…}]}` |
 
 Charts and cards export to SVG-free HTML, CSV/JSON, and (for chart data) XLSX.
+
+### 1.4 Recipes: the 164-drawing library
+
+A `recipe` is a prepared drawing from the vendored cookbook. The id is the whole
+source; the renderer loads the recipe's own pack and calls its exact function.
+This is the path for forms the twenty native charts do not carry.
+
+```json
+{"action":"create","kind":"recipe","title":"Q-Q plot","content":"qq"}
+```
+
+| Family | Examples |
+| --- | --- |
+| Comparison | `bar`, `lollipop`, `marimekko`, `waffle`, `pyramid` |
+| Distribution | `histogram`, `boxplot`, `violin`, `ridgeline`, `beeswarm`, `qq`, `rug`, `bin2d` |
+| Time | `line`, `stream`, `candlestick`, `calendar`, `gantt`, `bump`, `horizon` |
+| Relationships | `scatter`, `bubble`, `splom`, `correlogram`, `regci`, `parallel`, `radar` |
+| Parts and hierarchy | `treemap`, `sunburst`, `icicle`, `circlepack`, `tree`, `orgchart`, `mindmap` |
+| Flow and networks | `sankey`, `alluvial`, `chord`, `arc`, `network`, `adjacency`, `flame` |
+| Maps | `choropleth`, `symbolmap`, `dorling`, `tilegrid`, `globe`, `flowmap`, `dotdensity`, `contourmap` |
+| Statistics and ML | `roc`, `prcurve`, `confusion`, `learning`, `forest`, `km`, `control`, `calibration` |
+| Math and science | `funcplot`, `vectorfield`, `phase`, `surface3d`, `mandelbrot`, `spectrum`, `fourier` |
+| Diagrams | `flowchart`, `sequence`, `classdiagram`, `statemachine`, `swimlane`, `decisiontree`, `gitgraph` |
+| Tables and KPI | `sorttable`, `heattable`, `sparktable`, `kpi`, `gauge`, `wordcloud` |
+| Interactive | `bubblesort`, `gradientdescent`, `binsearch`, `compound`, `quiz`, `flashcards`, `timer` |
+| UI and art | `uidash`, `form`, `hero`, `poster`, `icons`, `truchet`, `isometric`, `pixelart` |
+| 3D and animation | `cube3d`, `scatter3d`, `particles`, `lorenz`, `starfield`, `wave3d`, `doublependulum` |
+| Combining | `combo-layers`, `combo-violin`, `combo-multiples`, `combo-linked`, `combo-dashboard`, `combo-annotated` |
+
+Search or read code with `{"action":"cookbook","recipe":"qq"}` or
+`{"action":"cookbook","family":"stats"}`. The full id index is
+[RECIPES.md](RECIPES.md); the live gallery is
+`/plugins/dsh-artifacts/cookbook`.
+
+Maps load D3 and `world-atlas` from the allowlist and need a connection. All
+other recipes are self-contained. Recipe data is generated demo data unless you
+use the native `chart` kind with your own numbers.
 
 ---
 
@@ -238,6 +275,8 @@ Office opens, rather than a heavy converter with silent failures.
 | --- | --- |
 | "show me", "draw", "explain with a diagram" | `widget` |
 | "compare these numbers over time" | `chart` |
+| "is this distribution normal?" | `chart` hist + `recipe` qq |
+| "draw a sankey / treemap / map / 3D scene" | `recipe` with its id |
 | "what's the recipe / itinerary / quiz" | `cards` |
 | "make me a page / app / calculator I can reopen" | `page` |
 | "make a deck / presentation" | `slides` |

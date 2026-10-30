@@ -6,6 +6,7 @@ test('every documented kind validates with a minimal source', () => {
   const sources = {
     widget: '<h2 class="sr-only">A number line</h2><p>5%</p>',
     chart: JSON.stringify({ type: 'bar', labels: ['a', 'b'], series: [{ name: 'S', values: [1, 2] }] }),
+    recipe: 'qq',
     cards: JSON.stringify({ type: 'steps', steps: [{ title: 'One' }, { title: 'Two' }] }),
     page: '<!doctype html><html><body><h1>Hi</h1></body></html>',
     slides: JSON.stringify({ title: 'Deck', slides: [{ title: 'One' }, { title: 'Two' }] }),
@@ -43,6 +44,13 @@ test('an HTML widget without an sr-only summary warns, an SVG does not', () => {
   assert.equal(html.warnings.some((warning) => /sr-only/u.test(warning)), true);
   const svg = validate({ kind: 'widget', title: 'x', content: '<svg viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>' });
   assert.equal(svg.warnings.some((warning) => /sr-only/u.test(warning)), false);
+});
+
+test('recipe ids accept a bare id or an object, and reject prose', () => {
+  assert.equal(validate({ kind: 'recipe', title: 'qq', content: 'qq' }).ok, true);
+  assert.equal(validate({ kind: 'recipe', title: 'qq', content: '{"id":"qq"}' }).ok, true);
+  assert.equal(validate({ kind: 'recipe', title: 'bad', content: 'Q-Q plot please' }).ok, false);
+  assert.equal(validate({ kind: 'recipe', title: 'bad', content: '{"name":"qq"}' }).ok, false);
 });
 
 test('chart labels must match the first series', () => {

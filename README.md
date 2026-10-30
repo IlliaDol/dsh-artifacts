@@ -1,9 +1,10 @@
 # dsh-artifacts
 
 One plugin for **DeepSeek Harness (dsh)** that gives the model a single artifact
-surface: inline widgets, charts, native cards, published pages, slide decks, a
-design canvas, documents and downloadable files — the Claude artifact classes,
-implemented over the three dsh generative-UI projects.
+surface: inline widgets, native charts, the **164-recipe visualization cookbook**,
+native cards, published pages, slide decks, a design canvas, documents and
+downloadable files — the Claude artifact classes, implemented over the three dsh
+generative-UI projects.
 
 Built from scratch, dependency-free, no build step: the host half is plain ESM,
 the browser half is a hand-written module-loader bundle.
@@ -50,8 +51,8 @@ session — the prompt section is assembled per session, so an old session keeps
 the old tool list.
 
 Verify: the browser console prints `[dsh-artifacts] client active;
-channels=toolview+fence`, and `http://127.0.0.1:<port>/plugins/dsh-artifacts/gallery`
-lists artifacts.
+channels=toolview+fence`; `/plugins/dsh-artifacts/gallery` lists artifacts and
+`/plugins/dsh-artifacts/cookbook` opens the 164-recipe gallery.
 
 ## Use
 
@@ -64,17 +65,20 @@ catalogue. You can also drive it directly in a prompt:
 - *"A deck for the board meeting"* → `slides`, then export `pptx`
 - *"Mock up the checkout on phone and desktop"* → `design`
 - *"Write the launch memo as a Word file"* → `doc` + `export docx`
+- *"Is this log-transformed data normal?"* → `recipe` with `qq`, `histogram`
+  and `combo-layers` (or `chart` for your own numbers)
 
 Artifacts are stored under `$DSH_HOME/artifacts` (`~/.dsh/artifacts` by
 default). The gallery is the index; every artifact has **Open**, **Source** and
 **Export** links.
 
-## The eight kinds
+## The nine kinds
 
 | Kind | Renders | Dynamic | Exports |
 | --- | --- | --- | --- |
 | `widget` | inline HTML fragment or SVG | yes | html |
 | `chart` | 20 forms: line / area / bar / hbar / stacked / scatter / donut / hist / box / density / ecdf / violin / heat / stat / waterfall / dumbbell / slope / pareto / funnel / bullet | hover, click, legend, bin slider, drag-zoom | html, csv, json, xlsx |
+| `recipe` | one of 164 cookbook drawings by id (`qq`, `sankey`, `treemap`, `globe`, `lorenz`, …) | the recipe's own controls | html, md, json, csv, docx, pptx, xlsx |
 | `cards` | recipe, itinerary, quiz, steps, compare, metric, profile, weather, translation, message | quiz scores locally | html, json, csv |
 | `page` | full published document | yes | html, pdf |
 | `slides` | 16:9 deck, arrow-key paging, print pagination | paging | html, pptx, md, pdf |
@@ -108,20 +112,28 @@ inside the sandbox with the network blocked.
 directly, or `node scripts/serve-gallery.mjs 8777`. [PROMPT.md](PROMPT.md) is the
 master prompt that rebuilds or extends this material in one go.
 
-## The cookbook, now in the renderer
+## The cookbook, now in the renderer and in the library
 
-The twenty forms are not a list of chart names: they are the questions from the
-visualisation cookbook, each with the interaction it needs. `waterfall` shows a
-running total, `dumbbell` and `slope` show two moments per item, `pareto` puts
-the cumulative share on the same 0–100% axis, `funnel` keeps narrow stages
-readable, `bullet` puts a value against a target, and `density`, `ecdf` and
-`violin` compare distributions without hiding the shape behind a box.
+The twenty native forms are not a list of chart names: they are questions from
+the visualization cookbook, each with the interaction it needs. `waterfall`
+shows a running total, `dumbbell` and `slope` show two moments per item,
+`pareto` puts the cumulative share on the same 0–100% axis, `funnel` keeps
+narrow stages readable, `bullet` puts a value against a target, and `density`,
+`ecdf` and `violin` compare distributions without hiding the shape behind a box.
+
+The other **164 recipes** are vendored whole: 15 families, from Q-Q plots and
+ridgelines to sankeys, treemaps, maps, 3D scenes, diagrams and linked views.
+Each is a first-class `recipe` artifact by id, searchable by the model with
+`action:"cookbook"`, and browsable at `/plugins/dsh-artifacts/cookbook` with
+search, family filters, code and copy. The exact function printed under a
+recipe is the function that draws it; the packs are not retyped.
 
 [docs/COOKBOOK.md](docs/COOKBOOK.md) is the chooser: which form answers which
-question, the design rules every chart follows, and the four composition
-patterns (layering, small multiples, linked views, annotation). The model reads
-the same rules in [SKILL.md](SKILL.md), so the artifact and the gallery stay in
-step.
+question, the design rules every chart follows, the four composition patterns
+(layering, small multiples, linked views, annotation), and a worked treatment
+of the log-transform / Shapiro–Wilk argument. The full id index is
+[docs/RECIPES.md](docs/RECIPES.md). The model reads the same rules in
+[SKILL.md](SKILL.md), so the artifact and the gallery stay in step.
 
 ## How it works
 
@@ -131,6 +143,7 @@ model ──artifact tool──▶ host half ──▶ $DSH_HOME/artifacts/<id>/
                             ├─ /plugins/dsh-artifacts/view     (CSP-sandboxed doc)
                             ├─ /plugins/dsh-artifacts/export   (attachment)
                             ├─ /plugins/dsh-artifacts/gallery
+                            ├─ /plugins/dsh-artifacts/cookbook (164 recipes)
                             └─ presentationMeta {id, viewUrl, title}
                                         │
 browser ◀── toolview iframe ◀───────────┘
@@ -161,15 +174,20 @@ print dialog, not a PDF writer.
 ## Development
 
 ```sh
-npm test        # 60 unit tests: schema, markdown, zip/OOXML, store, renderers
-npm run check   # tests + package-shape checks
-npm run render  # write examples/ for a visual check
+npm test             # 63 unit tests: schema, markdown, zip/OOXML, store, renderers, cookbook
+npm run check        # tests + package-shape checks
+npm run build:kit    # inline kit/*.js and cookbook/*.js into lib/kit.js
+npm run build:cookbook # regenerate manifest.json, gallery.html and docs/RECIPES.md
+npm run render       # write examples/ for a visual check
 ```
 
-No dependencies. No build. Edit `lib/*.js` and restart the profile; the client
-bundle is loaded per page.
+No runtime dependencies. `lib/` is committed, so installing the package needs
+no build. Edit `lib/*.js` and restart the profile; regenerate the cookbook or
+the kit only when their sources change.
 
 ## Licence
 
-MIT. Upstream attribution and licence texts are in [NOTICE](NOTICE). Not
-affiliated with Anthropic; "Claude artifacts" is used descriptively.
+MIT. Upstream attribution and licence texts are in [NOTICE](NOTICE). The
+cookbook under `cookbook/` is the user's Claude-authored material, included with
+their direction; it is not an Anthropic product. Not affiliated with Anthropic;
+"Claude artifacts" is used descriptively.

@@ -1,0 +1,6 @@
+{
+  "name": "dsh-artifacts-cookbook",
+  "private": true,
+  "type": "commonjs",
+  "description": "The 164-recipe visualization cookbook, vendored as the source of truth for dsh-artifacts recipes."
+}

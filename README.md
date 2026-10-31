@@ -116,6 +116,8 @@ on every free-form widget. A canvas chart painted with `var(…)` is rejected;
 hardcoded white or black, gradients, emoji, `position:fixed` and widths over
 980px come back as warnings the model has to fix. [docs/HOUSE-STYLE.md](docs/HOUSE-STYLE.md)
 is the contract, and `test/design.test.mjs` is its gate.
+[docs/CLAUDE-METHOD.md](docs/CLAUDE-METHOD.md) reverse-engineers the method from
+the source material: the seven steps, the placement rules, and the checks.
 
 [gallery.html](gallery.html) is the live surface for the same recipes — open it
 directly, or `node scripts/serve-gallery.mjs 8777`. [PROMPT.md](PROMPT.md) is the

@@ -45,8 +45,8 @@ body{
   font-family:var(--font-sans); font-size:16px; line-height:1.7;
   -webkit-font-smoothing:antialiased;
 }
-h1,h2,h3,h4{font-family:var(--font-serif); font-weight:600; line-height:1.15; letter-spacing:-.01em; margin:0 0 .5em}
-h1{font-size:30px} h2{font-size:23px} h3{font-size:18px} h4{font-size:16px; font-family:var(--font-sans); font-weight:600}
+h1,h2,h3,h4{font-family:var(--font-serif); font-weight:500; line-height:1.15; letter-spacing:-.01em; margin:0 0 .5em}
+h1{font-size:30px} h2{font-size:23px} h3{font-size:18px} h4{font-size:16px; font-family:var(--font-sans); font-weight:500}
 p{margin:0 0 1em}
 a{color:var(--accent-ink); text-underline-offset:2px}
 code{font-family:var(--font-mono); font-size:.88em; background:var(--surface-2); padding:.15em .4em; border-radius:4px}
@@ -55,7 +55,7 @@ pre code{background:none; padding:0}
 hr{border:0; border-top:1px solid var(--border); margin:24px 0}
 table{border-collapse:collapse; width:100%; font-size:14px; margin:0 0 1.2em}
 th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:top}
-th{font-weight:600; color:var(--text-2); font-size:12px; letter-spacing:.04em; text-transform:uppercase}
+th{font-weight:500; color:var(--text-2); font-size:12px; letter-spacing:.04em; text-transform:uppercase}
 blockquote{margin:0 0 1.2em; padding:2px 0 2px 16px; border-left:2px solid var(--accent); color:var(--text-2)}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .wrap{max-width:var(--maxw); margin:0 auto; padding:24px 20px 32px}
@@ -66,7 +66,7 @@ blockquote{margin:0 0 1.2em; padding:2px 0 2px 16px; border-left:2px solid var(-
 .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px}
 .metric{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:14px 16px}
 .metric .label{font-size:12px; color:var(--text-2); margin:0 0 4px}
-.metric .value{font-size:26px; font-weight:600; line-height:1.1; margin:0; font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.metric .value{font-size:26px; font-weight:500; line-height:1.1; margin:0; font-variant-numeric:tabular-nums; letter-spacing:-.02em}
 .legend{display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--text-2); margin:0 0 10px}
 .legend span{display:inline-flex; align-items:center; gap:6px}
 .swatch{width:10px; height:10px; border-radius:2px; display:inline-block}
@@ -75,9 +75,28 @@ details.data{margin-top:10px; font-size:12px; color:var(--text-2)}
 details.data summary{cursor:pointer; color:var(--text-2)}
 button{font:inherit; font-size:14px; border:1px solid var(--border-strong); background:var(--surface); color:var(--text); border-radius:var(--radius); padding:7px 12px; cursor:pointer}
 button:hover{background:var(--surface-2)}
-button.primary{background:var(--text); color:var(--bg); border-color:var(--text)}
+button.primary{background:var(--surface-2); color:var(--text); border-color:var(--border-strong)}
 input,select,textarea{font:inherit; font-size:14px; color:var(--text); background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--radius); padding:7px 10px}
 input[type=range]{padding:0; accent-color:var(--accent)}
+
+
+/* --- explainer vocabulary --- */
+.step{font-size:18px;font-weight:500;line-height:1.3;margin:0 0 4px;letter-spacing:-.01em}
+.step .num{color:var(--muted);font-weight:500;margin-right:8px}
+.caption{font-size:13px;line-height:1.5;color:var(--text-2);margin:0 0 14px}
+.kicker{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.figure{margin:0 0 16px}
+.figure:last-child{margin-bottom:0}
+.figure svg{display:block;width:100%;height:auto}
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;align-items:start}
+.panel{min-width:0}
+.panel h4{font-family:var(--font-sans);font-size:13px;font-weight:500;margin:0 0 2px}
+.panel .caption{margin:6px 0 0}
+.note{font-size:12px;line-height:1.5;color:var(--muted);margin:10px 0 0}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 12px}
+.controls label{display:inline-flex;gap:8px;align-items:center;font-size:13px;color:var(--text-2)}
+.value{font-variant-numeric:tabular-nums;font-weight:500}
+.rule{border:0;border-top:1px solid var(--border);margin:20px 0}
 
 body{background:transparent}
 /* Shared surface for the gallery and the DSH widget. Tokens first, so a host
@@ -262,11 +281,11 @@ a { color: var(--vz-accent); }
 }
 
 :root{--vz-text:var(--text);--vz-dim:var(--text-2);--vz-faint:var(--muted);--vz-line:var(--border);--vz-surface:var(--surface);--vz-accent:var(--accent);--grid:var(--border);--axis:var(--border-strong);--card:var(--surface-2)}
-:root{--maxw:880px}
+:root{--maxw:100%}
 </style>
 </head>
 <body>
-<div class="wrap" style="padding:6px 0 4px">
+<div class="wrap" style="padding:6px 18px 8px">
 <h2 class="sr-only">Signups and activations: bar, Signups (6 points), Activations (6 points).</h2>
 <div id="chart" role="group" aria-label="Signups and activations: bar, Signups (6 points), Activations (6 points)."></div>
 <details class="data"><summary>Data</summary><table><thead><tr><th></th><th>Signups</th><th>Activations</th></tr></thead><tbody><tr><th>Jan</th><td>120</td><td>70</td></tr><tr><th>Feb</th><td>148</td><td>92</td></tr><tr><th>Mar</th><td>139</td><td>88</td></tr><tr><th>Apr</th><td>175</td><td>120</td></tr><tr><th>May</th><td>190</td><td>131</td></tr><tr><th>Jun</th><td>212</td><td>158</td></tr></tbody></table></details>
@@ -964,6 +983,17 @@ a { color: var(--vz-accent); }
 
   /* ------------------------------------------------------------------ charts */
 
+  /**
+   * The chart's viewBox width: the container's width, so the drawing fills the
+   * artifact at 1:1 instead of sitting 680px wide inside a 1200px card.
+   * @param {Element} host element the chart is mounted in
+   * @returns {number} viewBox width in pixels
+   */
+  function stageWidth(host) {
+    const width = host && host.clientWidth ? host.clientWidth : 680
+    return Math.max(560, Math.min(1200, Math.round(width)))
+  }
+
   function drawBar(host, spec, ui, state) {
     const palette = K.theme(host)
     const data = rows(spec.data)
@@ -971,7 +1001,7 @@ a { color: var(--vz-accent); }
     const horizontal = spec.type === 'hbar'
     const height = spec.height ?? (horizontal ? Math.max(120, data.length * 30 + 50) : 300)
     const st = K.stage(ui.body, {
-      width: 680,
+      width: stageWidth(ui.body),
       height,
       margin: spec.margin ?? (horizontal ? { t: 8, r: 26, b: 26, l: Math.min(190, Math.max(90, longest(data) * 7)) } : { t: 12, r: 16, b: 46, l: 46 }),
       label: spec.title ?? 'bar chart',
@@ -1005,9 +1035,10 @@ a { color: var(--vz-accent); }
         style: { transition: 'fill-opacity .12s ease' },
         'data-label': d.label,
       }
+      const thickness = horizontal ? Math.min(band.bw, 24) : Math.min(band.bw, 48)
       const mark = horizontal
-        ? K.el('rect', { ...common, x: value(Math.min(0, d.value)), y: band(d.label), width: Math.max(1, Math.abs(value(d.value) - value(0))), height: band.bw, rx: 2 }, st.g)
-        : K.el('rect', { ...common, x: band(d.label), y: Math.min(value(0), value(d.value)), width: band.bw, height: Math.max(1, Math.abs(value(0) - value(d.value))), rx: 2 }, st.g)
+        ? K.el('rect', { ...common, x: value(Math.min(0, d.value)), y: band(d.label) + (band.bw - thickness) / 2, width: Math.max(1, Math.abs(value(d.value) - value(0))), height: thickness, rx: 2 }, st.g)
+        : K.el('rect', { ...common, x: band(d.label) + (band.bw - thickness) / 2, y: Math.min(value(0), value(d.value)), width: thickness, height: Math.max(1, Math.abs(value(0) - value(d.value))), rx: 2 }, st.g)
       marks.push({ mark, d })
       if (horizontal) {
         K.el('text', {
@@ -1028,7 +1059,7 @@ a { color: var(--vz-accent); }
 
     const hit = (event) => {
       const rect = st.svg.getBoundingClientRect()
-      const scale = 680 / (rect.width || 680)
+      const scale = st.W / (rect.width || st.W)
       const px = (event.clientX - rect.left) * scale
       const py = (event.clientY - rect.top) * scale
       let best = null
@@ -1069,9 +1100,13 @@ a { color: var(--vz-accent); }
     const visible = series.filter((s) => state.hidden[s.name] !== true)
     const totals = labels.map((_, i) => K.sum(visible.map((s) => s.values[i] ?? 0)))
     const height = spec.height ?? 300
-    const st = K.stage(ui.body, { width: 680, height, margin: { t: 12, r: 16, b: 40, l: 46 }, label: spec.title ?? 'stacked bars' })
+    const st = K.stage(ui.body, { width: stageWidth(ui.body), height, margin: { t: 12, r: 16, b: 40, l: 46 }, label: spec.title ?? 'stacked bars' })
     const y = K.linear([0, Math.max(...totals) * 1.04 || 1], [st.y0 + st.ph, st.y0])
     const x = K.band(labels, [st.x0, st.x0 + st.pw], 0.3)
+    // A wide card must not turn a stack into a slab: cap the column and centre
+    // it in its band, the way a 24px bar cap keeps a bar chart airy.
+    const barW = Math.min(x.bw, 64)
+    const barX = (label) => x(label) + (x.bw - barW) / 2
     K.gridY(st, y, { color: palette.line })
     K.axisX(st, x, { every: labels.length > 12 ? Math.ceil(labels.length / 12) : 1 })
 
@@ -1082,11 +1117,11 @@ a { color: var(--vz-accent); }
         const y0 = y(base)
         const y1 = y(base + v)
         const rect = K.el('rect', {
-          x: x(label), y: y1, width: x.bw, height: Math.max(1, y0 - y1),
+          x: barX(label), y: y1, width: barW, height: Math.max(1, y0 - y1),
           fill: s.color, 'fill-opacity': state.selected === null || state.selected === s.name ? 0.94 : 0.3,
         }, st.g)
         rect.addEventListener('pointerenter', () => {
-          ui.tooltip.show(x(label) + x.bw / 2, y1, tipHtml(`${label} · ${s.name}`, v, spec))
+          ui.tooltip.show(barX(label) + barW / 2, y1, tipHtml(`${label} · ${s.name}`, v, spec))
         })
         rect.addEventListener('pointerleave', () => ui.tooltip.hide())
         base += v
@@ -1107,7 +1142,7 @@ a { color: var(--vz-accent); }
     const series = all.filter((s) => state.hidden[s.name] !== true)
     if (series.length === 0) return drawEmpty(ui)
     const height = spec.height ?? 300
-    const st = K.stage(ui.body, { width: 680, height, margin: { t: 14, r: spec.endLabels === false ? 16 : 96, b: 38, l: 46 }, label: spec.title ?? 'line chart' })
+    const st = K.stage(ui.body, { width: stageWidth(ui.body), height, margin: { t: 14, r: spec.endLabels === false ? 16 : 96, b: 38, l: 46 }, label: spec.title ?? 'line chart' })
     const xs = series.flatMap((s) => s.points.map((p) => p.x))
     const ys = series.flatMap((s) => s.points.map((p) => p.y))
     const xd = state.zoom ?? [Math.min(...xs), Math.max(...xs)]
@@ -1156,7 +1191,7 @@ a { color: var(--vz-accent); }
 
     const move = (event) => {
       const rect = st.svg.getBoundingClientRect()
-      const scale = 680 / (rect.width || 680)
+      const scale = st.W / (rect.width || st.W)
       const px = (event.clientX - rect.left) * scale
       if (px < st.x0 || px > st.x0 + st.pw) { ui.tooltip.hide(); return }
       const xv = x.invert(px)
@@ -1240,7 +1275,7 @@ a { color: var(--vz-accent); }
       : { x: Number(p.x), y: Number(p.y), r: Number(p.r ?? 4), label: String(p.label ?? '') })
       .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y))
     if (points.length === 0) return drawEmpty(ui)
-    const st = K.stage(ui.body, { width: 680, height: spec.height ?? 340, margin: { t: 14, r: 18, b: 40, l: 50 }, label: spec.title ?? 'scatter plot' })
+    const st = K.stage(ui.body, { width: stageWidth(ui.body), height: spec.height ?? 340, margin: { t: 14, r: 18, b: 40, l: 50 }, label: spec.title ?? 'scatter plot' })
     const xs = points.map((p) => p.x)
     const ys = points.map((p) => p.y)
     const x = K.linear([Math.min(...xs), Math.max(...xs) || 1], [st.x0, st.x0 + st.pw])
@@ -1295,7 +1330,7 @@ a { color: var(--vz-accent); }
     const values = (spec.values ?? []).map(Number).filter(Number.isFinite)
     if (values.length === 0) return drawEmpty(ui)
     const height = spec.height ?? 280
-    const st = K.stage(ui.body, { width: 680, height, margin: { t: 14, r: 16, b: 38, l: 46 }, label: spec.title ?? 'histogram' })
+    const st = K.stage(ui.body, { width: stageWidth(ui.body), height, margin: { t: 14, r: 16, b: 38, l: 46 }, label: spec.title ?? 'histogram' })
     const bins = K.clamp(Number(state.bins ?? spec.bins ?? 24), 4, 80)
     const lo = Math.min(...values)
     const hi = Math.max(...values)
@@ -1339,7 +1374,7 @@ a { color: var(--vz-accent); }
     const palette = K.theme(host)
     const groups = (spec.groups ?? []).map((g) => ({ label: String(g.label ?? g.name), values: (g.values ?? []).map(Number).filter(Number.isFinite) })).filter((g) => g.values.length > 0)
     if (groups.length === 0) return drawEmpty(ui)
-    const st = K.stage(ui.body, { width: 680, height: spec.height ?? 300, margin: { t: 14, r: 16, b: 40, l: 46 }, label: spec.title ?? 'box plot' })
+    const st = K.stage(ui.body, { width: stageWidth(ui.body), height: spec.height ?? 300, margin: { t: 14, r: 16, b: 40, l: 46 }, label: spec.title ?? 'box plot' })
     const all = groups.flatMap((g) => g.values)
     const y = K.linear([Math.min(...all), Math.max(...all)], [st.y0 + st.ph, st.y0])
     const x = K.band(groups.map((g) => g.label), [st.x0, st.x0 + st.pw], 0.38)
@@ -1387,9 +1422,9 @@ a { color: var(--vz-accent); }
     const flat = values.flat().map(Number).filter(Number.isFinite)
     const lo = Math.min(...flat)
     const hi = Math.max(...flat)
-    const cell = Math.min(44, Math.floor((680 - 120) / cols.length))
+    const cell = Math.min(44, Math.floor((stageWidth(ui.body) - 120) / cols.length))
     const st = K.stage(ui.body, {
-      width: 680,
+      width: stageWidth(ui.body),
       height: rowsLabels.length * cell + 56,
       margin: { t: 46, r: 20, b: 10, l: Math.min(150, Math.max(80, longest(rowsLabels) * 6.4)) },
       label: spec.title ?? 'heatmap',
@@ -1425,8 +1460,8 @@ a { color: var(--vz-accent); }
     const palette = K.theme(host)
     const data = rows(spec.data)
     if (data.length === 0) return drawEmpty(ui)
-    const st = K.stage(ui.body, { width: 680, height: spec.height ?? 260, margin: { t: 6, r: 6, b: 6, l: 6 }, label: spec.title ?? 'donut chart' })
-    const cx = 190
+    const st = K.stage(ui.body, { width: Math.min(680, stageWidth(ui.body)), height: spec.height ?? 260, margin: { t: 6, r: 6, b: 6, l: 6 }, label: spec.title ?? 'donut chart' })
+    const cx = st.W / 2
     const cy = (spec.height ?? 260) / 2
     const radius = Math.min(100, cy - 12)
     const inner = spec.type === 'donut' ? radius * 0.58 : 0
@@ -1513,7 +1548,7 @@ a { color: var(--vz-accent); }
     const top = Math.max(0, ...bars.map((bar) => Math.max(bar.from, bar.to)))
     const bottom = Math.min(0, ...bars.map((bar) => Math.min(bar.from, bar.to)))
     const st = K.stage(ui.body, {
-      width: 680,
+      width: stageWidth(ui.body),
       height: spec.height ?? 300,
       margin: { t: 18, r: 16, b: labels.length > 8 ? 54 : 40, l: 50 },
       label: spec.title ?? 'waterfall chart',
@@ -1567,7 +1602,7 @@ a { color: var(--vz-accent); }
     const [lo, hi] = K.extent(all)
     const pad = (hi - lo) * 0.08 || 1
     const st = K.stage(ui.body, {
-      width: 680,
+      width: stageWidth(ui.body),
       height: spec.height ?? Math.max(190, rows.length * 34 + 58),
       margin: { t: 14, r: 26, b: 34, l: Math.min(190, Math.max(92, longest(rows.map((row) => row.label)) * 6.6)) },
       label: spec.title ?? 'dumbbell chart',
@@ -1616,7 +1651,7 @@ a { color: var(--vz-accent); }
     const [lo, hi] = K.extent(all)
     const pad = (hi - lo) * 0.12 || 1
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? 300,
+      width: stageWidth(ui.body), height: spec.height ?? 300,
       margin: { t: 18, r: 84, b: 42, l: 84 },
       label: spec.title ?? 'slope chart',
     })
@@ -1664,7 +1699,7 @@ a { color: var(--vz-accent); }
     let cumulative = 0
     const cumulativeAt = data.map((row) => { cumulative += row.value / total; return cumulative })
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? 300,
+      width: stageWidth(ui.body), height: spec.height ?? 300,
       margin: { t: 16, r: 20, b: data.length > 7 ? 58 : 42, l: 52 },
       label: spec.title ?? 'pareto chart',
     })
@@ -1710,7 +1745,7 @@ a { color: var(--vz-accent); }
     if (data.length === 0) return drawEmpty(ui)
     const max = Math.max(...data.map((row) => row.value), 1)
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? Math.max(210, data.length * 54 + 26),
+      width: stageWidth(ui.body), height: spec.height ?? Math.max(210, data.length * 54 + 26),
       margin: { t: 12, r: 12, b: 12, l: 12 },
       label: spec.title ?? 'funnel chart',
     })
@@ -1759,7 +1794,7 @@ a { color: var(--vz-accent); }
     if (rows.length === 0) return drawEmpty(ui)
     const top = Math.max(...rows.map((row) => Math.max(row.value, Number.isFinite(row.target) ? row.target : 0)), 1) * 1.05
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? Math.max(170, rows.length * 48 + 54),
+      width: stageWidth(ui.body), height: spec.height ?? Math.max(170, rows.length * 48 + 54),
       margin: { t: 14, r: 22, b: 30, l: Math.min(190, Math.max(88, longest(rows.map((row) => row.label)) * 6.6)) },
       label: spec.title ?? 'bullet chart',
     })
@@ -1811,7 +1846,7 @@ a { color: var(--vz-accent); }
     })
     const max = Math.max(...curves.flatMap((curve) => curve.ys)) * 1.08 || 1
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? 300,
+      width: stageWidth(ui.body), height: spec.height ?? 300,
       margin: { t: 16, r: 18, b: 40, l: 54 },
       label: spec.title ?? 'density plot',
     })
@@ -1834,7 +1869,7 @@ a { color: var(--vz-accent); }
     }
     const move = (event) => {
       const rect = st.svg.getBoundingClientRect()
-      const scale = 680 / (rect.width || 680)
+      const scale = st.W / (rect.width || st.W)
       const px = (event.clientX - rect.left) * scale
       if (px < st.x0 || px > st.x0 + st.pw) { ui.tooltip.hide(); return }
       const value = x.invert(px)
@@ -1862,7 +1897,7 @@ a { color: var(--vz-accent); }
     const lo = lo0 - pad
     const hi = hi0 + pad
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? 300,
+      width: stageWidth(ui.body), height: spec.height ?? 300,
       margin: { t: 16, r: 18, b: 40, l: 54 },
       label: spec.title ?? 'ecdf plot',
     })
@@ -1889,7 +1924,7 @@ a { color: var(--vz-accent); }
     }
     const move = (event) => {
       const rect = st.svg.getBoundingClientRect()
-      const scale = 680 / (rect.width || 680)
+      const scale = st.W / (rect.width || st.W)
       const px = (event.clientX - rect.left) * scale
       if (px < st.x0 || px > st.x0 + st.pw) { ui.tooltip.hide(); return }
       const value = x.invert(px)
@@ -1919,7 +1954,7 @@ a { color: var(--vz-accent); }
     const lo = lo0 - pad
     const hi = hi0 + pad
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? 300,
+      width: stageWidth(ui.body), height: spec.height ?? 300,
       margin: { t: 16, r: 18, b: 44, l: 50 },
       label: spec.title ?? 'violin plot',
     })

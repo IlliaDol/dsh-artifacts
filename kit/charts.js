@@ -67,6 +67,17 @@
 
   /* ------------------------------------------------------------------ charts */
 
+  /**
+   * The chart's viewBox width: the container's width, so the drawing fills the
+   * artifact at 1:1 instead of sitting 680px wide inside a 1200px card.
+   * @param {Element} host element the chart is mounted in
+   * @returns {number} viewBox width in pixels
+   */
+  function stageWidth(host) {
+    const width = host && host.clientWidth ? host.clientWidth : 680
+    return Math.max(560, Math.min(1200, Math.round(width)))
+  }
+
   function drawBar(host, spec, ui, state) {
     const palette = K.theme(host)
     const data = rows(spec.data)
@@ -74,7 +85,7 @@
     const horizontal = spec.type === 'hbar'
     const height = spec.height ?? (horizontal ? Math.max(120, data.length * 30 + 50) : 300)
     const st = K.stage(ui.body, {
-      width: 680,
+      width: stageWidth(ui.body),
       height,
       margin: spec.margin ?? (horizontal ? { t: 8, r: 26, b: 26, l: Math.min(190, Math.max(90, longest(data) * 7)) } : { t: 12, r: 16, b: 46, l: 46 }),
       label: spec.title ?? 'bar chart',
@@ -108,9 +119,10 @@
         style: { transition: 'fill-opacity .12s ease' },
         'data-label': d.label,
       }
+      const thickness = horizontal ? Math.min(band.bw, 24) : Math.min(band.bw, 48)
       const mark = horizontal
-        ? K.el('rect', { ...common, x: value(Math.min(0, d.value)), y: band(d.label), width: Math.max(1, Math.abs(value(d.value) - value(0))), height: band.bw, rx: 2 }, st.g)
-        : K.el('rect', { ...common, x: band(d.label), y: Math.min(value(0), value(d.value)), width: band.bw, height: Math.max(1, Math.abs(value(0) - value(d.value))), rx: 2 }, st.g)
+        ? K.el('rect', { ...common, x: value(Math.min(0, d.value)), y: band(d.label) + (band.bw - thickness) / 2, width: Math.max(1, Math.abs(value(d.value) - value(0))), height: thickness, rx: 2 }, st.g)
+        : K.el('rect', { ...common, x: band(d.label) + (band.bw - thickness) / 2, y: Math.min(value(0), value(d.value)), width: thickness, height: Math.max(1, Math.abs(value(0) - value(d.value))), rx: 2 }, st.g)
       marks.push({ mark, d })
       if (horizontal) {
         K.el('text', {
@@ -131,7 +143,7 @@
 
     const hit = (event) => {
       const rect = st.svg.getBoundingClientRect()
-      const scale = 680 / (rect.width || 680)
+      const scale = st.W / (rect.width || st.W)
       const px = (event.clientX - rect.left) * scale
       const py = (event.clientY - rect.top) * scale
       let best = null
@@ -172,9 +184,13 @@
     const visible = series.filter((s) => state.hidden[s.name] !== true)
     const totals = labels.map((_, i) => K.sum(visible.map((s) => s.values[i] ?? 0)))
     const height = spec.height ?? 300
-    const st = K.stage(ui.body, { width: 680, height, margin: { t: 12, r: 16, b: 40, l: 46 }, label: spec.title ?? 'stacked bars' })
+    const st = K.stage(ui.body, { width: stageWidth(ui.body), height, margin: { t: 12, r: 16, b: 40, l: 46 }, label: spec.title ?? 'stacked bars' })
     const y = K.linear([0, Math.max(...totals) * 1.04 || 1], [st.y0 + st.ph, st.y0])
     const x = K.band(labels, [st.x0, st.x0 + st.pw], 0.3)
+    // A wide card must not turn a stack into a slab: cap the column and centre
+    // it in its band, the way a 24px bar cap keeps a bar chart airy.
+    const barW = Math.min(x.bw, 64)
+    const barX = (label) => x(label) + (x.bw - barW) / 2
     K.gridY(st, y, { color: palette.line })
     K.axisX(st, x, { every: labels.length > 12 ? Math.ceil(labels.length / 12) : 1 })
 
@@ -185,11 +201,11 @@
         const y0 = y(base)
         const y1 = y(base + v)
         const rect = K.el('rect', {
-          x: x(label), y: y1, width: x.bw, height: Math.max(1, y0 - y1),
+          x: barX(label), y: y1, width: barW, height: Math.max(1, y0 - y1),
           fill: s.color, 'fill-opacity': state.selected === null || state.selected === s.name ? 0.94 : 0.3,
         }, st.g)
         rect.addEventListener('pointerenter', () => {
-          ui.tooltip.show(x(label) + x.bw / 2, y1, tipHtml(`${label} · ${s.name}`, v, spec))
+          ui.tooltip.show(barX(label) + barW / 2, y1, tipHtml(`${label} · ${s.name}`, v, spec))
         })
         rect.addEventListener('pointerleave', () => ui.tooltip.hide())
         base += v
@@ -210,7 +226,7 @@
     const series = all.filter((s) => state.hidden[s.name] !== true)
     if (series.length === 0) return drawEmpty(ui)
     const height = spec.height ?? 300
-    const st = K.stage(ui.body, { width: 680, height, margin: { t: 14, r: spec.endLabels === false ? 16 : 96, b: 38, l: 46 }, label: spec.title ?? 'line chart' })
+    const st = K.stage(ui.body, { width: stageWidth(ui.body), height, margin: { t: 14, r: spec.endLabels === false ? 16 : 96, b: 38, l: 46 }, label: spec.title ?? 'line chart' })
     const xs = series.flatMap((s) => s.points.map((p) => p.x))
     const ys = series.flatMap((s) => s.points.map((p) => p.y))
     const xd = state.zoom ?? [Math.min(...xs), Math.max(...xs)]
@@ -259,7 +275,7 @@
 
     const move = (event) => {
       const rect = st.svg.getBoundingClientRect()
-      const scale = 680 / (rect.width || 680)
+      const scale = st.W / (rect.width || st.W)
       const px = (event.clientX - rect.left) * scale
       if (px < st.x0 || px > st.x0 + st.pw) { ui.tooltip.hide(); return }
       const xv = x.invert(px)
@@ -343,7 +359,7 @@
       : { x: Number(p.x), y: Number(p.y), r: Number(p.r ?? 4), label: String(p.label ?? '') })
       .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y))
     if (points.length === 0) return drawEmpty(ui)
-    const st = K.stage(ui.body, { width: 680, height: spec.height ?? 340, margin: { t: 14, r: 18, b: 40, l: 50 }, label: spec.title ?? 'scatter plot' })
+    const st = K.stage(ui.body, { width: stageWidth(ui.body), height: spec.height ?? 340, margin: { t: 14, r: 18, b: 40, l: 50 }, label: spec.title ?? 'scatter plot' })
     const xs = points.map((p) => p.x)
     const ys = points.map((p) => p.y)
     const x = K.linear([Math.min(...xs), Math.max(...xs) || 1], [st.x0, st.x0 + st.pw])
@@ -398,7 +414,7 @@
     const values = (spec.values ?? []).map(Number).filter(Number.isFinite)
     if (values.length === 0) return drawEmpty(ui)
     const height = spec.height ?? 280
-    const st = K.stage(ui.body, { width: 680, height, margin: { t: 14, r: 16, b: 38, l: 46 }, label: spec.title ?? 'histogram' })
+    const st = K.stage(ui.body, { width: stageWidth(ui.body), height, margin: { t: 14, r: 16, b: 38, l: 46 }, label: spec.title ?? 'histogram' })
     const bins = K.clamp(Number(state.bins ?? spec.bins ?? 24), 4, 80)
     const lo = Math.min(...values)
     const hi = Math.max(...values)
@@ -442,7 +458,7 @@
     const palette = K.theme(host)
     const groups = (spec.groups ?? []).map((g) => ({ label: String(g.label ?? g.name), values: (g.values ?? []).map(Number).filter(Number.isFinite) })).filter((g) => g.values.length > 0)
     if (groups.length === 0) return drawEmpty(ui)
-    const st = K.stage(ui.body, { width: 680, height: spec.height ?? 300, margin: { t: 14, r: 16, b: 40, l: 46 }, label: spec.title ?? 'box plot' })
+    const st = K.stage(ui.body, { width: stageWidth(ui.body), height: spec.height ?? 300, margin: { t: 14, r: 16, b: 40, l: 46 }, label: spec.title ?? 'box plot' })
     const all = groups.flatMap((g) => g.values)
     const y = K.linear([Math.min(...all), Math.max(...all)], [st.y0 + st.ph, st.y0])
     const x = K.band(groups.map((g) => g.label), [st.x0, st.x0 + st.pw], 0.38)
@@ -490,9 +506,9 @@
     const flat = values.flat().map(Number).filter(Number.isFinite)
     const lo = Math.min(...flat)
     const hi = Math.max(...flat)
-    const cell = Math.min(44, Math.floor((680 - 120) / cols.length))
+    const cell = Math.min(44, Math.floor((stageWidth(ui.body) - 120) / cols.length))
     const st = K.stage(ui.body, {
-      width: 680,
+      width: stageWidth(ui.body),
       height: rowsLabels.length * cell + 56,
       margin: { t: 46, r: 20, b: 10, l: Math.min(150, Math.max(80, longest(rowsLabels) * 6.4)) },
       label: spec.title ?? 'heatmap',
@@ -528,8 +544,8 @@
     const palette = K.theme(host)
     const data = rows(spec.data)
     if (data.length === 0) return drawEmpty(ui)
-    const st = K.stage(ui.body, { width: 680, height: spec.height ?? 260, margin: { t: 6, r: 6, b: 6, l: 6 }, label: spec.title ?? 'donut chart' })
-    const cx = 190
+    const st = K.stage(ui.body, { width: Math.min(680, stageWidth(ui.body)), height: spec.height ?? 260, margin: { t: 6, r: 6, b: 6, l: 6 }, label: spec.title ?? 'donut chart' })
+    const cx = st.W / 2
     const cy = (spec.height ?? 260) / 2
     const radius = Math.min(100, cy - 12)
     const inner = spec.type === 'donut' ? radius * 0.58 : 0
@@ -616,7 +632,7 @@
     const top = Math.max(0, ...bars.map((bar) => Math.max(bar.from, bar.to)))
     const bottom = Math.min(0, ...bars.map((bar) => Math.min(bar.from, bar.to)))
     const st = K.stage(ui.body, {
-      width: 680,
+      width: stageWidth(ui.body),
       height: spec.height ?? 300,
       margin: { t: 18, r: 16, b: labels.length > 8 ? 54 : 40, l: 50 },
       label: spec.title ?? 'waterfall chart',
@@ -670,7 +686,7 @@
     const [lo, hi] = K.extent(all)
     const pad = (hi - lo) * 0.08 || 1
     const st = K.stage(ui.body, {
-      width: 680,
+      width: stageWidth(ui.body),
       height: spec.height ?? Math.max(190, rows.length * 34 + 58),
       margin: { t: 14, r: 26, b: 34, l: Math.min(190, Math.max(92, longest(rows.map((row) => row.label)) * 6.6)) },
       label: spec.title ?? 'dumbbell chart',
@@ -719,7 +735,7 @@
     const [lo, hi] = K.extent(all)
     const pad = (hi - lo) * 0.12 || 1
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? 300,
+      width: stageWidth(ui.body), height: spec.height ?? 300,
       margin: { t: 18, r: 84, b: 42, l: 84 },
       label: spec.title ?? 'slope chart',
     })
@@ -767,7 +783,7 @@
     let cumulative = 0
     const cumulativeAt = data.map((row) => { cumulative += row.value / total; return cumulative })
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? 300,
+      width: stageWidth(ui.body), height: spec.height ?? 300,
       margin: { t: 16, r: 20, b: data.length > 7 ? 58 : 42, l: 52 },
       label: spec.title ?? 'pareto chart',
     })
@@ -813,7 +829,7 @@
     if (data.length === 0) return drawEmpty(ui)
     const max = Math.max(...data.map((row) => row.value), 1)
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? Math.max(210, data.length * 54 + 26),
+      width: stageWidth(ui.body), height: spec.height ?? Math.max(210, data.length * 54 + 26),
       margin: { t: 12, r: 12, b: 12, l: 12 },
       label: spec.title ?? 'funnel chart',
     })
@@ -862,7 +878,7 @@
     if (rows.length === 0) return drawEmpty(ui)
     const top = Math.max(...rows.map((row) => Math.max(row.value, Number.isFinite(row.target) ? row.target : 0)), 1) * 1.05
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? Math.max(170, rows.length * 48 + 54),
+      width: stageWidth(ui.body), height: spec.height ?? Math.max(170, rows.length * 48 + 54),
       margin: { t: 14, r: 22, b: 30, l: Math.min(190, Math.max(88, longest(rows.map((row) => row.label)) * 6.6)) },
       label: spec.title ?? 'bullet chart',
     })
@@ -914,7 +930,7 @@
     })
     const max = Math.max(...curves.flatMap((curve) => curve.ys)) * 1.08 || 1
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? 300,
+      width: stageWidth(ui.body), height: spec.height ?? 300,
       margin: { t: 16, r: 18, b: 40, l: 54 },
       label: spec.title ?? 'density plot',
     })
@@ -937,7 +953,7 @@
     }
     const move = (event) => {
       const rect = st.svg.getBoundingClientRect()
-      const scale = 680 / (rect.width || 680)
+      const scale = st.W / (rect.width || st.W)
       const px = (event.clientX - rect.left) * scale
       if (px < st.x0 || px > st.x0 + st.pw) { ui.tooltip.hide(); return }
       const value = x.invert(px)
@@ -965,7 +981,7 @@
     const lo = lo0 - pad
     const hi = hi0 + pad
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? 300,
+      width: stageWidth(ui.body), height: spec.height ?? 300,
       margin: { t: 16, r: 18, b: 40, l: 54 },
       label: spec.title ?? 'ecdf plot',
     })
@@ -992,7 +1008,7 @@
     }
     const move = (event) => {
       const rect = st.svg.getBoundingClientRect()
-      const scale = 680 / (rect.width || 680)
+      const scale = st.W / (rect.width || st.W)
       const px = (event.clientX - rect.left) * scale
       if (px < st.x0 || px > st.x0 + st.pw) { ui.tooltip.hide(); return }
       const value = x.invert(px)
@@ -1022,7 +1038,7 @@
     const lo = lo0 - pad
     const hi = hi0 + pad
     const st = K.stage(ui.body, {
-      width: 680, height: spec.height ?? 300,
+      width: stageWidth(ui.body), height: spec.height ?? 300,
       margin: { t: 16, r: 18, b: 44, l: 50 },
       label: spec.title ?? 'violin plot',
     })

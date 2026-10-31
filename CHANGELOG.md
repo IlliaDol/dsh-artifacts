@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.6.0 — 2026-10-31
+
+Reverse-engineered from the user's own Claude material (`00_how_i_work.md`,
+`DESIGN_GUIDE.md`, `taste.md`, the cookbook) and applied to the surface.
+
+- **The artifact is the message, not a card.** The client renders it at the tool
+  call, at the conversation width, at its own height, eagerly, with no header,
+  no badge and no click; Open and Gallery appear only on hover or keyboard
+  focus. That is `00_how_i_work.md` §7: the app renders the widget at that
+  position as it arrives, and nothing needs to be opened.
+- **Charts fill the card.** The kit measures its host and draws at that width
+  (560–1200) instead of a fixed 680 viewBox, so a chart no longer sits small in
+  a wide artifact. Bar thickness is capped (48px vertical, 24px horizontal,
+  64px stacks) so a wide card stays airy instead of turning bars into slabs; the
+  donut is centred at any width.
+- **Two weights, as in the design guide.** 600 → 500 everywhere, and the primary
+  button is a quiet filled button instead of a white pill.
+- **Widgets fill the width**, recipes use a 900px measure, docs stay at 720.
+- **The method is documented**: `docs/CLAUDE-METHOD.md` — the seven steps, the
+  placement rules, the design rules, the verification loop, and which layer
+  enforces each.
+- Prompt and skill: a lead-in before the artifact and the reading after it,
+  never two artifacts back to back, never open a reply with one unless the
+  picture *is* the answer; 14/12/11 type scale.
+- Tests: 77 pass; `npm run design:check` clean in dark and light.
+
 ## 0.5.0 — 2026-10-31
 
 The look is now a system, not a per-artifact decision. Two artifacts from two

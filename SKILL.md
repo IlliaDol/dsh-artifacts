@@ -115,6 +115,14 @@ Colours are tokens only: `--text`, `--text-2`, `--muted`, `--surface`,
 or a gradient. Buttons, inputs, sliders, tables and `details.data` are already
 styled — use them as they are.
 
+Type: sentence case, two weights (400/500), 14px labels, 12px notes, 11px
+minimum ticks.
+
+Placement: the artifact renders inline at the tool call, at the conversation
+width and at its own height — nothing to open, nothing to click. Write a lead-in
+sentence before it and the reading of the picture after it. Never two artifacts
+back to back, and never open a reply with one unless the picture *is* the answer.
+
 The tool audits every widget: a canvas that paints with `var(…)` is rejected,
 and a hardcoded white/black background, a gradient, an emoji, `position:fixed`
 or a fixed width over 980px comes back as a warning. Fix them before resending.

@@ -38,6 +38,41 @@ test('file artifacts render no document', () => {
   assert.equal(renderArtifact(artifact('file', 'a,b', { format: 'csv' })).html, null);
 });
 
+test('a single-series bar chart is one colour; a donut keeps one colour per slice', () => {
+  const bar = renderArtifact(artifact('chart', JSON.stringify({
+    type: 'bar',
+    labels: ['Mon', 'Tue', 'Wed'],
+    series: [{ name: 'Temperature', values: [22, 24, 19] }],
+  }))).html;
+  const barSpec = chartSpecOf(bar);
+  assert.equal(barSpec.data.length, 3);
+  assert.equal(
+    barSpec.data.every((row) => row.color === undefined),
+    true,
+    'one measure across categories is one colour, not a rainbow',
+  );
+
+  const donut = renderArtifact(artifact('chart', JSON.stringify({
+    type: 'donut',
+    labels: ['A', 'B', 'C'],
+    series: [{ name: 'Share', values: [5, 3, 2] }],
+  }))).html;
+  const donutSpec = chartSpecOf(donut);
+  assert.equal(donutSpec.data.every((row) => typeof row.color === 'string'), true, 'slices stay categorical');
+});
+
+/**
+ * The chart spec a document hands to `VC.render`. The kit's own doc comment
+ * mentions the call, so the last occurrence is the real one.
+ * @param {string} html chart document
+ * @returns {any} parsed spec
+ */
+function chartSpecOf(html) {
+  const marker = 'VC.render(host, ';
+  const start = html.lastIndexOf(marker) + marker.length;
+  return JSON.parse(html.slice(start, html.indexOf(');', start)));
+}
+
 test('an svg widget is centred and scaled', () => {
   const { html } = renderArtifact(artifact('widget', '<svg viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>'));
   assert.match(html, /svg-wrap/u);

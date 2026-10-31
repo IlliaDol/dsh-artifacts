@@ -84,8 +84,8 @@
     const value = K.linear([min, max], horizontal ? [st.x0, st.x0 + st.pw] : [st.y0 + st.ph, st.y0])
     const keys = data.map((d) => d.label)
     const band = horizontal
-      ? K.band(keys, [st.y0, st.y0 + st.ph], 0.24)
-      : K.band(keys, [st.x0, st.x0 + st.pw], 0.24)
+      ? K.band(keys, [st.y0, st.y0 + st.ph], 0.34)
+      : K.band(keys, [st.x0, st.x0 + st.pw], 0.34)
     K.gridY(st, horizontal ? K.linear([min, max], [st.x0, st.x0 + st.pw]) : value, {
       count: 5,
       color: palette.line,
@@ -95,8 +95,12 @@
     if (!horizontal) K.axisX(st, band, { every: data.length > 14 ? Math.ceil(data.length / 14) : 1 })
 
     const marks = []
+    // A bar chart is one measure across categories, so every bar is the same
+    // colour: a categorical palette on a single series says "seven things"
+    // when the data says one thing measured seven times.
+    const single = spec.color ?? K.PALETTE[0]
     data.forEach((d, i) => {
-      const color = d.color ?? K.PALETTE[i % K.PALETTE.length]
+      const color = d.color ?? (spec.colorBy === 'category' ? K.PALETTE[i % K.PALETTE.length] : single)
       const active = state.selected === null || state.selected === d.label
       const common = {
         fill: color,
@@ -156,7 +160,7 @@
         rerender(host, spec, ui, state)
       })
     }
-    ui.note.textContent = spec.hint ?? 'Hover a bar for its value · click to isolate it'
+    ui.note.textContent = spec.hint ?? ''
     return () => { st.svg.removeEventListener('pointermove', hit) }
   }
 
@@ -196,7 +200,7 @@
       else state.hidden[name] = true
       rerender(host, spec, ui, state)
     })
-    ui.note.textContent = spec.hint ?? 'Hover a segment · toggle a series in the legend'
+    ui.note.textContent = spec.hint ?? ''
     return () => {}
   }
 
@@ -324,7 +328,7 @@
         rerender(host, spec, ui, state)
       })
     }
-    ui.note.textContent = spec.hint ?? 'Hover for values · drag across the plot to zoom · double-click to reset'
+    ui.note.textContent = spec.hint ?? ''
     return () => {
       dispose()
       st.svg.removeEventListener('pointermove', move)
@@ -385,7 +389,7 @@
         start = null
       },
     })
-    ui.note.textContent = spec.hint ?? 'Hover a point for its values · click to pin'
+    ui.note.textContent = spec.hint ?? ''
     return () => { dispose(); void dots }
   }
 
@@ -430,7 +434,7 @@
       // The slider belongs above the plot, not below it.
       ui.body.insertBefore(row, ui.body.firstChild)
     }
-    ui.note.textContent = spec.hint ?? `n = ${values.length} · widen or narrow the bins`
+    ui.note.textContent = spec.hint ?? `n = ${values.length}`
     return () => {}
   }
 
@@ -473,7 +477,7 @@
       })
       rect.addEventListener('pointerleave', () => ui.tooltip.hide())
     })
-    ui.note.textContent = spec.hint ?? 'Hover a box for median, IQR and n'
+    ui.note.textContent = spec.hint ?? ''
     return () => {}
   }
 
@@ -516,7 +520,7 @@
         rect.addEventListener('pointerleave', () => ui.tooltip.hide())
       })
     })
-    ui.note.textContent = spec.hint ?? 'Hover a cell for its value'
+    ui.note.textContent = spec.hint ?? ''
     return () => {}
   }
 
@@ -565,7 +569,7 @@
       K.el('text', { x: cx, y: cy - 2, 'text-anchor': 'middle', 'font-size': 20, fill: palette.text, text: spec.center }, st.g)
       if (spec.centerLabel) K.el('text', { x: cx, y: cy + 16, 'text-anchor': 'middle', 'font-size': 11, fill: palette.faint, text: spec.centerLabel }, st.g)
     }
-    ui.note.textContent = spec.hint ?? 'Hover a slice · click to isolate'
+    ui.note.textContent = spec.hint ?? ''
     return () => {}
   }
 
@@ -644,7 +648,7 @@
       })
       rect.addEventListener('pointerleave', () => ui.tooltip.hide())
     })
-    ui.note.textContent = spec.hint ?? 'Hover a bar for the change and the running total'
+    ui.note.textContent = spec.hint ?? ''
     return () => {}
   }
 
@@ -695,7 +699,7 @@
       a.addEventListener('pointerleave', () => ui.tooltip.hide())
       b.addEventListener('pointerleave', () => ui.tooltip.hide())
     })
-    ui.note.textContent = spec.hint ?? 'Hover either end for the values and the gap'
+    ui.note.textContent = spec.hint ?? ''
     return () => {}
   }
 
@@ -743,7 +747,7 @@
     })
     K.el('text', { x: left, y: st.y0 + st.ph + 24, 'text-anchor': 'middle', 'font-size': 11, fill: palette.faint, text: spec.beforeLabel ?? 'before' }, st.g)
     K.el('text', { x: right, y: st.y0 + st.ph + 24, 'text-anchor': 'middle', 'font-size': 11, fill: palette.faint, text: spec.afterLabel ?? 'after' }, st.g)
-    ui.note.textContent = spec.hint ?? 'Hover a line for both values; colour is the direction of change'
+    ui.note.textContent = spec.hint ?? ''
     return () => {}
   }
 
@@ -792,7 +796,7 @@
       })
       dot.addEventListener('pointerleave', () => ui.tooltip.hide())
     })
-    ui.note.textContent = spec.hint ?? 'Hover a bar for its share, a point for the cumulative share'
+    ui.note.textContent = spec.hint ?? ''
     return () => {}
   }
 
@@ -840,7 +844,7 @@
       })
       polygon.addEventListener('pointerleave', () => ui.tooltip.hide())
     })
-    ui.note.textContent = spec.hint ?? 'Hover a stage for its value'
+    ui.note.textContent = spec.hint ?? ''
     return () => {}
   }
 
@@ -885,7 +889,7 @@
       })
       bar.addEventListener('pointerleave', () => ui.tooltip.hide())
     })
-    ui.note.textContent = spec.hint ?? 'Hover a bar for the value and target'
+    ui.note.textContent = spec.hint ?? ''
     return () => {}
   }
 
@@ -942,7 +946,7 @@
     }
     st.svg.addEventListener('pointermove', move)
     st.svg.addEventListener('pointerleave', () => ui.tooltip.hide())
-    ui.note.textContent = spec.hint ?? 'Hover for the estimated density at a value'
+    ui.note.textContent = spec.hint ?? ''
     return () => { st.svg.removeEventListener('pointermove', move) }
   }
 
@@ -1000,7 +1004,7 @@
     }
     st.svg.addEventListener('pointermove', move)
     st.svg.addEventListener('pointerleave', () => ui.tooltip.hide())
-    ui.note.textContent = spec.hint ?? 'Hover for the share at or below a value'
+    ui.note.textContent = spec.hint ?? ''
     return () => { st.svg.removeEventListener('pointermove', move) }
   }
 
@@ -1049,7 +1053,7 @@
       })
       shape.addEventListener('pointerleave', () => ui.tooltip.hide())
     })
-    ui.note.textContent = spec.hint ?? 'Hover a violin for median, IQR and n'
+    ui.note.textContent = spec.hint ?? ''
     return () => {}
   }
 

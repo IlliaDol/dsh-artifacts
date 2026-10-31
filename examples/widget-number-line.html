@@ -80,7 +80,188 @@ input,select,textarea{font:inherit; font-size:14px; color:var(--text); backgroun
 input[type=range]{padding:0; accent-color:var(--accent)}
 
 body{background:transparent}
+/* Shared surface for the gallery and the DSH widget. Tokens first, so a host
+   can override them and every chart follows without a second stylesheet. */
 
+:root {
+  --vz-text: #1b1b19;
+  --vz-dim: #5f5e5a;
+  --vz-faint: #8a8782;
+  --vz-line: #e4e2da;
+  --vz-surface: #ffffff;
+  --vz-page: #f7f6f2;
+  --vz-accent: #2a78d6;
+  --vz-radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --vz-text: #ecebe6;
+    --vz-dim: #b5b3aa;
+    --vz-faint: #8b897f;
+    --vz-line: #35342f;
+    --vz-surface: #1c1c1a;
+    --vz-page: #141413;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--vz-page);
+  color: var(--vz-text);
+  font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Everything is selectable. A visualisation is a document, not an image. */
+body, body * {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+a { color: var(--vz-accent); }
+
+.vz-wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 24px 96px;
+}
+
+.vz-head h1 {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+}
+
+.vz-head p {
+  color: var(--vz-dim);
+  margin: 0 0 22px;
+  max-width: 62ch;
+}
+
+.vz-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 26px;
+  position: sticky;
+  top: 0;
+  padding: 12px 0;
+  background: color-mix(in srgb, var(--vz-page) 88%, transparent);
+  backdrop-filter: blur(8px);
+  z-index: 5;
+}
+
+.vz-chip, .vz-button {
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--vz-line);
+  background: var(--vz-surface);
+  color: var(--vz-dim);
+  cursor: pointer;
+  transition: border-color .12s ease, color .12s ease, background .12s ease;
+}
+
+.vz-chip:hover, .vz-button:hover { color: var(--vz-text); border-color: var(--vz-dim); }
+.vz-chip[aria-pressed="true"] { background: var(--vz-text); color: var(--vz-surface); border-color: var(--vz-text); }
+.vz-button { border-radius: 7px; }
+
+.vz-search {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--vz-line);
+  background: var(--vz-surface);
+  color: var(--vz-text);
+  min-width: 200px;
+}
+
+.vz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 520px) {
+  .vz-grid { grid-template-columns: 1fr; }
+  .vz-wrap { padding: 24px 14px 64px; }
+}
+
+.vz-card {
+  background: var(--vz-surface);
+  border: 1px solid var(--vz-line);
+  border-radius: var(--vz-radius);
+  padding: 18px 18px 14px;
+  min-width: 0;
+  content-visibility: auto;
+  contain-intrinsic-size: 420px;
+}
+
+.vz-card > h2 {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 0 2px;
+}
+
+.vz-card > .vz-when {
+  color: var(--vz-dim);
+  font-size: 12.5px;
+  margin: 0 0 16px;
+  max-width: 60ch;
+}
+
+.vz-plot { min-height: 120px; }
+
+.vz-code {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--vz-text) 5%, var(--vz-surface));
+  color: var(--vz-dim);
+  font-family: ui-monospace, SFMono-Regular, "Cascadia Code", Menlo, monospace;
+  font-size: 11.5px;
+  line-height: 1.5;
+  overflow: auto;
+  max-height: 320px;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.vz-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.vz-family {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--vz-faint);
+  margin: 0 0 6px;
+}
+
+/* The same tokens the kit reads, expressed for a host that already has a theme. */
+[data-vz="widget"] {
+  --vz-text: var(--dsw-alias-label-primary, #1b1b19);
+  --vz-dim: var(--dsw-alias-label-secondary, #5f5e5a);
+  --vz-faint: var(--dsw-alias-label-tertiary, #8a8782);
+  --vz-line: var(--dsw-alias-border-l2, #e4e2da);
+  --vz-surface: var(--dsw-alias-bg-layer-1, #fff);
+  --vz-page: transparent;
+}
+
+:root{--vz-text:var(--text);--vz-dim:var(--text-2);--vz-faint:var(--muted);--vz-line:var(--border);--vz-surface:var(--surface);--vz-accent:var(--accent);--grid:var(--border);--axis:var(--border-strong);--card:var(--surface-2)}
 </style>
 </head>
 <body>
@@ -116,7 +297,2057 @@ body{background:transparent}
     <text x="78" y="218">Light band = ±2 wobbles (2.95 to 7.39%)</text>
   </g>
 </svg></div>
+<script>/**
+ * viz-kit — the small, dependency-free layer every visual in this repo uses.
+ *
+ * It is deliberately boring: scales, axes, a tooltip, pointer dragging, an
+ * animation loop, and theme tokens. Interaction lives here so a recipe never
+ * re-implements "hover shows the value" or "drag rotates the scene".
+ *
+ * Works as a browser global (window.VK), in Node (module.exports) and inside the
+ * DSH widget iframe, where the whole file is inlined.
+ */
+(function (root, factory) {
+  const api = factory()
+  if (typeof module === 'object' && module.exports) module.exports = api
+  root.VK = api
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict'
 
+  /* ------------------------------------------------------------------ tokens */
+
+  // Fixed order, never re-ordered per chart: series 3 is always aqua.
+  const PALETTE = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948']
+
+  const FONT = 'ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+
+  /**
+   * Read a theme token with a light-mode fallback, so the same recipe renders on
+   * a dark app surface and on a white page.
+   * @param {Element} [host] element to read computed styles from
+   * @returns {{text:string, dim:string, faint:string, line:string, surface:string, accent:string}}
+   */
+  function theme(host) {
+    const read = (name, fallback) => {
+      try {
+        const el = host instanceof Element ? host : document.documentElement
+        const value = getComputedStyle(el).getPropertyValue(name).trim()
+        if (value !== '') return value
+      } catch {
+        /* no DOM, or the token is absent */
+      }
+      return fallback
+    }
+    return {
+      text: read('--vz-text', read('--dsw-alias-label-primary', '#1b1b19')),
+      dim: read('--vz-dim', read('--dsw-alias-label-secondary', '#5f5e5a')),
+      faint: read('--vz-faint', read('--dsw-alias-label-tertiary', '#8a8782')),
+      line: read('--vz-line', read('--dsw-alias-border-l2', '#e4e2da')),
+      surface: read('--vz-surface', read('--dsw-alias-bg-layer-1', '#ffffff')),
+      accent: read('--vz-accent', '#2a78d6'),
+    }
+  }
+
+  /* ------------------------------------------------------------------ numbers */
+
+  /**
+   * Round for display and add thousands separators when useful.
+   * @param {number} value
+   * @param {number} [digits] fixed decimals; omit for automatic
+   * @returns {string}
+   */
+  function fmt(value, digits) {
+    if (!Number.isFinite(value)) return '—'
+    const abs = Math.abs(value)
+    if (digits !== undefined) return value.toFixed(digits)
+    if (abs >= 1e9) return `${(value / 1e9).toFixed(1)}B`
+    if (abs >= 1e6) return `${(value / 1e6).toFixed(1)}M`
+    if (abs >= 1e4) return `${(value / 1e3).toFixed(1)}k`
+    if (abs >= 100) return String(Math.round(value))
+    if (abs >= 1) return String(Math.round(value * 10) / 10)
+    if (abs === 0) return '0'
+    return String(Math.round(value * 100) / 100)
+  }
+
+  /**
+   * A small deterministic generator, so every reload draws the same picture.
+   * @param {number} seed
+   * @returns {() => number} values in [0, 1)
+   */
+  function rng(seed) {
+    let s = seed >>> 0
+    return () => {
+      s = (s * 1664525 + 1013904223) % 4294967296
+      return s / 4294967296
+    }
+  }
+
+  /**
+   * Box-Muller normal sample.
+   * @param {() => number} random
+   * @returns {number}
+   */
+  function normal(random) {
+    const u = Math.max(random(), 1e-9)
+    const v = random()
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
+  }
+
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
+  const lerp = (a, b, t) => a + (b - a) * t
+  const sum = (values) => values.reduce((a, b) => a + b, 0)
+  const extent = (values) => [Math.min(...values), Math.max(...values)]
+
+  /**
+   * Evenly spaced, human-round ticks.
+   * @param {number} lo
+   * @param {number} hi
+   * @param {number} count target count
+   * @returns {number[]}
+   */
+  function ticks(lo, hi, count) {
+    if (!Number.isFinite(lo) || !Number.isFinite(hi) || hi === lo) return [lo]
+    const raw = (hi - lo) / Math.max(1, count)
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)))
+    const norm = raw / mag
+    const step = (norm >= 7.5 ? 10 : norm >= 3.5 ? 5 : norm >= 1.5 ? 2 : 1) * mag
+    const out = []
+    for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-6; v += step) out.push(Math.round(v / step) * step)
+    return out
+  }
+
+  /* ------------------------------------------------------------------- scales */
+
+  /**
+   * Continuous scale.
+   * @param {[number, number]} domain
+   * @param {[number, number]} range
+   * @returns {((v:number)=>number) & {invert:(p:number)=>number, domain:[number,number], range:[number,number], ticks:(n?:number)=>number[]}}
+   */
+  function linear(domain, range) {
+    const [d0, d1] = domain
+    const [r0, r1] = range
+    const span = d1 - d0 || 1
+    const fn = (v) => r0 + ((v - d0) / span) * (r1 - r0)
+    fn.invert = (p) => d0 + ((p - r0) / (r1 - r0 || 1)) * span
+    fn.domain = [d0, d1]
+    fn.range = [r0, r1]
+    fn.ticks = (n = 5) => ticks(d0, d1, n)
+    return fn
+  }
+
+  /**
+   * Discrete band scale.
+   * @param {readonly string[]} keys
+   * @param {[number, number]} range
+   * @param {number} [padding] 0..0.9
+   */
+  function band(keys, range, padding = 0.22) {
+    const [r0, r1] = range
+    const step = (r1 - r0) / Math.max(1, keys.length)
+    const bw = step * (1 - padding)
+    const index = new Map(keys.map((k, i) => [k, i]))
+    const fn = (key) => r0 + (index.get(key) ?? 0) * step + (step - bw) / 2
+    fn.bw = bw
+    fn.step = step
+    fn.keys = keys
+    fn.index = (key) => index.get(key) ?? -1
+    return fn
+  }
+
+  /* ---------------------------------------------------------------------- DOM */
+
+  const SVG_NS = 'http://www.w3.org/2000/svg'
+
+  /**
+   * Create an element and set attributes in one call.
+   * @param {string} tag
+   * @param {Record<string, unknown>} [attrs]
+   * @param {Element} [parent]
+   * @returns {any}
+   */
+  function el(tag, attrs, parent) {
+    const node = tag === 'svg' || tag === 'g' || tag === 'path' || tag === 'text' || tag === 'line' || tag === 'rect' || tag === 'circle'
+      ? document.createElementNS(SVG_NS, tag)
+      : document.createElement(tag)
+    if (attrs) {
+      for (const [key, value] of Object.entries(attrs)) {
+        if (value === undefined || value === null) continue
+        if (key === 'text') node.textContent = String(value)
+        else if (key === 'html') node.innerHTML = String(value)
+        else if (key === 'style' && typeof value === 'object') Object.assign(node.style, value)
+        else if (key === 'class') node.setAttribute('class', String(value))
+        else node.setAttribute(key, String(value))
+      }
+    }
+    if (parent) parent.appendChild(node)
+    return node
+  }
+
+  /**
+   * A responsive SVG stage with margins.
+   * @param {Element} host
+   * @param {{width?:number, height?:number, margin?:{t:number,r:number,b:number,l:number}, label?:string}} [options]
+   */
+  function stage(host, options = {}) {
+    const width = options.width ?? 680
+    const height = options.height ?? 300
+    const m = options.margin ?? { t: 18, r: 18, b: 34, l: 46 }
+    host.innerHTML = ''
+    const svg = el('svg', {
+      viewBox: `0 0 ${width} ${height}`,
+      width: '100%',
+      height,
+      preserveAspectRatio: 'xMidYMid meet',
+      role: 'img',
+      'aria-label': options.label ?? 'chart',
+      style: { display: 'block', overflow: 'visible', fontFamily: FONT },
+    }, host)
+    const g = el('g', {}, svg)
+    return {
+      svg,
+      g,
+      W: width,
+      H: height,
+      m,
+      pw: width - m.l - m.r,
+      ph: height - m.t - m.b,
+      x0: m.l,
+      y0: m.t,
+    }
+  }
+
+  /**
+   * Horizontal grid plus value labels on the left axis.
+   * @param {ReturnType<typeof stage>} st
+   * @param {(v:number)=>number} y
+   * @param {{count?:number, color?:string, format?:(v:number)=>string}} [options]
+   */
+  function gridY(st, y, options = {}) {
+    const t = theme(st.svg)
+    const values = y.ticks(options.count ?? 5)
+    const g = el('g', {}, st.g)
+    for (const value of values) {
+      const py = y(value)
+      el('line', { x1: st.x0, x2: st.x0 + st.pw, y1: py, y2: py, stroke: options.color ?? t.line, 'stroke-width': 1, 'shape-rendering': 'crispEdges' }, g)
+      el('text', {
+        x: st.x0 - 8, y: py + 4, 'text-anchor': 'end', 'font-size': 11, fill: t.faint, text: (options.format ?? fmt)(value),
+      }, g)
+    }
+    return g
+  }
+
+  /**
+   * Category labels below the plot.
+   * @param {ReturnType<typeof stage>} st
+   * @param {any} x band scale
+   * @param {{every?:number, rotate?:boolean}} [options]
+   */
+  function axisX(st, x, options = {}) {
+    const t = theme(st.svg)
+    const every = options.every ?? 1
+    const g = el('g', {}, st.g)
+    x.keys.forEach((key, i) => {
+      if (i % every !== 0) return
+      el('text', {
+        x: x(key) + x.bw / 2,
+        y: st.y0 + st.ph + 18,
+        'text-anchor': options.rotate ? 'end' : 'middle',
+        'font-size': 11,
+        fill: t.faint,
+        text: key,
+        ...(options.rotate ? { transform: `rotate(-35 ${x(key) + x.bw / 2} ${st.y0 + st.ph + 18})` } : {}),
+      }, g)
+    })
+    return g
+  }
+
+  /**
+   * Continuous x axis labels and baseline.
+   * @param {ReturnType<typeof stage>} st
+   * @param {(v:number)=>number} x
+   * @param {{count?:number, format?:(v:number)=>string, at?:number[]}} [options] explicit `at` values win, which lets a labelled axis tick once per category
+   */
+  function axisXLinear(st, x, options = {}) {
+    const t = theme(st.svg)
+    const g = el('g', {}, st.g)
+    const values = Array.isArray(options.at) && options.at.length > 0 ? options.at : x.ticks(options.count ?? 6)
+    for (const value of values) {
+      const px = x(value)
+      el('line', { x1: px, x2: px, y1: st.y0 + st.ph, y2: st.y0 + st.ph + 5, stroke: t.line }, g)
+      el('text', {
+        x: px, y: st.y0 + st.ph + 18, 'text-anchor': 'middle', 'font-size': 11, fill: t.faint, text: (options.format ?? fmt)(value),
+      }, g)
+    }
+    return g
+  }
+
+  /* ---------------------------------------------------------------- interaction */
+
+  /**
+   * A tooltip that follows the pointer inside its host.
+   * @param {Element} host positioned ancestor
+   * @returns {{show:(x:number, y:number, html:string)=>void, hide:()=>void, node:HTMLElement}}
+   */
+  function tip(host) {
+    const node = el('div', {
+      class: 'vk-tip',
+      style: {
+        position: 'absolute', pointerEvents: 'none', zIndex: 20, padding: '6px 9px',
+        borderRadius: '6px', fontSize: '12px', lineHeight: '1.45', whiteSpace: 'nowrap',
+        background: 'rgba(24,24,22,.94)', color: '#f4f3ef', boxShadow: '0 4px 16px rgba(0,0,0,.22)',
+        opacity: '0', transform: 'translate(-50%, -120%)', transition: 'opacity .12s ease',
+      },
+    })
+    host.appendChild(node)
+    return {
+      node,
+      show(x, y, html) {
+        node.innerHTML = html
+        node.style.left = `${x}px`
+        node.style.top = `${y}px`
+        node.style.opacity = '1'
+      },
+      hide() {
+        node.style.opacity = '0'
+      },
+    }
+  }
+
+  /**
+   * Pointer dragging with capture. Movement is in the element's own pixels.
+   * @param {Element} node
+   * @param {{onStart?:(p:Point)=>void, onMove?:(p:Point, d:Point, e:PointerEvent)=>void, onEnd?:(p:Point)=>void, cursor?:string}} handlers
+   * @returns {() => void} dispose
+   */
+  function drag(node, handlers) {
+    let start = null
+    let last = null
+    const point = (event) => {
+      const rect = node.getBoundingClientRect()
+      const scale = (node.viewBox && node.viewBox.baseVal && node.viewBox.baseVal.width) ? node.viewBox.baseVal.width / (rect.width || 1) : 1
+      return { x: (event.clientX - rect.left) * scale, y: (event.clientY - rect.top) * scale, cx: event.clientX, cy: event.clientY }
+    }
+    const down = (event) => {
+      if (event.button !== undefined && event.button !== 0) return
+      start = point(event)
+      last = start
+      node.setPointerCapture?.(event.pointerId)
+      if (handlers.cursor) node.style.cursor = handlers.cursor
+      handlers.onStart?.(start)
+    }
+    const move = (event) => {
+      if (start === null) return
+      const now = point(event)
+      handlers.onMove?.(now, { x: now.x - last.x, y: now.y - last.y }, event)
+      last = now
+      event.preventDefault()
+    }
+    const up = (event) => {
+      if (start === null) return
+      const now = point(event)
+      start = null
+      node.releasePointerCapture?.(event.pointerId)
+      node.style.cursor = ''
+      handlers.onEnd?.(now)
+    }
+    node.addEventListener('pointerdown', down)
+    node.addEventListener('pointermove', move)
+    node.addEventListener('pointerup', up)
+    node.addEventListener('pointercancel', up)
+    return () => {
+      node.removeEventListener('pointerdown', down)
+      node.removeEventListener('pointermove', move)
+      node.removeEventListener('pointerup', up)
+      node.removeEventListener('pointercancel', up)
+    }
+  }
+
+  /**
+   * Frame loop with delta seconds, stopped when the node leaves the document.
+   * @param {(dt:number, t:number)=>void} fn
+   * @returns {() => void} stop
+   */
+  function loop(fn) {
+    let raf = 0
+    let last = 0
+    let alive = true
+    const step = (time) => {
+      if (!alive) return
+      const dt = last === 0 ? 1 / 60 : Math.min(0.05, (time - last) / 1000)
+      last = time
+      fn(dt, time / 1000)
+      raf = requestAnimationFrame(step)
+    }
+    raf = requestAnimationFrame(step)
+    return () => {
+      alive = false
+      cancelAnimationFrame(raf)
+    }
+  }
+
+  /**
+   * Re-run fn when the host changes width (debounced by a frame).
+   * @param {Element} host
+   * @param {() => void} fn
+   * @returns {() => void}
+   */
+  function onResize(host, fn) {
+    if (typeof ResizeObserver !== 'function') return () => {}
+    let frame = 0
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(fn)
+    })
+    observer.observe(host)
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+    }
+  }
+
+  /**
+   * A slider row above the plot. Value is passed back live.
+   * @param {Element} host
+   * @param {{label:string, min:number, max:number, step?:number, value:number, format?:(v:number)=>string, onInput:(v:number)=>void}} spec
+   * @returns {HTMLElement}
+   */
+  function slider(host, spec) {
+    const row = el('div', {
+      class: 'vk-control',
+      style: { display: 'flex', gap: '10px', alignItems: 'center', fontSize: '12px', margin: '0 0 8px', color: 'var(--vz-dim, #5f5e5a)' },
+    }, host)
+    el('span', { text: spec.label, style: { whiteSpace: 'nowrap' } }, row)
+    const input = el('input', {
+      type: 'range', min: spec.min, max: spec.max, step: spec.step ?? 1, value: spec.value,
+      'aria-label': spec.label,
+      style: { flex: '1', accentColor: 'var(--vz-accent, #2a78d6)', minWidth: '0' },
+    }, row)
+    const out = el('b', { text: (spec.format ?? fmt)(spec.value), style: { fontVariantNumeric: 'tabular-nums', minWidth: '3ch', textAlign: 'right' } }, row)
+    input.addEventListener('input', () => {
+      const value = Number(input.value)
+      out.textContent = (spec.format ?? fmt)(value)
+      spec.onInput(value)
+    })
+    return row
+  }
+
+  /**
+   * A clickable legend that toggles series.
+   * @param {Element} host
+   * @param {{name:string, color:string, on?:boolean}[]} entries
+   * @param {(name:string, on:boolean)=>void} onChange
+   * @returns {HTMLElement}
+   */
+  function legend(host, entries, onChange) {
+    const row = el('div', { class: 'vk-legend', style: { display: 'flex', flexWrap: 'wrap', gap: '6px 14px', margin: '0 0 8px', fontSize: '12px' } }, host)
+    for (const entry of entries) {
+      const on = entry.on !== false
+      const button = el('button', {
+        type: 'button',
+        'aria-pressed': String(on),
+        style: {
+          display: 'inline-flex', alignItems: 'center', gap: '6px', border: '0', padding: '2px 4px',
+          background: 'none', cursor: 'pointer', color: 'var(--vz-dim, #5f5e5a)', fontSize: '12px',
+          opacity: on ? '1' : '.42', fontFamily: 'inherit',
+        },
+      }, row)
+      el('span', { style: { width: '9px', height: '9px', borderRadius: '2px', background: entry.color, display: 'inline-block' } }, button)
+      el('span', { text: entry.name }, button)
+      button.addEventListener('click', () => {
+        const next = button.getAttribute('aria-pressed') !== 'true'
+        button.setAttribute('aria-pressed', String(next))
+        button.style.opacity = next ? '1' : '.42'
+        onChange(entry.name, next)
+      })
+    }
+    return row
+  }
+
+  /** Linear interpolation between palette stops. */
+  function mix(a, b, t) {
+    const parse = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
+    const [r1, g1, b1] = parse(a)
+    const [r2, g2, b2] = parse(b)
+    const to = (v) => Math.round(v).toString(16).padStart(2, '0')
+    return `#${to(lerp(r1, r2, t))}${to(lerp(g1, g2, t))}${to(lerp(b1, b2, t))}`
+  }
+
+  /**
+   * Sequential ramp from pale blue to deep blue, for heatmaps.
+   * @param {number} t 0..1
+   */
+  function ramp(t) {
+    const stops = ['#eef4fd', '#cfe0f8', '#9dc2ef', '#5e97e0', '#2a78d6', '#1c4f96']
+    const p = clamp(t, 0, 1) * (stops.length - 1)
+    const i = Math.min(stops.length - 2, Math.floor(p))
+    return mix(stops[i], stops[i + 1], p - i)
+  }
+
+  return {
+    PALETTE, FONT, theme, fmt, rng, normal, clamp, lerp, sum, extent, ticks,
+    linear, band, el, stage, gridY, axisX, axisXLinear,
+    tip, drag, loop, onResize, slider, legend, mix, ramp,
+  }
+})
+</script>
+<script>/**
+ * viz3d — canvas 2D with hand-written 3D maths.
+ *
+ * No WebGL, no Three.js: a rotation matrix, a perspective divide, a drag
+ * handler and a frame loop. Small enough to inline in one widget, fast enough
+ * for a few thousand points on a laptop.
+ */
+(function (root, factory) {
+  const api = factory()
+  if (typeof module === 'object' && module.exports) module.exports = api
+  root.V3 = api
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict'
+
+  /**
+   * Rotate a point around X then Y.
+   * @param {[number,number,number]} p
+   * @param {number} ax radians around X
+   * @param {number} ay radians around Y
+   * @returns {[number,number,number]}
+   */
+  function rot([x, y, z], ax, ay) {
+    const cy = Math.cos(ay)
+    const sy = Math.sin(ay)
+    const cx = Math.cos(ax)
+    const sx = Math.sin(ax)
+    const x1 = x * cy + z * sy
+    const z1 = -x * sy + z * cy
+    const y2 = y * cx - z1 * sx
+    const z2 = y * sx + z1 * cx
+    return [x1, y2, z2]
+  }
+
+  /**
+   * Perspective projection into a W×H canvas.
+   * @param {[number,number,number]} p
+   * @param {number} w
+   * @param {number} h
+   * @param {number} [focal]
+   * @param {number} [depth]
+   * @returns {[number, number, number]} screen x, screen y, scale
+   */
+  function proj([x, y, z], w, h, focal = 110, depth = 5) {
+    const k = focal / (z + depth)
+    return [w / 2 + x * k, h / 2 + y * k, k / focal]
+  }
+
+  /**
+   * A retina-sized canvas inside a host.
+   * @param {Element} host
+   * @param {number} w logical width
+   * @param {number} h logical height
+   */
+  function canvas(host, w, h) {
+    host.innerHTML = ''
+    const cv = document.createElement('canvas')
+    const dpr = Math.min(2, (typeof devicePixelRatio === 'number' ? devicePixelRatio : 1) || 1)
+    cv.width = Math.round(w * dpr)
+    cv.height = Math.round(h * dpr)
+    cv.style.width = '100%'
+    cv.style.height = `${h}px`
+    cv.style.display = 'block'
+    cv.style.touchAction = 'none'
+    cv.setAttribute('role', 'img')
+    const ctx = cv.getContext('2d')
+    ctx.scale(dpr, dpr)
+    host.appendChild(cv)
+    return { cv, ctx, w, h, dpr }
+  }
+
+  /**
+   * One-finger orbit: horizontal drag turns, vertical drag tilts.
+   * @param {Element} node
+   * @param {{ax:number, ay:number, spin?:boolean}} state
+   * @param {{onChange?:()=>void}} [options]
+   */
+  function orbit(node, state, options = {}) {
+    let dragging = false
+    let last = [0, 0]
+    let idle = 0
+    const down = (event) => {
+      dragging = true
+      last = [event.clientX, event.clientY]
+      node.setPointerCapture?.(event.pointerId)
+      if ('spin' in state) state.spin = false
+      idle = 0
+    }
+    const move = (event) => {
+      if (!dragging) return
+      const dx = event.clientX - last[0]
+      const dy = event.clientY - last[1]
+      last = [event.clientX, event.clientY]
+      state.ay += dx * 0.008
+      state.ax = Math.max(-1.35, Math.min(1.35, state.ax + dy * 0.006))
+      options.onChange?.()
+      event.preventDefault()
+    }
+    const up = (event) => {
+      dragging = false
+      node.releasePointerCapture?.(event.pointerId)
+    }
+    node.addEventListener('pointerdown', down)
+    node.addEventListener('pointermove', move)
+    node.addEventListener('pointerup', up)
+    node.addEventListener('pointercancel', up)
+    node.style.cursor = 'grab'
+    return () => {
+      node.removeEventListener('pointerdown', down)
+      node.removeEventListener('pointermove', move)
+      node.removeEventListener('pointerup', up)
+      node.removeEventListener('pointercancel', up)
+    }
+  }
+
+  /** Cheap HSL→rgb, so a scene can colour by depth without a colour library. */
+  function hsl(h, s, l) {
+    const hh = ((h % 360) + 360) % 360
+    const ss = s / 100
+    const ll = l / 100
+    const a = ss * Math.min(ll, 1 - ll)
+    const f = (n) => {
+      const k = (n + hh / 30) % 12
+      return Math.round(255 * (ll - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))))
+    }
+    return `rgb(${f(0)},${f(8)},${f(4)})`
+  }
+
+  return { rot, proj, canvas, orbit, hsl }
+})
+</script>
+<script>/**
+ * charts — one renderer, eleven chart types, every one interactive.
+ *
+ * A recipe does not draw pixels: it describes data and options, and this file
+ * draws it with hover readouts, click-to-pin, legend toggles, sliders and
+ * brush-to-zoom. That is what keeps visualisations from being rebuilt from
+ * scratch each time.
+ *
+ * Usage:
+ *   VC.render(host, { type: 'line', series: [{ name: 'A', points: [...] }] })
+ * Returns { destroy } so a host can unmount cleanly.
+ */
+(function (root, factory) {
+  const api = factory(root.VK || (typeof require === 'function' ? require('./viz-kit.js') : null))
+  if (typeof module === 'object' && module.exports) module.exports = api
+  root.VC = api
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (K) {
+  'use strict'
+  if (!K) throw new Error('charts.js needs viz-kit.js loaded first')
+
+  const TYPES = ['bar', 'hbar', 'stacked', 'line', 'area', 'scatter', 'hist', 'box', 'heat', 'donut', 'stat', 'waterfall', 'dumbbell', 'slope', 'pareto', 'funnel', 'bullet', 'density', 'ecdf', 'violin']
+
+  /** Normalise `[[label, value]]` and `[{label, value}]` into one row shape. */
+  function rows(input) {
+    if (!Array.isArray(input)) return []
+    return input.map((row) => {
+      if (Array.isArray(row)) return { label: String(row[0]), value: Number(row[1]), color: row[2] }
+      return { label: String(row.label ?? row.name ?? ''), value: Number(row.value ?? row.y ?? 0), color: row.color }
+    }).filter((row) => Number.isFinite(row.value))
+  }
+
+  /** Normalise a series list, dropping empty entries. */
+  function seriesOf(spec) {
+    const list = Array.isArray(spec.series) ? spec.series : []
+    return list.map((s, i) => ({
+      name: String(s.name ?? `Series ${i + 1}`),
+      color: s.color ?? K.PALETTE[i % K.PALETTE.length],
+      points: (s.points ?? s.data ?? []).map((p, j) => Array.isArray(p)
+        ? { x: Number(p[0]), y: Number(p[1]), label: String(p[0]) }
+        : { x: Number(p.x ?? j), y: Number(p.y ?? p.value ?? 0), label: p.label, r: p.r }).filter((p) => Number.isFinite(p.y)),
+    })).filter((s) => s.points.length > 0)
+  }
+
+  /** Prepare the host: positioned, empty, and a tooltip ready. */
+  function mount(host, spec) {
+    host.innerHTML = ''
+    const style = getComputedStyle(host)
+    if (style.position === 'static') host.style.position = 'relative'
+    host.style.userSelect = 'text'
+    const head = K.el('div', { style: { marginBottom: '10px' } }, host)
+    const title = spec.title ? K.el('div', {
+      text: spec.title,
+      style: { fontSize: '13px', fontWeight: '500', color: 'var(--vz-text, #1b1b19)', marginBottom: '2px' },
+    }, head) : null
+    const subtitle = spec.subtitle ? K.el('div', {
+      text: spec.subtitle, style: { fontSize: '12px', color: 'var(--vz-dim, #5f5e5a)' },
+    }, head) : null
+    const body = K.el('div', { style: { position: 'relative' } }, host)
+    const note = K.el('div', {
+      class: 'vk-note',
+      style: { fontSize: '11px', color: 'var(--vz-faint, #8a8782)', marginTop: '8px', minHeight: '14px' },
+    }, host)
+    // The tooltip is created after the chart draws: stage() owns the body's
+    // contents, so anything appended before it is wiped.
+    return { head, body, note, tooltip: null, title, subtitle }
+  }
+
+  /* ------------------------------------------------------------------ charts */
+
+  function drawBar(host, spec, ui, state) {
+    const palette = K.theme(host)
+    const data = rows(spec.data)
+    if (data.length === 0) return drawEmpty(ui)
+    const horizontal = spec.type === 'hbar'
+    const height = spec.height ?? (horizontal ? Math.max(120, data.length * 30 + 50) : 300)
+    const st = K.stage(ui.body, {
+      width: 680,
+      height,
+      margin: spec.margin ?? (horizontal ? { t: 8, r: 26, b: 26, l: Math.min(190, Math.max(90, longest(data) * 7)) } : { t: 12, r: 16, b: 46, l: 46 }),
+      label: spec.title ?? 'bar chart',
+    })
+    const max = spec.max ?? Math.max(...data.map((d) => d.value), 0)
+    const min = Math.min(0, Math.min(...data.map((d) => d.value)))
+    const value = K.linear([min, max], horizontal ? [st.x0, st.x0 + st.pw] : [st.y0 + st.ph, st.y0])
+    const keys = data.map((d) => d.label)
+    const band = horizontal
+      ? K.band(keys, [st.y0, st.y0 + st.ph], 0.34)
+      : K.band(keys, [st.x0, st.x0 + st.pw], 0.34)
+    K.gridY(st, horizontal ? K.linear([min, max], [st.x0, st.x0 + st.pw]) : value, {
+      count: 5,
+      color: palette.line,
+      // vertical gridlines for a horizontal chart read as a second axis; skip them
+      ...(horizontal ? { color: 'transparent' } : {}),
+    })
+    if (!horizontal) K.axisX(st, band, { every: data.length > 14 ? Math.ceil(data.length / 14) : 1 })
+
+    const marks = []
+    // A bar chart is one measure across categories, so every bar is the same
+    // colour: a categorical palette on a single series says "seven things"
+    // when the data says one thing measured seven times.
+    const single = spec.color ?? K.PALETTE[0]
+    data.forEach((d, i) => {
+      const color = d.color ?? (spec.colorBy === 'category' ? K.PALETTE[i % K.PALETTE.length] : single)
+      const active = state.selected === null || state.selected === d.label
+      const common = {
+        fill: color,
+        'fill-opacity': active ? (spec.type === 'bar' ? 0.92 : 1) : 0.28,
+        style: { transition: 'fill-opacity .12s ease' },
+        'data-label': d.label,
+      }
+      const mark = horizontal
+        ? K.el('rect', { ...common, x: value(Math.min(0, d.value)), y: band(d.label), width: Math.max(1, Math.abs(value(d.value) - value(0))), height: band.bw, rx: 2 }, st.g)
+        : K.el('rect', { ...common, x: band(d.label), y: Math.min(value(0), value(d.value)), width: band.bw, height: Math.max(1, Math.abs(value(0) - value(d.value))), rx: 2 }, st.g)
+      marks.push({ mark, d })
+      if (horizontal) {
+        K.el('text', {
+          x: st.x0 - 8, y: band(d.label) + band.bw / 2 + 4, 'text-anchor': 'end',
+          'font-size': 11.5, fill: palette.dim, text: truncate(d.label, 26),
+        }, st.g)
+        K.el('text', {
+          x: value(d.value) + 6, y: band(d.label) + band.bw / 2 + 4, 'font-size': 11,
+          fill: palette.faint, text: (spec.format ?? K.fmt)(d.value),
+        }, st.g)
+      } else if (data.length <= 12) {
+        K.el('text', {
+          x: band(d.label) + band.bw / 2, y: value(d.value) - 6, 'text-anchor': 'middle',
+          'font-size': 11, fill: palette.faint, text: (spec.format ?? K.fmt)(d.value),
+        }, st.g)
+      }
+    })
+
+    const hit = (event) => {
+      const rect = st.svg.getBoundingClientRect()
+      const scale = 680 / (rect.width || 680)
+      const px = (event.clientX - rect.left) * scale
+      const py = (event.clientY - rect.top) * scale
+      let best = null
+      let bestDist = Infinity
+      for (const entry of marks) {
+        const box = entry.mark.getBBox ? entry.mark.getBBox() : null
+        if (!box) continue
+        // A tall bar's centre is far from a pointer in its lower half, so
+        // containment decides first and distance only breaks ties.
+        const inside = px >= box.x - 2 && px <= box.x + box.width + 2 && py >= box.y - 2 && py <= box.y + box.height + 2
+        const cx = box.x + box.width / 2
+        const cy = box.y + box.height / 2
+        const dist = inside ? 0 : Math.hypot(px - cx, py - cy)
+        if (dist < bestDist) { bestDist = dist; best = entry }
+      }
+      if (best === null || bestDist > 26) { ui.tooltip.hide(); return }
+      ui.tooltip.show(best.mark.getBBox().x + best.mark.getBBox().width / 2, best.mark.getBBox().y, tipHtml(best.d.label, best.d.value, spec))
+    }
+    st.svg.addEventListener('pointermove', hit)
+    st.svg.addEventListener('pointerleave', () => ui.tooltip.hide())
+    for (const { mark, d } of marks) {
+      mark.addEventListener('click', (event) => {
+        event.stopPropagation()
+        state.selected = state.selected === d.label ? null : d.label
+        ui.note.textContent = state.selected === null ? (spec.hint ?? '') : `${d.label}: ${(spec.format ?? K.fmt)(d.value)}`
+        rerender(host, spec, ui, state)
+      })
+    }
+    ui.note.textContent = spec.hint ?? ''
+    return () => { st.svg.removeEventListener('pointermove', hit) }
+  }
+
+  function drawStacked(host, spec, ui, state) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const series = seriesOf(spec).map((s) => ({ ...s, values: labels.map((_, i) => Number(s.points[i]?.y ?? 0)) }))
+    if (labels.length === 0 || series.length === 0) return drawEmpty(ui)
+    const visible = series.filter((s) => state.hidden[s.name] !== true)
+    const totals = labels.map((_, i) => K.sum(visible.map((s) => s.values[i] ?? 0)))
+    const height = spec.height ?? 300
+    const st = K.stage(ui.body, { width: 680, height, margin: { t: 12, r: 16, b: 40, l: 46 }, label: spec.title ?? 'stacked bars' })
+    const y = K.linear([0, Math.max(...totals) * 1.04 || 1], [st.y0 + st.ph, st.y0])
+    const x = K.band(labels, [st.x0, st.x0 + st.pw], 0.3)
+    K.gridY(st, y, { color: palette.line })
+    K.axisX(st, x, { every: labels.length > 12 ? Math.ceil(labels.length / 12) : 1 })
+
+    labels.forEach((label, i) => {
+      let base = 0
+      for (const s of visible) {
+        const v = s.values[i] ?? 0
+        const y0 = y(base)
+        const y1 = y(base + v)
+        const rect = K.el('rect', {
+          x: x(label), y: y1, width: x.bw, height: Math.max(1, y0 - y1),
+          fill: s.color, 'fill-opacity': state.selected === null || state.selected === s.name ? 0.94 : 0.3,
+        }, st.g)
+        rect.addEventListener('pointerenter', () => {
+          ui.tooltip.show(x(label) + x.bw / 2, y1, tipHtml(`${label} · ${s.name}`, v, spec))
+        })
+        rect.addEventListener('pointerleave', () => ui.tooltip.hide())
+        base += v
+      }
+    })
+    K.legend(ui.head, series.map((s) => ({ name: s.name, color: s.color, on: state.hidden[s.name] !== true })), (name, on) => {
+      if (on) delete state.hidden[name]
+      else state.hidden[name] = true
+      rerender(host, spec, ui, state)
+    })
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  function drawLine(host, spec, ui, state) {
+    const palette = K.theme(host)
+    const all = seriesOf(spec)
+    const series = all.filter((s) => state.hidden[s.name] !== true)
+    if (series.length === 0) return drawEmpty(ui)
+    const height = spec.height ?? 300
+    const st = K.stage(ui.body, { width: 680, height, margin: { t: 14, r: spec.endLabels === false ? 16 : 96, b: 38, l: 46 }, label: spec.title ?? 'line chart' })
+    const xs = series.flatMap((s) => s.points.map((p) => p.x))
+    const ys = series.flatMap((s) => s.points.map((p) => p.y))
+    const xd = state.zoom ?? [Math.min(...xs), Math.max(...xs)]
+    const x = K.linear(xd, [st.x0, st.x0 + st.pw])
+    const y = K.linear([Math.min(0, ...ys) * (spec.zero === false ? 0 : 1), Math.max(...ys) * 1.06 || 1], [st.y0 + st.ph, st.y0])
+    K.gridY(st, y, { color: palette.line })
+    // A labels array survives JSON; a formatting function does not, and a
+    // spec that travels through a tool call is always JSON.
+    const xLabel = Array.isArray(spec.xLabels)
+      ? (v) => spec.xLabels[Math.round(v)] ?? ''
+      : (spec.xFormat ?? K.fmt)
+    // With one label per point, tick exactly once per label: a linear tick
+    // sweep rounds two neighbours onto the same name.
+    const tickAt = Array.isArray(spec.xLabels) && spec.xLabels.length > 1 && spec.xLabels.length <= 10
+      ? spec.xLabels.map((_, index) => index)
+      : undefined
+    K.axisXLinear(st, x, { count: 6, format: xLabel, at: tickAt })
+
+    for (const s of series) {
+      const inView = s.points.filter((p) => p.x >= xd[0] && p.x <= xd[1])
+      if (inView.length === 0) continue
+      const d = inView.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(p.x).toFixed(1)},${y(p.y).toFixed(1)}`).join(' ')
+      K.el('path', {
+        d,
+        fill: 'none',
+        stroke: s.color,
+        'stroke-width': spec.type === 'area' ? 2 : 2,
+        'stroke-linejoin': 'round',
+        'stroke-linecap': 'round',
+      }, st.g)
+      if (spec.type === 'area') {
+        const area = `${d} L${x(inView[inView.length - 1].x).toFixed(1)},${y(Math.max(0, y.domain[0])).toFixed(1)} L${x(inView[0].x).toFixed(1)},${y(Math.max(0, y.domain[0])).toFixed(1)} Z`
+        K.el('path', { d: area, fill: s.color, 'fill-opacity': 0.16, stroke: 'none' }, st.g)
+      }
+      if (spec.endLabels !== false && series.length <= 4) {
+        const last = inView[inView.length - 1]
+        K.el('text', {
+          x: x(last.x) + 6, y: y(last.y) + 4, 'font-size': 11, fill: s.color,
+          text: `${truncate(s.name, 14)} ${(spec.format ?? K.fmt)(last.y)}`,
+        }, st.g)
+      }
+    }
+
+    const cross = K.el('line', { y1: st.y0, y2: st.y0 + st.ph, stroke: palette.faint, 'stroke-dasharray': '3 3', opacity: '0' }, st.g)
+    const dots = series.map((s) => K.el('circle', { r: 3.4, fill: s.color, stroke: palette.surface, 'stroke-width': 1.5, opacity: '0' }, st.g))
+
+    const move = (event) => {
+      const rect = st.svg.getBoundingClientRect()
+      const scale = 680 / (rect.width || 680)
+      const px = (event.clientX - rect.left) * scale
+      if (px < st.x0 || px > st.x0 + st.pw) { ui.tooltip.hide(); return }
+      const xv = x.invert(px)
+      cross.setAttribute('x1', px)
+      cross.setAttribute('x2', px)
+      cross.setAttribute('opacity', '0.5')
+      const lines = []
+      series.forEach((s, i) => {
+        let best = null
+        for (const p of s.points) if (best === null || Math.abs(p.x - xv) < Math.abs(best.x - xv)) best = p
+        if (best === null) return
+        dots[i].setAttribute('cx', x(best.x))
+        dots[i].setAttribute('cy', y(best.y))
+        dots[i].setAttribute('opacity', '1')
+        lines.push(`<span style="color:${s.color}">●</span> ${escapeHtml(s.name)} <b>${(spec.format ?? K.fmt)(best.y)}</b>`)
+      })
+      ui.tooltip.show(px, st.y0 + 10, `<div style="margin-bottom:3px;opacity:.7">${escapeHtml(xLabel(xv))}</div>${lines.join('<br>')}`)
+    }
+    const leave = () => {
+      ui.tooltip.hide()
+      cross.setAttribute('opacity', '0')
+      for (const dot of dots) dot.setAttribute('opacity', '0')
+    }
+    st.svg.addEventListener('pointermove', move)
+    st.svg.addEventListener('pointerleave', leave)
+
+    // Brush: drag horizontally to zoom, double-click to reset.
+    let brushStart = null
+    const band = K.el('rect', { y: st.y0, height: st.ph, fill: palette.accent, 'fill-opacity': '0.12', opacity: '0' }, st.g)
+    const dispose = K.drag(st.svg, {
+      cursor: 'crosshair',
+      onStart: (p) => { brushStart = p.x; band.setAttribute('x', p.x); band.setAttribute('width', 0); band.setAttribute('opacity', '1') },
+      onMove: (p) => {
+        if (brushStart === null) return
+        const x0 = Math.min(brushStart, p.x)
+        band.setAttribute('x', Math.max(st.x0, x0))
+        band.setAttribute('width', Math.max(0, Math.min(st.x0 + st.pw, Math.max(brushStart, p.x)) - Math.max(st.x0, x0)))
+      },
+      onEnd: (p) => {
+        band.setAttribute('opacity', '0')
+        if (brushStart === null) return
+        const a = Math.max(st.x0, Math.min(brushStart, p.x))
+        const b = Math.min(st.x0 + st.pw, Math.max(brushStart, p.x))
+        brushStart = null
+        if (b - a < 12) return
+        state.zoom = [x.invert(a), x.invert(b)]
+        rerender(host, spec, ui, state)
+      },
+    })
+    st.svg.addEventListener('dblclick', () => {
+      state.zoom = null
+      rerender(host, spec, ui, state)
+    })
+    if (state.zoom) {
+      const reset = K.el('button', {
+        type: 'button',
+        text: 'Reset zoom',
+        style: { position: 'absolute', top: '0', right: '0', fontSize: '11px', border: '1px solid var(--vz-line,#e4e2da)', background: 'transparent', color: 'var(--vz-dim,#5f5e5a)', borderRadius: '5px', padding: '2px 7px', cursor: 'pointer' },
+      }, ui.head)
+      reset.addEventListener('click', () => { state.zoom = null; rerender(host, spec, ui, state) })
+    }
+    if (all.length > 1) {
+      K.legend(ui.head, all.map((s) => ({ name: s.name, color: s.color, on: state.hidden[s.name] !== true })), (name, on) => {
+        if (on) delete state.hidden[name]
+        else state.hidden[name] = true
+        rerender(host, spec, ui, state)
+      })
+    }
+    ui.note.textContent = spec.hint ?? ''
+    return () => {
+      dispose()
+      st.svg.removeEventListener('pointermove', move)
+      st.svg.removeEventListener('pointerleave', leave)
+    }
+  }
+
+  function drawScatter(host, spec, ui, state) {
+    const palette = K.theme(host)
+    const points = (spec.points ?? []).map((p) => Array.isArray(p)
+      ? { x: Number(p[0]), y: Number(p[1]), r: Number(p[2] ?? 4), label: String(p[0]) }
+      : { x: Number(p.x), y: Number(p.y), r: Number(p.r ?? 4), label: String(p.label ?? '') })
+      .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y))
+    if (points.length === 0) return drawEmpty(ui)
+    const st = K.stage(ui.body, { width: 680, height: spec.height ?? 340, margin: { t: 14, r: 18, b: 40, l: 50 }, label: spec.title ?? 'scatter plot' })
+    const xs = points.map((p) => p.x)
+    const ys = points.map((p) => p.y)
+    const x = K.linear([Math.min(...xs), Math.max(...xs) || 1], [st.x0, st.x0 + st.pw])
+    const y = K.linear([Math.min(...ys), Math.max(...ys) || 1], [st.y0 + st.ph, st.y0])
+    K.gridY(st, y, { color: palette.line })
+    K.axisXLinear(st, x, { count: 6 })
+    const color = spec.color ?? palette.accent
+    const dots = points.map((p) => {
+      const node = K.el('circle', {
+        cx: x(p.x), cy: y(p.y), r: Math.max(2.5, Math.min(14, Math.sqrt(Math.max(1, p.r)) * 1.6)),
+        fill: spec.colorBy ? K.ramp((p.y - Math.min(...ys)) / ((Math.max(...ys) - Math.min(...ys)) || 1)) : color,
+        'fill-opacity': '0.6', stroke: spec.colorBy ? 'none' : color, 'stroke-width': '1',
+        style: { cursor: 'pointer', transition: 'fill-opacity .1s ease' },
+      }, st.g)
+      node.addEventListener('pointerenter', () => {
+        node.setAttribute('fill-opacity', '1')
+        ui.tooltip.show(x(p.x), y(p.y), `<b>${escapeHtml(p.label || `${K.fmt(p.x)}, ${K.fmt(p.y)}`)}</b><br>${K.fmt(p.x)} · ${K.fmt(p.y)}`)
+      })
+      node.addEventListener('pointerleave', () => { node.setAttribute('fill-opacity', '0.6'); ui.tooltip.hide() })
+      node.addEventListener('click', () => {
+        state.selected = state.selected === p.label ? null : p.label
+        ui.note.textContent = state.selected === null ? '' : `${p.label} — ${K.fmt(p.x)}, ${K.fmt(p.y)}`
+      })
+      return node
+    })
+    // Drag a rectangle to zoom into a region.
+    let start = null
+    const box = K.el('rect', { fill: palette.accent, 'fill-opacity': '0.1', stroke: palette.accent, 'stroke-dasharray': '3 3', opacity: '0' }, st.g)
+    const dispose = K.drag(st.svg, {
+      cursor: 'crosshair',
+      onStart: (p) => { start = p; box.setAttribute('x', p.x); box.setAttribute('y', p.y); box.setAttribute('width', 0); box.setAttribute('height', 0); box.setAttribute('opacity', '1') },
+      onMove: (p) => {
+        if (start === null) return
+        box.setAttribute('x', Math.min(start.x, p.x))
+        box.setAttribute('y', Math.min(start.y, p.y))
+        box.setAttribute('width', Math.abs(p.x - start.x))
+        box.setAttribute('height', Math.abs(p.y - start.y))
+      },
+      onEnd: () => {
+        // The zoom itself is intentionally omitted: a scatter's value is the
+        // shape of the whole cloud, and a half-typed brush jump loses it.
+        box.setAttribute('opacity', '0')
+        start = null
+      },
+    })
+    ui.note.textContent = spec.hint ?? ''
+    return () => { dispose(); void dots }
+  }
+
+  function drawHist(host, spec, ui, state) {
+    const palette = K.theme(host)
+    const values = (spec.values ?? []).map(Number).filter(Number.isFinite)
+    if (values.length === 0) return drawEmpty(ui)
+    const height = spec.height ?? 280
+    const st = K.stage(ui.body, { width: 680, height, margin: { t: 14, r: 16, b: 38, l: 46 }, label: spec.title ?? 'histogram' })
+    const bins = K.clamp(Number(state.bins ?? spec.bins ?? 24), 4, 80)
+    const lo = Math.min(...values)
+    const hi = Math.max(...values)
+    const step = (hi - lo) / bins || 1
+    const counts = new Array(bins).fill(0)
+    for (const v of values) counts[K.clamp(Math.floor((v - lo) / step), 0, bins - 1)] += 1
+    const maxCount = Math.max(...counts) || 1
+    const x = K.linear([lo, hi], [st.x0, st.x0 + st.pw])
+    const y = K.linear([0, maxCount * 1.05], [st.y0 + st.ph, st.y0])
+    K.gridY(st, y, { color: palette.line })
+    K.axisXLinear(st, x, { count: 6 })
+    counts.forEach((count, i) => {
+      const bx = x(lo + i * step)
+      const bw = Math.max(1, x(lo + (i + 1) * step) - bx - 1)
+      const bar = K.el('rect', {
+        x: bx, y: y(count), width: bw, height: Math.max(0, y(0) - y(count)),
+        fill: palette.accent, 'fill-opacity': '0.75', rx: 1.5,
+        style: { transition: 'fill-opacity .1s ease' },
+      }, st.g)
+      const from = lo + i * step
+      const to = from + step
+      bar.addEventListener('pointerenter', () => {
+        bar.setAttribute('fill-opacity', '1')
+        ui.tooltip.show(bx + bw / 2, y(count), `${(spec.format ?? K.fmt)(from)}–${(spec.format ?? K.fmt)(to)}<br><b>${count}</b> of ${values.length}`)
+      })
+      bar.addEventListener('pointerleave', () => { bar.setAttribute('fill-opacity', '0.75'); ui.tooltip.hide() })
+    })
+    if (spec.binsControl !== false) {
+      const row = K.slider(ui.body, {
+        label: 'Bins', min: 4, max: 60, step: 1, value: bins,
+        onInput: (v) => { state.bins = v; rerender(host, spec, ui, state) },
+      })
+      // The slider belongs above the plot, not below it.
+      ui.body.insertBefore(row, ui.body.firstChild)
+    }
+    ui.note.textContent = spec.hint ?? `n = ${values.length}`
+    return () => {}
+  }
+
+  function drawBox(host, spec, ui) {
+    const palette = K.theme(host)
+    const groups = (spec.groups ?? []).map((g) => ({ label: String(g.label ?? g.name), values: (g.values ?? []).map(Number).filter(Number.isFinite) })).filter((g) => g.values.length > 0)
+    if (groups.length === 0) return drawEmpty(ui)
+    const st = K.stage(ui.body, { width: 680, height: spec.height ?? 300, margin: { t: 14, r: 16, b: 40, l: 46 }, label: spec.title ?? 'box plot' })
+    const all = groups.flatMap((g) => g.values)
+    const y = K.linear([Math.min(...all), Math.max(...all)], [st.y0 + st.ph, st.y0])
+    const x = K.band(groups.map((g) => g.label), [st.x0, st.x0 + st.pw], 0.38)
+    K.gridY(st, y, { color: palette.line })
+    K.axisX(st, x)
+    const q = (sorted, p) => {
+      const pos = (sorted.length - 1) * p
+      const base = Math.floor(pos)
+      const rest = pos - base
+      return sorted[base + 1] !== undefined ? sorted[base] + rest * (sorted[base + 1] - sorted[base]) : sorted[base]
+    }
+    groups.forEach((g, i) => {
+      const sorted = [...g.values].sort((a, b) => a - b)
+      const q1 = q(sorted, 0.25)
+      const med = q(sorted, 0.5)
+      const q3 = q(sorted, 0.75)
+      const iqr = q3 - q1
+      const lo = Math.max(sorted[0], q1 - iqr * 1.5)
+      const hi = Math.min(sorted[sorted.length - 1], q3 + iqr * 1.5)
+      const cx = x(g.label) + x.bw / 2
+      const color = K.PALETTE[i % K.PALETTE.length]
+      K.el('line', { x1: cx, x2: cx, y1: y(lo), y2: y(hi), stroke: color, 'stroke-width': 1.4 }, st.g)
+      K.el('line', { x1: cx - 8, x2: cx + 8, y1: y(lo), y2: y(lo), stroke: color, 'stroke-width': 1.4 }, st.g)
+      K.el('line', { x1: cx - 8, x2: cx + 8, y1: y(hi), y2: y(hi), stroke: color, 'stroke-width': 1.4 }, st.g)
+      const rect = K.el('rect', {
+        x: cx - x.bw / 2, y: y(q3), width: x.bw, height: Math.max(1, y(q1) - y(q3)),
+        fill: color, 'fill-opacity': '0.28', stroke: color, 'stroke-width': 1.2, rx: 2,
+      }, st.g)
+      K.el('line', { x1: cx - x.bw / 2, x2: cx + x.bw / 2, y1: y(med), y2: y(med), stroke: color, 'stroke-width': 2.2 }, st.g)
+      rect.addEventListener('pointerenter', () => {
+        ui.tooltip.show(cx, y(q3), `${escapeHtml(g.label)}<br>median <b>${(spec.format ?? K.fmt)(med)}</b><br>IQR ${(spec.format ?? K.fmt)(q1)}–${(spec.format ?? K.fmt)(q3)}<br>n = ${g.values.length}`)
+      })
+      rect.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  function drawHeat(host, spec, ui) {
+    const palette = K.theme(host)
+    const rowsLabels = (spec.rows ?? []).map(String)
+    const cols = (spec.cols ?? []).map(String)
+    const values = spec.values ?? []
+    if (rowsLabels.length === 0 || cols.length === 0) return drawEmpty(ui)
+    const flat = values.flat().map(Number).filter(Number.isFinite)
+    const lo = Math.min(...flat)
+    const hi = Math.max(...flat)
+    const cell = Math.min(44, Math.floor((680 - 120) / cols.length))
+    const st = K.stage(ui.body, {
+      width: 680,
+      height: rowsLabels.length * cell + 56,
+      margin: { t: 46, r: 20, b: 10, l: Math.min(150, Math.max(80, longest(rowsLabels) * 6.4)) },
+      label: spec.title ?? 'heatmap',
+    })
+    cols.forEach((col, j) => {
+      K.el('text', {
+        x: st.x0 + j * cell + cell / 2, y: 40, 'text-anchor': 'start', 'font-size': 10.5, fill: palette.faint,
+        text: col, transform: `rotate(-45 ${st.x0 + j * cell + cell / 2} 40)`,
+      }, st.g)
+    })
+    rowsLabels.forEach((row, i) => {
+      K.el('text', { x: st.x0 - 8, y: st.y0 + i * cell + cell / 2 + 3, 'text-anchor': 'end', 'font-size': 10.5, fill: palette.dim, text: truncate(row, 22) }, st.g)
+      cols.forEach((col, j) => {
+        const raw = values[i]?.[j]
+        const value = raw === null || raw === undefined ? Number.NaN : Number(raw)
+        const rect = K.el('rect', {
+          x: st.x0 + j * cell, y: st.y0 + i * cell, width: cell - 1.5, height: cell - 1.5,
+          fill: Number.isFinite(value) ? K.ramp((value - lo) / ((hi - lo) || 1)) : 'transparent',
+          rx: 1.5,
+        }, st.g)
+        if (!Number.isFinite(value)) return
+        rect.addEventListener('pointerenter', () => {
+          ui.tooltip.show(st.x0 + j * cell + cell / 2, st.y0 + i * cell, `${escapeHtml(row)} · ${escapeHtml(col)}<br><b>${(spec.format ?? K.fmt)(value)}</b>`)
+        })
+        rect.addEventListener('pointerleave', () => ui.tooltip.hide())
+      })
+    })
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  function drawDonut(host, spec, ui, state) {
+    const palette = K.theme(host)
+    const data = rows(spec.data)
+    if (data.length === 0) return drawEmpty(ui)
+    const st = K.stage(ui.body, { width: 680, height: spec.height ?? 260, margin: { t: 6, r: 6, b: 6, l: 6 }, label: spec.title ?? 'donut chart' })
+    const cx = 190
+    const cy = (spec.height ?? 260) / 2
+    const radius = Math.min(100, cy - 12)
+    const inner = spec.type === 'donut' ? radius * 0.58 : 0
+    const total = K.sum(data.map((d) => Math.abs(d.value))) || 1
+    let angle = -Math.PI / 2
+    data.forEach((d, i) => {
+      const sweep = (Math.abs(d.value) / total) * Math.PI * 2
+      const color = d.color ?? K.PALETTE[i % K.PALETTE.length]
+      const path = arcPath(cx, cy, radius, inner, angle, angle + sweep)
+      const node = K.el('path', {
+        d: path, fill: color,
+        'fill-opacity': state.selected === null || state.selected === d.label ? '0.95' : '0.3',
+        stroke: 'var(--vz-surface, #fff)', 'stroke-width': '1.5',
+        style: { cursor: 'pointer', transition: 'fill-opacity .1s ease' },
+      }, st.g)
+      node.addEventListener('pointerenter', () => {
+        ui.tooltip.show(cx, cy - radius, `${escapeHtml(d.label)}<br><b>${(spec.format ?? K.fmt)(d.value)}</b> · ${((Math.abs(d.value) / total) * 100).toFixed(1)}%`)
+      })
+      node.addEventListener('pointerleave', () => { ui.tooltip.hide() })
+      node.addEventListener('click', () => {
+        state.selected = state.selected === d.label ? null : d.label
+        rerender(host, spec, ui, state)
+      })
+      // Direct labels beat a legend when the slices are few.
+      if (data.length <= 6) {
+        const mid = angle + sweep / 2
+        const lx = cx + Math.cos(mid) * (radius + 14)
+        const ly = cy + Math.sin(mid) * (radius + 14)
+        K.el('text', {
+          x: lx, y: ly + 3, 'text-anchor': Math.cos(mid) < 0 ? 'end' : 'start', 'font-size': 11,
+          fill: palette.dim, text: `${truncate(d.label, 14)} ${((Math.abs(d.value) / total) * 100).toFixed(0)}%`,
+        }, st.g)
+      }
+      angle += sweep
+    })
+    if (spec.center) {
+      K.el('text', { x: cx, y: cy - 2, 'text-anchor': 'middle', 'font-size': 20, fill: palette.text, text: spec.center }, st.g)
+      if (spec.centerLabel) K.el('text', { x: cx, y: cy + 16, 'text-anchor': 'middle', 'font-size': 11, fill: palette.faint, text: spec.centerLabel }, st.g)
+    }
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  function drawStat(host, spec, ui) {
+    const box = K.el('div', { style: { display: 'flex', gap: '18px', flexWrap: 'wrap' } }, ui.body)
+    for (const item of spec.items ?? []) {
+      const cell = K.el('div', { style: { minWidth: '120px', padding: '10px 12px', border: '1px solid var(--vz-line,#e4e2da)', borderRadius: '8px' } }, box)
+      K.el('div', { text: String(item.label ?? ''), style: { fontSize: '11px', color: 'var(--vz-faint,#8a8782)', marginBottom: '4px' } }, cell)
+      K.el('div', { text: String(item.value ?? ''), style: { fontSize: '22px', color: 'var(--vz-text,#1b1b19)', fontVariantNumeric: 'tabular-nums' } }, cell)
+      if (item.delta) K.el('div', { text: String(item.delta), style: { fontSize: '11px', color: String(item.delta).startsWith('-') ? '#c0453d' : '#1b7a4b', marginTop: '3px' } }, cell)
+    }
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  /* -------------------------------------------------- cookbook forms (0.3.0) */
+
+  /**
+   * Waterfall: how a starting value becomes an end value through gains and
+   * losses. The first and last bars are totals unless `spec.totals` names the
+   * total rows; every other bar floats from the running total to the next.
+   */
+  function drawWaterfall(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const values = (spec.series?.[0]?.values ?? []).map(Number)
+    const count = Math.min(labels.length, values.length)
+    if (count === 0) return drawEmpty(ui)
+    const totalRows = new Set(Array.isArray(spec.totals) ? spec.totals.map(Number) : [0, count - 1])
+    let running = 0
+    const bars = []
+    for (let i = 0; i < count; i += 1) {
+      const value = Number.isFinite(values[i]) ? values[i] : 0
+      if (totalRows.has(i)) {
+        const to = i === 0 ? value : running
+        running = to
+        bars.push({ label: labels[i], from: 0, to, delta: value, total: true })
+      } else {
+        const from = running
+        running += value
+        bars.push({ label: labels[i], from, to: running, delta: value, total: false })
+      }
+    }
+    const top = Math.max(0, ...bars.map((bar) => Math.max(bar.from, bar.to)))
+    const bottom = Math.min(0, ...bars.map((bar) => Math.min(bar.from, bar.to)))
+    const st = K.stage(ui.body, {
+      width: 680,
+      height: spec.height ?? 300,
+      margin: { t: 18, r: 16, b: labels.length > 8 ? 54 : 40, l: 50 },
+      label: spec.title ?? 'waterfall chart',
+    })
+    const y = K.linear([bottom, top * 1.06 || 1], [st.y0 + st.ph, st.y0])
+    const x = K.band(labels, [st.x0, st.x0 + st.pw], 0.34)
+    K.gridY(st, y, { count: 5, color: palette.line })
+    K.axisX(st, x, { every: labels.length > 10 ? Math.ceil(labels.length / 10) : 1, rotate: labels.length > 8 })
+    bars.forEach((bar, index) => {
+      const color = bar.total ? palette.faint : bar.delta >= 0 ? K.PALETTE[2] : K.PALETTE[7]
+      const topPx = y(Math.max(bar.from, bar.to))
+      const bottomPx = y(Math.min(bar.from, bar.to))
+      const rect = K.el('rect', {
+        x: x(bar.label), y: topPx, width: x.bw, height: Math.max(1, bottomPx - topPx), fill: color, rx: 2,
+      }, st.g)
+      if (index < bars.length - 1) {
+        K.el('line', {
+          x1: x(bar.label) + x.bw, x2: x(bars[index + 1].label), y1: y(bar.to), y2: y(bar.to),
+          stroke: palette.line, 'stroke-dasharray': '3 3',
+        }, st.g)
+      }
+      K.el('text', {
+        x: x(bar.label) + x.bw / 2, y: topPx - 5, 'text-anchor': 'middle', 'font-size': 10.5,
+        fill: palette.faint, text: (spec.format ?? K.fmt)(bar.total ? bar.to : bar.delta),
+      }, st.g)
+      rect.addEventListener('pointerenter', () => {
+        const change = bar.total ? 'total' : bar.delta >= 0 ? 'gain' : 'loss'
+        ui.tooltip.show(x(bar.label) + x.bw / 2, topPx, `${escapeHtml(bar.label)}<br>${change} <b>${(spec.format ?? K.fmt)(bar.total ? bar.to : bar.delta)}</b><br>running ${(spec.format ?? K.fmt)(bar.to)}`)
+      })
+      rect.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  /**
+   * Dumbbell: before vs after per row on one shared axis. The connecting line
+   * is the finding; the two circles are the values.
+   */
+  function drawDumbbell(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const before = (spec.series?.[0]?.values ?? []).map(Number)
+    const after = (spec.series?.[1]?.values ?? []).map(Number)
+    if (labels.length === 0 || before.length === 0 || after.length === 0) return drawEmpty(ui)
+    let rows = labels.map((label, index) => ({ label, before: before[index], after: after[index] }))
+      .filter((row) => Number.isFinite(row.before) && Number.isFinite(row.after))
+    if (spec.sort === 'gap') rows.sort((a, b) => Math.abs(b.after - b.before) - Math.abs(a.after - a.before))
+    if (rows.length === 0) return drawEmpty(ui)
+    const all = rows.flatMap((row) => [row.before, row.after])
+    const [lo, hi] = K.extent(all)
+    const pad = (hi - lo) * 0.08 || 1
+    const st = K.stage(ui.body, {
+      width: 680,
+      height: spec.height ?? Math.max(190, rows.length * 34 + 58),
+      margin: { t: 14, r: 26, b: 34, l: Math.min(190, Math.max(92, longest(rows.map((row) => row.label)) * 6.6)) },
+      label: spec.title ?? 'dumbbell chart',
+    })
+    const x = K.linear([lo - pad, hi + pad], [st.x0, st.x0 + st.pw])
+    const y = K.band(rows.map((row) => row.label), [st.y0, st.y0 + st.ph], 0.3)
+    x.ticks(5).forEach((value) => {
+      K.el('line', { x1: x(value), x2: x(value), y1: st.y0, y2: st.y0 + st.ph, stroke: palette.line, 'stroke-width': 0.6 }, st.g)
+    })
+    K.axisXLinear(st, x, { count: 5 })
+    rows.forEach((row) => {
+      const cy = y(row.label) + y.bw / 2
+      const beforeColor = K.PALETTE[1]
+      const afterColor = K.PALETTE[0]
+      K.el('line', { x1: x(row.before), x2: x(row.after), y1: cy, y2: cy, stroke: palette.line, 'stroke-width': 3 }, st.g)
+      K.el('text', { x: st.x0 - 8, y: cy + 4, 'text-anchor': 'end', 'font-size': 11, fill: palette.dim, text: truncate(row.label, 26) }, st.g)
+      const a = K.el('circle', { cx: x(row.before), cy, r: 5.5, fill: beforeColor, style: { cursor: 'pointer' } }, st.g)
+      const b = K.el('circle', { cx: x(row.after), cy, r: 5.5, fill: afterColor, style: { cursor: 'pointer' } }, st.g)
+      const show = (which) => {
+        const value = which === 'before' ? row.before : row.after
+        const delta = row.after - row.before
+        ui.tooltip.show(x(value), cy - 8, `${escapeHtml(row.label)}<br>${which} <b>${(spec.format ?? K.fmt)(value)}</b><br>change ${delta >= 0 ? '+' : ''}${(spec.format ?? K.fmt)(delta)}`)
+      }
+      a.addEventListener('pointerenter', () => show('before'))
+      b.addEventListener('pointerenter', () => show('after'))
+      a.addEventListener('pointerleave', () => ui.tooltip.hide())
+      b.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  /**
+   * Slope: exactly two moments, one line per item. Direction is the colour.
+   */
+  function drawSlope(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const before = (spec.series?.[0]?.values ?? []).map(Number)
+    const after = (spec.series?.[1]?.values ?? []).map(Number)
+    if (labels.length === 0) return drawEmpty(ui)
+    const rows = labels.map((label, index) => ({ label, before: before[index], after: after[index] }))
+      .filter((row) => Number.isFinite(row.before) && Number.isFinite(row.after))
+    if (rows.length === 0) return drawEmpty(ui)
+    const all = rows.flatMap((row) => [row.before, row.after])
+    const [lo, hi] = K.extent(all)
+    const pad = (hi - lo) * 0.12 || 1
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? 300,
+      margin: { t: 18, r: 84, b: 42, l: 84 },
+      label: spec.title ?? 'slope chart',
+    })
+    const y = K.linear([lo - pad, hi + pad], [st.y0 + st.ph, st.y0])
+    const left = st.x0 + 14
+    const right = st.x0 + st.pw - 14
+    // A slope chart labels both ends of every line; numeric y ticks would
+    // collide with those row labels, so draw the grid without them.
+    y.ticks(5).forEach((value) => {
+      K.el('line', { x1: left, x2: right, y1: y(value), y2: y(value), stroke: palette.line, 'stroke-width': 0.6 }, st.g)
+    })
+    rows.forEach((row) => {
+      const up = row.after >= row.before
+      const color = up ? K.PALETTE[2] : K.PALETTE[1]
+      const line = K.el('line', { x1: left, y1: y(row.before), x2: right, y2: y(row.after), stroke: color, 'stroke-width': 2, 'stroke-linecap': 'round' }, st.g)
+      const a = K.el('circle', { cx: left, cy: y(row.before), r: 4, fill: color }, st.g)
+      const b = K.el('circle', { cx: right, cy: y(row.after), r: 4, fill: color }, st.g)
+      K.el('text', { x: left - 10, y: y(row.before) + 4, 'text-anchor': 'end', 'font-size': 11, fill: palette.dim, text: `${truncate(row.label, 16)} ${(spec.format ?? K.fmt)(row.before)}` }, st.g)
+      K.el('text', { x: right + 10, y: y(row.after) + 4, 'font-size': 11, fill: palette.dim, text: (spec.format ?? K.fmt)(row.after) }, st.g)
+      const show = () => ui.tooltip.show(right, y(row.after), `${escapeHtml(row.label)}<br>${(spec.format ?? K.fmt)(row.before)} → <b>${(spec.format ?? K.fmt)(row.after)}</b>`)
+      for (const node of [line, a, b]) {
+        node.addEventListener('pointerenter', show)
+        node.addEventListener('pointerleave', () => ui.tooltip.hide())
+      }
+    })
+    K.el('text', { x: left, y: st.y0 + st.ph + 24, 'text-anchor': 'middle', 'font-size': 11, fill: palette.faint, text: spec.beforeLabel ?? 'before' }, st.g)
+    K.el('text', { x: right, y: st.y0 + st.ph + 24, 'text-anchor': 'middle', 'font-size': 11, fill: palette.faint, text: spec.afterLabel ?? 'after' }, st.g)
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  /**
+   * Pareto: bars sorted long to short, with the cumulative share on the same
+   * 0–100% axis. The 80% rule is a reference line, not a second axis.
+   */
+  function drawPareto(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const values = (spec.series?.[0]?.values ?? []).map(Number)
+    const data = labels.map((label, index) => ({ label, value: values[index] }))
+      .filter((row) => Number.isFinite(row.value) && row.value >= 0)
+      .sort((a, b) => b.value - a.value)
+    if (data.length === 0) return drawEmpty(ui)
+    const total = K.sum(data.map((row) => row.value)) || 1
+    let cumulative = 0
+    const cumulativeAt = data.map((row) => { cumulative += row.value / total; return cumulative })
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? 300,
+      margin: { t: 16, r: 20, b: data.length > 7 ? 58 : 42, l: 52 },
+      label: spec.title ?? 'pareto chart',
+    })
+    const x = K.band(data.map((row) => row.label), [st.x0, st.x0 + st.pw], 0.32)
+    const y = K.linear([0, 1], [st.y0 + st.ph, st.y0])
+    K.gridY(st, y, { count: 5, color: palette.line, format: (value) => `${Math.round(value * 100)}%` })
+    K.axisX(st, x, { every: data.length > 10 ? Math.ceil(data.length / 10) : 1, rotate: data.length > 7 })
+    K.el('line', { x1: st.x0, x2: st.x0 + st.pw, y1: y(0.8), y2: y(0.8), stroke: palette.faint, 'stroke-dasharray': '4 4' }, st.g)
+    K.el('text', { x: st.x0 + st.pw - 2, y: y(0.8) - 5, 'text-anchor': 'end', 'font-size': 10.5, fill: palette.faint, text: '80%' }, st.g)
+    data.forEach((row, index) => {
+      const bar = K.el('rect', {
+        x: x(row.label), y: y(row.value / total), width: x.bw, height: Math.max(1, st.y0 + st.ph - y(row.value / total)),
+        fill: K.PALETTE[0], 'fill-opacity': 0.9, rx: 2,
+      }, st.g)
+      bar.addEventListener('pointerenter', () => {
+        ui.tooltip.show(x(row.label) + x.bw / 2, y(row.value / total), `${escapeHtml(row.label)}<br><b>${(spec.format ?? K.fmt)(row.value)}</b> · ${((row.value / total) * 100).toFixed(1)}%<br>cumulative ${(cumulativeAt[index] * 100).toFixed(1)}%`)
+      })
+      bar.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    const points = data.map((row, index) => [x(row.label) + x.bw / 2, y(cumulativeAt[index])])
+    K.el('path', { d: linePath(points), fill: 'none', stroke: K.PALETTE[1], 'stroke-width': 2 }, st.g)
+    points.forEach((point, index) => {
+      const dot = K.el('circle', { cx: point[0], cy: point[1], r: 3.5, fill: K.PALETTE[1] }, st.g)
+      dot.addEventListener('pointerenter', () => {
+        ui.tooltip.show(point[0], point[1], `${escapeHtml(data[index].label)}<br>cumulative <b>${(cumulativeAt[index] * 100).toFixed(1)}%</b>`)
+      })
+      dot.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  /**
+   * Funnel: stage widths are the value relative to the largest stage. Labels
+   * live in a column on the right so a narrow final stage stays readable.
+   */
+  function drawFunnel(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const values = (spec.series?.[0]?.values ?? []).map(Number)
+    const data = labels.map((label, index) => ({ label, value: values[index] }))
+      .filter((row) => Number.isFinite(row.value) && row.value >= 0)
+    if (data.length === 0) return drawEmpty(ui)
+    const max = Math.max(...data.map((row) => row.value), 1)
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? Math.max(210, data.length * 54 + 26),
+      margin: { t: 12, r: 12, b: 12, l: 12 },
+      label: spec.title ?? 'funnel chart',
+    })
+    const center = st.x0 + st.pw * 0.33
+    const maxHalf = st.pw * 0.29
+    const step = st.ph / data.length
+    data.forEach((row, index) => {
+      const half = Math.max(0.008, row.value / max) * maxHalf
+      const next = index < data.length - 1 ? Math.max(0.008, data[index + 1].value / max) * maxHalf : half * 0.86
+      const top = st.y0 + index * step
+      const bottom = top + step - 3
+      const points = [
+        [center - half, top], [center + half, top],
+        [center + next, bottom], [center - next, bottom],
+      ]
+      const polygon = K.el('polygon', {
+        points: points.map((point) => point.join(',')).join(' '),
+        fill: K.PALETTE[index % K.PALETTE.length], 'fill-opacity': Math.max(0.45, 1 - index * 0.09),
+      }, st.g)
+      const labelX = st.x0 + st.pw * 0.7
+      K.el('text', { x: labelX, y: top + step / 2 - 2, 'font-size': 12, fill: palette.text, text: `${row.label} ${(spec.format ?? K.fmt)(row.value)}` }, st.g)
+      if (index > 0) {
+        const rate = data[index - 1].value === 0 ? 0 : Math.round((row.value / data[index - 1].value) * 100)
+        K.el('text', { x: labelX, y: top + step / 2 + 14, 'font-size': 10.5, fill: palette.faint, text: `${rate}% of previous` }, st.g)
+      }
+      polygon.addEventListener('pointerenter', () => {
+        ui.tooltip.show(center, top, `${escapeHtml(row.label)}<br><b>${(spec.format ?? K.fmt)(row.value)}</b>`)
+      })
+      polygon.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  /**
+   * Bullet: one value against a target and qualitative ranges. The value bar is
+   * thinner than the bands so all three layers remain visible.
+   */
+  function drawBullet(host, spec, ui) {
+    const palette = K.theme(host)
+    const labels = (spec.labels ?? []).map(String)
+    const values = (spec.series?.[0]?.values ?? []).map(Number)
+    const targets = Array.isArray(spec.targets) ? spec.targets.map(Number) : []
+    const rows = labels.map((label, index) => ({ label, value: values[index], target: targets[index] }))
+      .filter((row) => Number.isFinite(row.value))
+    if (rows.length === 0) return drawEmpty(ui)
+    const top = Math.max(...rows.map((row) => Math.max(row.value, Number.isFinite(row.target) ? row.target : 0)), 1) * 1.05
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? Math.max(170, rows.length * 48 + 54),
+      margin: { t: 14, r: 22, b: 30, l: Math.min(190, Math.max(88, longest(rows.map((row) => row.label)) * 6.6)) },
+      label: spec.title ?? 'bullet chart',
+    })
+    const x = K.linear([0, top], [st.x0, st.x0 + st.pw])
+    const y = K.band(rows.map((row) => row.label), [st.y0, st.y0 + st.ph], 0.34)
+    x.ticks(5).forEach((value) => {
+      K.el('line', { x1: x(value), x2: x(value), y1: st.y0, y2: st.y0 + st.ph, stroke: palette.line, 'stroke-width': 0.6 }, st.g)
+    })
+    K.axisXLinear(st, x, { count: 5 })
+    const ranges = (Array.isArray(spec.ranges) && spec.ranges.length === 3 ? spec.ranges.map(Number) : [top * 0.6, top * 0.85, top])
+      .map((value) => K.clamp(Number.isFinite(value) ? value : top, 0, top))
+    rows.forEach((row) => {
+      const cy = y(row.label) + y.bw / 2
+      K.el('rect', { x: st.x0, y: y(row.label), width: x(ranges[2]) - st.x0, height: y.bw, fill: palette.line, 'fill-opacity': 0.55, rx: 2 }, st.g)
+      K.el('rect', { x: st.x0, y: y(row.label), width: x(ranges[1]) - st.x0, height: y.bw, fill: palette.line, 'fill-opacity': 0.9, rx: 2 }, st.g)
+      K.el('rect', { x: st.x0, y: y(row.label), width: x(ranges[0]) - st.x0, height: y.bw, fill: palette.faint, 'fill-opacity': 0.35, rx: 2 }, st.g)
+      const bar = K.el('rect', { x: st.x0, y: cy - y.bw / 6, width: Math.max(1, x(row.value) - st.x0), height: y.bw / 3, fill: K.PALETTE[0], rx: 1.5 }, st.g)
+      if (Number.isFinite(row.target)) {
+        K.el('line', { x1: x(row.target), x2: x(row.target), y1: y(row.label) + 2, y2: y(row.label) + y.bw - 2, stroke: palette.text, 'stroke-width': 2.5 }, st.g)
+      }
+      K.el('text', { x: st.x0 - 8, y: cy + 4, 'text-anchor': 'end', 'font-size': 11, fill: palette.dim, text: truncate(row.label, 26) }, st.g)
+      bar.addEventListener('pointerenter', () => {
+        ui.tooltip.show(x(row.value), cy, `${escapeHtml(row.label)}<br>value <b>${(spec.format ?? K.fmt)(row.value)}</b>${Number.isFinite(row.target) ? `<br>target ${(spec.format ?? K.fmt)(row.target)}` : ''}`)
+      })
+      bar.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  /**
+   * Density: a kernel estimate per group on one shared value axis. A histogram
+   * shows the bins; this shows the shape without committing to a bin width.
+   */
+  function drawDensity(host, spec, ui, state) {
+    const palette = K.theme(host)
+    const all = densitySeries(spec)
+    const series = all.filter((entry) => state.hidden[entry.name] !== true && entry.values.length > 1)
+    if (series.length === 0) return drawEmpty(ui)
+    const values = series.flatMap((entry) => entry.values)
+    const [lo0, hi0] = K.extent(values)
+    const pad = (hi0 - lo0) * 0.06 || 1
+    const lo = lo0 - pad
+    const hi = hi0 + pad
+    const xs = seriesRange(lo, hi, 140)
+    const curves = series.map((entry) => {
+      const bw = bandwidthOf(entry.values)
+      return { entry, ys: xs.map((value) => kdeOf(entry.values, bw, value)) }
+    })
+    const max = Math.max(...curves.flatMap((curve) => curve.ys)) * 1.08 || 1
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? 300,
+      margin: { t: 16, r: 18, b: 40, l: 54 },
+      label: spec.title ?? 'density plot',
+    })
+    const x = K.linear([lo, hi], [st.x0, st.x0 + st.pw])
+    const y = K.linear([0, max], [st.y0 + st.ph, st.y0])
+    K.gridY(st, y, { count: 4, color: palette.line, format: (value) => value.toFixed(2) })
+    K.axisXLinear(st, x, { count: 6 })
+    curves.forEach((curve) => {
+      const points = xs.map((value, index) => [x(value), y(curve.ys[index])])
+      const area = `${linePath(points)} L${x(hi).toFixed(1)},${(st.y0 + st.ph).toFixed(1)} L${x(lo).toFixed(1)},${(st.y0 + st.ph).toFixed(1)} Z`
+      K.el('path', { d: area, fill: curve.entry.color, 'fill-opacity': 0.16, stroke: 'none' }, st.g)
+      K.el('path', { d: linePath(points), fill: 'none', stroke: curve.entry.color, 'stroke-width': 2 }, st.g)
+    })
+    if (all.length > 1) {
+      K.legend(ui.head, all.map((entry) => ({ name: entry.name, color: entry.color, on: state.hidden[entry.name] !== true })), (name, on) => {
+        if (on) delete state.hidden[name]
+        else state.hidden[name] = true
+        rerender(host, spec, ui, state)
+      })
+    }
+    const move = (event) => {
+      const rect = st.svg.getBoundingClientRect()
+      const scale = 680 / (rect.width || 680)
+      const px = (event.clientX - rect.left) * scale
+      if (px < st.x0 || px > st.x0 + st.pw) { ui.tooltip.hide(); return }
+      const value = x.invert(px)
+      const lines = curves.map((curve) => `<span style="color:${curve.entry.color}">●</span> ${escapeHtml(curve.entry.name)} <b>${kdeOf(curve.entry.values, bandwidthOf(curve.entry.values), value).toFixed(3)}</b>`)
+      ui.tooltip.show(px, st.y0 + 12, `${(spec.format ?? K.fmt)(value)}<br>${lines.join('<br>')}`)
+    }
+    st.svg.addEventListener('pointermove', move)
+    st.svg.addEventListener('pointerleave', () => ui.tooltip.hide())
+    ui.note.textContent = spec.hint ?? ''
+    return () => { st.svg.removeEventListener('pointermove', move) }
+  }
+
+  /**
+   * ECDF: the share of observations at or below each value. No bins, so two
+   * groups compare without choosing a bin width.
+   */
+  function drawEcdf(host, spec, ui, state) {
+    const palette = K.theme(host)
+    const all = densitySeries(spec).map((entry) => ({ ...entry, values: unitSorted(entry.values) }))
+    const series = all.filter((entry) => state.hidden[entry.name] !== true && entry.values.length > 0)
+    if (series.length === 0) return drawEmpty(ui)
+    const values = series.flatMap((entry) => entry.values)
+    const [lo0, hi0] = K.extent(values)
+    const pad = (hi0 - lo0) * 0.04 || 1
+    const lo = lo0 - pad
+    const hi = hi0 + pad
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? 300,
+      margin: { t: 16, r: 18, b: 40, l: 54 },
+      label: spec.title ?? 'ecdf plot',
+    })
+    const x = K.linear([lo, hi], [st.x0, st.x0 + st.pw])
+    const y = K.linear([0, 1], [st.y0 + st.ph, st.y0])
+    K.gridY(st, y, { count: 5, color: palette.line, format: (value) => `${Math.round(value * 100)}%` })
+    K.axisXLinear(st, x, { count: 6 })
+    series.forEach((entry) => {
+      const sorted = entry.values
+      const n = sorted.length
+      let d = `M${x(sorted[0]).toFixed(1)},${y(0).toFixed(1)}`
+      sorted.forEach((value, index) => {
+        d += `L${x(value).toFixed(1)},${y(index / n).toFixed(1)}L${x(value).toFixed(1)},${y((index + 1) / n).toFixed(1)}`
+      })
+      d += `L${x(sorted[n - 1]).toFixed(1)},${y(1).toFixed(1)}`
+      K.el('path', { d, fill: 'none', stroke: entry.color, 'stroke-width': 2 }, st.g)
+    })
+    if (all.length > 1) {
+      K.legend(ui.head, all.map((entry) => ({ name: entry.name, color: entry.color, on: state.hidden[entry.name] !== true })), (name, on) => {
+        if (on) delete state.hidden[name]
+        else state.hidden[name] = true
+        rerender(host, spec, ui, state)
+      })
+    }
+    const move = (event) => {
+      const rect = st.svg.getBoundingClientRect()
+      const scale = 680 / (rect.width || 680)
+      const px = (event.clientX - rect.left) * scale
+      if (px < st.x0 || px > st.x0 + st.pw) { ui.tooltip.hide(); return }
+      const value = x.invert(px)
+      const lines = series.map((entry) => {
+        const share = entry.values.filter((item) => item <= value).length / entry.values.length
+        return `<span style="color:${entry.color}">●</span> ${escapeHtml(entry.name)} <b>${(share * 100).toFixed(1)}%</b>`
+      })
+      ui.tooltip.show(px, st.y0 + 12, `${(spec.format ?? K.fmt)(value)}<br>${lines.join('<br>')}`)
+    }
+    st.svg.addEventListener('pointermove', move)
+    st.svg.addEventListener('pointerleave', () => ui.tooltip.hide())
+    ui.note.textContent = spec.hint ?? ''
+    return () => { st.svg.removeEventListener('pointermove', move) }
+  }
+
+  /**
+   * Violin: the full shape of each group, mirrored around its band, with a
+   * narrow box and median inside. Bimodality shows here; a box hides it.
+   */
+  function drawViolin(host, spec, ui) {
+    const palette = K.theme(host)
+    const groups = densitySeries(spec).filter((entry) => entry.values.length > 0)
+    if (groups.length === 0) return drawEmpty(ui)
+    const all = groups.flatMap((group) => group.values)
+    const [lo0, hi0] = K.extent(all)
+    const pad = (hi0 - lo0) * 0.06 || 1
+    const lo = lo0 - pad
+    const hi = hi0 + pad
+    const st = K.stage(ui.body, {
+      width: 680, height: spec.height ?? 300,
+      margin: { t: 16, r: 18, b: 44, l: 50 },
+      label: spec.title ?? 'violin plot',
+    })
+    const x = K.band(groups.map((group) => group.name), [st.x0, st.x0 + st.pw], 0.32)
+    const y = K.linear([lo, hi], [st.y0 + st.ph, st.y0])
+    K.gridY(st, y, { count: 5, color: palette.line })
+    K.axisX(st, x)
+    groups.forEach((group) => {
+      const sorted = unitSorted(group.values)
+      const min = sorted[0]
+      const max = sorted[sorted.length - 1]
+      const ys = seriesRange(min, max, 70)
+      const bw = bandwidthOf(sorted)
+      const density = ys.map((value) => kdeOf(sorted, bw, value))
+      const peak = Math.max(...density) || 1
+      const half = x.bw / 2
+      const center = x(group.name) + half
+      const right = ys.map((value, index) => [center + (density[index] / peak) * half, y(value)])
+      const left = ys.map((value, index) => [center - (density[index] / peak) * half, y(value)]).reverse()
+      const shape = K.el('path', { d: `${linePath(right.concat(left))} Z`, fill: group.color, 'fill-opacity': 0.24, stroke: group.color, 'stroke-width': 1.5 }, st.g)
+      const q1 = quantileOf(sorted, 0.25)
+      const median = quantileOf(sorted, 0.5)
+      const q3 = quantileOf(sorted, 0.75)
+      K.el('rect', { x: center - 4, y: y(q3), width: 8, height: Math.max(1, y(q1) - y(q3)), fill: group.color, 'fill-opacity': 0.55 }, st.g)
+      K.el('line', { x1: center - 7, x2: center + 7, y1: y(median), y2: y(median), stroke: palette.surface, 'stroke-width': 2 }, st.g)
+      shape.addEventListener('pointerenter', () => {
+        ui.tooltip.show(center, y(q3), `${escapeHtml(group.name)}<br>median <b>${(spec.format ?? K.fmt)(median)}</b><br>IQR ${(spec.format ?? K.fmt)(q1)}–${(spec.format ?? K.fmt)(q3)}<br>n = ${sorted.length}`)
+      })
+      shape.addEventListener('pointerleave', () => ui.tooltip.hide())
+    })
+    ui.note.textContent = spec.hint ?? ''
+    return () => {}
+  }
+
+  /* ------------------------------------------------------------------ helpers */
+
+  function drawEmpty(ui) {
+    K.el('div', { text: 'No data for this visual.', style: { fontSize: '12px', color: 'var(--vz-faint,#8a8782)', padding: '24px 0' } }, ui.body)
+    return () => {}
+  }
+
+  function rerender(host, spec, _ui, state) {
+    render(host, spec, state)
+  }
+
+  function tipHtml(label, value, spec) {
+    return `${escapeHtml(label)}<br><b>${(spec.format ?? K.fmt)(value)}</b>`
+  }
+
+  function longest(list) {
+    return list.reduce((max, value) => Math.max(max, String(value).length), 0)
+  }
+
+  function truncate(text, max) {
+    return text.length <= max ? text : `${text.slice(0, max - 1)}…`
+  }
+
+  /** Distribution specs carry raw observations in `series[].values`. */
+  function densitySeries(spec) {
+    const list = Array.isArray(spec.series)
+      ? spec.series
+      : Array.isArray(spec.values) ? [{ name: spec.name ?? spec.title ?? 'Values', values: spec.values }] : []
+    return list.map((entry, index) => ({
+      name: String(entry?.name ?? `Series ${index + 1}`),
+      color: entry?.color ?? K.PALETTE[index % K.PALETTE.length],
+      values: (entry?.values ?? entry?.data ?? []).map(Number).filter(Number.isFinite),
+    })).filter((entry) => entry.values.length > 0)
+  }
+
+  /** Sorted copy without mutating the spec. */
+  function unitSorted(values) {
+    return [...values].sort((a, b) => a - b)
+  }
+
+  /** Linear-interpolated quantile, matching the box-plot definition. */
+  function quantileOf(sorted, probability) {
+    const position = (sorted.length - 1) * probability
+    const base = Math.floor(position)
+    const rest = position - base
+    return sorted[base + 1] !== undefined
+      ? sorted[base] + rest * (sorted[base + 1] - sorted[base])
+      : sorted[base]
+  }
+
+  function meanOf(values) {
+    return K.sum(values) / (values.length || 1)
+  }
+
+  function sdOf(values) {
+    const mean = meanOf(values)
+    return Math.sqrt(K.sum(values.map((value) => (value - mean) ** 2)) / Math.max(1, values.length - 1))
+  }
+
+  /** Silverman's rule; a flat group still needs a positive width. */
+  function bandwidthOf(values) {
+    const width = 1.06 * sdOf(values) * Math.pow(values.length || 1, -0.2)
+    return Number.isFinite(width) && width > 0 ? width : 1
+  }
+
+  function kdeOf(values, bandwidth, at) {
+    const n = values.length || 1
+    const total = K.sum(values.map((value) => Math.exp(-0.5 * ((at - value) / bandwidth) ** 2)))
+    return total / (n * bandwidth * Math.sqrt(2 * Math.PI))
+  }
+
+  /** Evenly spaced samples, including both ends. */
+  function seriesRange(lo, hi, count) {
+    if (count <= 1 || hi === lo) return Array.from({ length: Math.max(2, count) }, () => lo)
+    return Array.from({ length: count }, (_, index) => lo + ((hi - lo) * index) / (count - 1))
+  }
+
+  /** An SVG path through [x, y] points, with stable decimals. */
+  function linePath(points) {
+    return points.map((point, index) => `${index === 0 ? 'M' : 'L'}${Number(point[0]).toFixed(1)},${Number(point[1]).toFixed(1)}`).join(' ')
+  }
+
+  function escapeHtml(text) {
+    return String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+  }
+
+  function arcPath(cx, cy, r, inner, a0, a1) {
+    const large = a1 - a0 > Math.PI ? 1 : 0
+    const x0 = cx + Math.cos(a0) * r
+    const y0 = cy + Math.sin(a0) * r
+    const x1 = cx + Math.cos(a1) * r
+    const y1 = cy + Math.sin(a1) * r
+    if (inner === 0) return `M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${large} 1 ${x1},${y1} Z`
+    const x2 = cx + Math.cos(a1) * inner
+    const y2 = cy + Math.sin(a1) * inner
+    const x3 = cx + Math.cos(a0) * inner
+    const y3 = cy + Math.sin(a0) * inner
+    return `M${x0},${y0} A${r},${r} 0 ${large} 1 ${x1},${y1} L${x2},${y2} A${inner},${inner} 0 ${large} 0 ${x3},${y3} Z`
+  }
+
+  /* ------------------------------------------------------------------- public */
+
+  const DRAW = {
+    bar: drawBar, hbar: drawBar, stacked: drawStacked, line: drawLine, area: drawLine,
+    scatter: drawScatter, hist: drawHist, box: drawBox, heat: drawHeat, donut: drawDonut, stat: drawStat,
+    waterfall: drawWaterfall, dumbbell: drawDumbbell, slope: drawSlope, pareto: drawPareto,
+    funnel: drawFunnel, bullet: drawBullet, density: drawDensity, ecdf: drawEcdf, violin: drawViolin,
+  }
+
+  /**
+   * Render a spec into a host element.
+   * @param {Element} host
+   * @param {object} spec chart description
+   * @param {object} [carry] state kept across re-renders (zoom, hidden series, bins)
+   * @returns {{destroy:() => void}}
+   */
+  function render(host, spec, carry) {
+    if (!host) throw new Error('render needs a host element')
+    const state = carry ?? { selected: null, hidden: {}, zoom: null, bins: spec.bins }
+    state.selected ??= null
+    state.hidden ??= {}
+    const ui = mount(host, spec)
+    const draw = DRAW[spec.type] ?? drawBar
+    const cleanup = draw(host, spec, ui, state) ?? (() => {})
+    ui.tooltip = K.tip(ui.body)
+    if (spec.caption) K.el('div', { text: spec.caption, style: { fontSize: '12px', color: 'var(--vz-dim,#5f5e5a)', marginTop: '8px', lineHeight: '1.5' } }, host)
+    return {
+      destroy() {
+        try { cleanup() } catch { /* the host may already be gone */ }
+        host.innerHTML = ''
+      },
+      state,
+    }
+  }
+
+  return { render, types: TYPES, helpers: { rows, seriesOf } }
+})
+</script>
+<script>/* viz-kit.js: the small toolkit every recipe uses.
+   Idea: a chart is just (1) scales that map data to pixels, (2) marks (SVG shapes), (3) axes.
+   Nothing here draws a whole chart; recipes compose these primitives. */
+(function (root) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const K = {};
+
+  // Fixed categorical palette (never cycled past 8)
+  K.C = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948'];
+
+  // ---- SVG building blocks -------------------------------------------------
+  K.el = (tag, attrs, parent) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  };
+  K.text = (parent, x, y, s, attrs) => {
+    const t = K.el('text', Object.assign({ x, y, 'font-size': 11, fill: 'var(--muted,#898781)' }, attrs || {}), parent);
+    t.textContent = s;
+    return t;
+  };
+  K.path = pts => pts.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1]).join('');
+
+  // ---- Scales: data value -> pixel ----------------------------------------
+  K.linear = (d0, d1, r0, r1) => {
+    const f = v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+    f.domain = [d0, d1];
+    return f;
+  };
+  K.band = (keys, r0, r1, pad = 0.2) => {
+    const step = (r1 - r0) / keys.length, bw = step * (1 - pad);
+    const f = k => r0 + keys.indexOf(k) * step + (step - bw) / 2;
+    f.bw = bw; f.step = step;
+    return f;
+  };
+  K.ticks = (lo, hi, n = 5) => {
+    let st = (hi - lo) / n;
+    const p = Math.pow(10, Math.floor(Math.log10(st))), m = st / p;
+    st = (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p;
+    const out = [];
+    for (let v = Math.ceil(lo / st) * st; v <= hi + 1e-9; v += st) out.push(+v.toFixed(6));
+    return out;
+  };
+  K.range = (lo, hi, n) => Array.from({ length: n }, (_, i) => lo + (hi - lo) * i / (n - 1));
+
+  // ---- Stage + axes --------------------------------------------------------
+  K.stage = (host, w = 320, h = 220, m = {}) => {
+    m = Object.assign({ t: 10, r: 12, b: 28, l: 40 }, m);
+    const svg = K.el('svg', { viewBox: `0 0 ${w} ${h}`, width: '100%', role: 'img' });
+    host.appendChild(svg);
+    const g = K.el('g', { transform: `translate(${m.l},${m.t})` }, svg);
+    return { svg, g, W: w - m.l - m.r, H: h - m.t - m.b, m };
+  };
+  K.axisY = (st, y, n = 4, fmt = v => v) => {
+    const [a, b] = y.domain;
+    K.ticks(Math.min(a, b), Math.max(a, b), n).forEach(v => {
+      K.el('line', { x1: 0, x2: st.W, y1: y(v), y2: y(v), stroke: 'var(--grid,#e1e0d9)', 'stroke-width': 0.5 }, st.g);
+      K.text(st.g, -6, y(v) + 4, fmt(v), { 'text-anchor': 'end' });
+    });
+  };
+  K.axisX = (st, x, n = 5, fmt = v => v) => {
+    const [a, b] = x.domain;
+    K.ticks(Math.min(a, b), Math.max(a, b), n).forEach(v => K.text(st.g, x(v), st.H + 16, fmt(v), { 'text-anchor': 'middle' }));
+  };
+  K.axisBand = (st, x, keys) =>
+    keys.forEach(k => K.text(st.g, x(k) + x.bw / 2, st.H + 16, k, { 'text-anchor': 'middle' }));
+
+  // ---- Geometry for circular charts ---------------------------------------
+  K.polar = (cx, cy, r, a) => [cx + r * Math.sin(a), cy - r * Math.cos(a)]; // angle 0 = 12 o'clock, clockwise
+  K.arc = (cx, cy, r0, r1, a0, a1) => {
+    const big = a1 - a0 > Math.PI ? 1 : 0;
+    const p0 = K.polar(cx, cy, r1, a0), p1 = K.polar(cx, cy, r1, a1);
+    const p2 = K.polar(cx, cy, r0, a1), p3 = K.polar(cx, cy, r0, a0);
+    return `M${p0}A${r1} ${r1} 0 ${big} 1 ${p1}L${p2}A${r0} ${r0} 0 ${big} 0 ${p3}Z`;
+  };
+
+  // ---- Statistics ----------------------------------------------------------
+  K.sum = a => a.reduce((s, x) => s + x, 0);
+  K.mean = a => K.sum(a) / a.length;
+  K.sd = a => { const m = K.mean(a); return Math.sqrt(K.sum(a.map(x => (x - m) ** 2)) / (a.length - 1)); };
+  K.sorted = a => a.slice().sort((p, q) => p - q);
+  K.quantile = (s, q) => { const i = (s.length - 1) * q, lo = Math.floor(i), hi = Math.ceil(i); return s[lo] + (s[hi] - s[lo]) * (i - lo); };
+  K.hist = (data, lo, hi, k) => {
+    const w = (hi - lo) / k;
+    const bins = Array.from({ length: k }, (_, i) => ({ x0: lo + i * w, x1: lo + (i + 1) * w, n: 0 }));
+    data.forEach(v => { bins[Math.min(k - 1, Math.max(0, Math.floor((v - lo) / w)))].n++; });
+    return bins;
+  };
+  K.bw = data => 1.06 * K.sd(data) * Math.pow(data.length, -0.2);            // Silverman's rule
+  K.kde = (data, bw, xs) => xs.map(x =>
+    K.sum(data.map(d => Math.exp(-0.5 * ((x - d) / bw) ** 2))) / (data.length * bw * Math.sqrt(2 * Math.PI)));
+  K.invNorm = p => {                                                          // Abramowitz-Stegun 26.2.23
+    const f = q => { const t = Math.sqrt(-2 * Math.log(q)); return t - (2.515517 + 0.802853 * t + 0.010328 * t * t) / (1 + 1.432788 * t + 0.189269 * t * t + 0.001308 * t ** 3); };
+    return p < 0.5 ? -f(p) : f(1 - p);
+  };
+
+  // ---- Reproducible fake data (seeded, so every run looks the same) -------
+  K.rng = seed => () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+  K.normal = r => { const u = r() || 1e-9, v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  K.sample = (seed, n, mu, sd) => { const r = K.rng(seed); return Array.from({ length: n }, () => mu + sd * K.normal(r)); };
+  K.data = { langs: [['Python', 68], ['SQL', 57], ['R', 41], ['Java', 29], ['Julia', 12]] };
+
+  // ---- Show a recipe's source as readable text -----------------------------
+  K.codeOf = fn => {
+    const lines = fn.toString().replace(/^fn\s*\(/, 'function draw(').split('\n');
+    const base = lines[lines.length - 1].match(/^\s*/)[0].length;
+    return lines.map((l, i) => (i ? l.slice(base) : l)).join('\n');
+  };
+
+  // ======================= batch 2+ helpers =======================
+  // ---- Colour ramps ---------------------------------------------------------
+  K.hex = c => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
+  K.mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  K.rgb = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+  K.clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  K.seq = t => K.rgb(K.mix(K.hex('#e8f1fc'), K.hex('#1f4e9c'), K.clamp(t, 0, 1)));               // light -> dark blue
+  K.div = t => t < 0.5 ? K.rgb(K.mix(K.hex('#e34948'), K.hex('#f4f3ee'), t * 2)) : K.rgb(K.mix(K.hex('#f4f3ee'), K.hex('#2a78d6'), (t - 0.5) * 2)); // t in 0..1
+  // ---- Curves and legends -----------------------------------------------------
+  K.curve = pts => {                                   // Catmull-Rom spline converted to cubic Beziers
+    if (pts.length < 3) return K.path(pts);
+    let d = `M${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      d += `C${p1[0] + (p2[0] - p0[0]) / 6} ${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6} ${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]} ${p2[1]}`;
+    }
+    return d;
+  };
+  K.legend = (parent, items, x, y, gap = 70) => items.forEach(([name, col], i) => {
+    K.el('rect', { x: x + i * gap, y, width: 10, height: 10, rx: 2, fill: col }, parent);
+    K.text(parent, x + i * gap + 14, y + 9, name);
+  });
+  // ---- Regression -----------------------------------------------------------
+  K.lin = (xs, ys) => {
+    const n = xs.length, mx = K.mean(xs), my = K.mean(ys);
+    let sxx = 0, sxy = 0; xs.forEach((x, i) => { sxx += (x - mx) ** 2; sxy += (x - mx) * (ys[i] - my); });
+    const b = sxy / sxx, a = my - b * mx;
+    const s = Math.sqrt(K.sum(xs.map((x, i) => (ys[i] - a - b * x) ** 2)) / (n - 2));
+    return { n, mx, my, sxx, a, b, s };
+  };
+  K.corr = (xs, ys) => { const mx = K.mean(xs), my = K.mean(ys); let c = 0, p = 0, q = 0; xs.forEach((x, i) => { c += (x - mx) * (ys[i] - my); p += (x - mx) ** 2; q += (ys[i] - my) ** 2; }); return c / Math.sqrt(p * q); };
+  // ---- Hierarchies ------------------------------------------------------------
+  K.sumTree = n => { if (n.children) n.value = K.sum(n.children.map(K.sumTree)); return n.value; };
+  K.squarify = (items, x, y, w, h) => {                // squarified treemap (Bruls et al.)
+    const total = K.sum(items.map(i => i.value)), k = w * h / total, out = [];
+    let rest = items.map(i => ({ item: i, a: i.value * k })), rx = x, ry = y, rw = w, rh = h;
+    const worst = (row, side) => { const s = K.sum(row.map(r => r.a)); return Math.max(side * side * Math.max(...row.map(r => r.a)) / (s * s), s * s / (side * side * Math.min(...row.map(r => r.a)))); };
+    while (rest.length) {
+      const side = Math.min(rw, rh), row = [rest[0]]; let i = 1;
+      while (i < rest.length && worst(row.concat(rest[i]), side) <= worst(row, side)) { row.push(rest[i]); i++; }
+      rest = rest.slice(row.length);
+      const s = K.sum(row.map(r => r.a));
+      if (rw >= rh) { const cw = s / rh; let cy = ry; row.forEach(r => { const ch = r.a / cw; out.push({ item: r.item, x: rx, y: cy, w: cw, h: ch }); cy += ch; }); rx += cw; rw -= cw; }
+      else { const ch = s / rw; let cx = rx; row.forEach(r => { const cw = r.a / ch; out.push({ item: r.item, x: cx, y: ry, w: cw, h: ch }); cx += cw; }); ry += ch; rh -= ch; }
+    }
+    return out;
+  };
+  K.partition = root => { const out = []; (function rec(n, d, x0, x1) { out.push({ n, depth: d, x0, x1 }); if (n.children) { let a = x0; n.children.forEach(c => { const w = (x1 - x0) * c.value / n.value; rec(c, d + 1, a, a + w); a += w; }); } })(root, 0, 0, 1); return out; };
+  K.tree = root => { let leaf = 0; const nodes = []; (function rec(n, d) { if (!n.children) n._x = leaf++; else { n.children.forEach(c => rec(c, d + 1)); n._x = (n.children[0]._x + n.children[n.children.length - 1]._x) / 2; } n._d = d; nodes.push(n); })(root, 0); return { nodes, leaves: leaf }; };
+  K.pack = values => {                                 // greedy circle packing along a spiral
+    const rs = values.map(Math.sqrt), order = rs.map((_, i) => i).sort((a, b) => rs[b] - rs[a]), placed = [];
+    order.forEach(i => {
+      const r = rs[i];
+      for (let k = 0; k < 6000; k++) {
+        const x = placed.length ? k * 0.12 * Math.cos(k * 0.5) : 0, y = placed.length ? k * 0.12 * Math.sin(k * 0.5) : 0;
+        if (placed.every(p => Math.hypot(p.x - x, p.y - y) >= p.r + r + 0.6)) { placed.push({ i, x, y, r }); return; }
+      }
+    });
+    return placed.sort((a, b) => a.i - b.i);
+  };
+  // ---- Flow and networks ------------------------------------------------------
+  K.sankey = (nodes, links, w, h, nw = 10, pad = 8) => {
+    const by = {}; nodes.forEach(n => { by[n.id] = Object.assign({ inV: 0, outV: 0, s: 0, t: 0 }, n); });
+    links.forEach(l => { by[l.s].outV += l.v; by[l.t].inV += l.v; });
+    const maxL = Math.max(...nodes.map(n => n.layer)), layers = [];
+    nodes.forEach(n => { (layers[n.layer] = layers[n.layer] || []).push(by[n.id]); by[n.id].v = Math.max(by[n.id].inV, by[n.id].outV); });
+    const ky = Math.min(...layers.map(L => (h - pad * (L.length - 1)) / K.sum(L.map(n => n.v))));
+    layers.forEach((L, li) => { let y = 0; L.forEach(n => { n.x = li * (w - nw) / maxL; n.y = y; n.h = n.v * ky; y += n.h + pad; }); });
+    const paths = links.map(l => {
+      const a = by[l.s], b = by[l.t], th = l.v * ky, y0 = a.y + a.s + th / 2, y1 = b.y + b.t + th / 2; a.s += th; b.t += th;
+      const x0 = a.x + nw, x1 = b.x, mx = (x0 + x1) / 2;
+      return { d: `M${x0} ${y0}C${mx} ${y0} ${mx} ${y1} ${x1} ${y1}`, w: th, link: l };
+    });
+    return { nodes: by, paths };
+  };
+  K.force = (n, edges, w, h, iters = 250, seed = 1) => {   // Fruchterman-Reingold
+    const r = K.rng(seed), p = Array.from({ length: n }, () => ({ x: w * (0.25 + 0.5 * r()), y: h * (0.25 + 0.5 * r()) }));
+    const k = Math.sqrt(w * h / n) * 0.7; let t = w / 8;
+    for (let it = 0; it < iters; it++) {
+      p.forEach(a => { a.dx = 0; a.dy = 0; });
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+        const dx = p[i].x - p[j].x, dy = p[i].y - p[j].y, d = Math.hypot(dx, dy) || 0.01, f = k * k / d;
+        p[i].dx += dx / d * f; p[i].dy += dy / d * f; p[j].dx -= dx / d * f; p[j].dy -= dy / d * f;
+      }
+      edges.forEach(([i, j]) => { const dx = p[i].x - p[j].x, dy = p[i].y - p[j].y, d = Math.hypot(dx, dy) || 0.01, f = d * d / k; p[i].dx -= dx / d * f; p[i].dy -= dy / d * f; p[j].dx += dx / d * f; p[j].dy += dy / d * f; });
+      p.forEach(a => { const m = Math.hypot(a.dx, a.dy) || 1; a.x = K.clamp(a.x + a.dx / m * Math.min(m, t), 8, w - 8); a.y = K.clamp(a.y + a.dy / m * Math.min(m, t), 8, h - 8); });
+      t *= 0.97;
+    }
+    return p;
+  };
+  // ---- 3D and signals ---------------------------------------------------------
+  K.rot = ([x, y, z], ax, ay) => { const x1 = x * Math.cos(ay) + z * Math.sin(ay), z1 = -x * Math.sin(ay) + z * Math.cos(ay); return [x1, y * Math.cos(ax) - z1 * Math.sin(ax), y * Math.sin(ax) + z1 * Math.cos(ax)]; };
+  K.proj = ([x, y, z], cx, cy, s = 70, d = 5) => { const f = d / (d - z); return [cx + x * s * f, cy - y * s * f, z]; };
+  K.dft = x => Array.from({ length: x.length / 2 }, (_, k) => { let re = 0, im = 0; x.forEach((v, n) => { const a = -2 * Math.PI * k * n / x.length; re += v * Math.cos(a); im += v * Math.sin(a); }); return Math.hypot(re, im) * 2 / x.length; });
+  // ---- Sample tables used by several recipes ------------------------------------
+  K.series = (seed, n, base, slope, amp, noise) => { const r = K.rng(seed); return Array.from({ length: n }, (_, i) => base + slope * i + amp * Math.sin(i / 12 * 2 * Math.PI) + noise * K.normal(r)); };
+
+  if (typeof module !== 'undefined') module.exports = K; else root.Kit = K;
+})(this);
+</script>
+<script>/* viz3d.js: tiny helpers for animated and 3D canvas scenes (no WebGL, no libraries).
+   A 3D scene = points [x,y,z] -> rotate -> perspective-project -> draw 2D shapes far-to-near.
+
+   Vendored with the cookbook. Exposed as C3, not V3: dsh-artifacts already owns
+   a V3 global for widgets, and recipes only reach this through Kit.v3. */
+(function (root) {
+  const K = root.Kit || (typeof require !== 'undefined' ? require('./viz-kit.js') : {});
+  const V = {};
+  V.rot = (p, ax, ay) => { const c = Math.cos(ay), s = Math.sin(ay), x = p[0] * c + p[2] * s, z = -p[0] * s + p[2] * c, c2 = Math.cos(ax), s2 = Math.sin(ax); return [x, p[1] * c2 - z * s2, p[1] * s2 + z * c2]; };       // turn about y, then about x
+  V.proj = (p, W, H, s, d = 4) => { const f = d / (d - p[2]); return [W / 2 + p[0] * s * f, H / 2 - p[1] * s * f, f]; };                                       // perspective: nearer (larger z) = bigger
+  V.hsl = (h, s, l) => { h = ((h % 360) + 360) % 360; s /= 100; l /= 100; const a = s * Math.min(l, 1 - l), f = n => { const k = (n + h / 30) % 12; return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))); }; return `rgb(${f(0)},${f(8)},${f(4)})`; };
+  V.canvas = (host, W, H) => { const cv = document.createElement('canvas'), dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1; cv.width = W * dpr; cv.height = H * dpr; cv.style.cssText = 'width:100%;height:auto;display:block;touch-action:none;cursor:grab;border-radius:8px'; host.appendChild(cv); const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); cv.__ctx = ctx; cv.__W = W; cv.__H = H; return { cv, ctx, W, H }; };
+  V.drag = (cv, st) => { let d = null; cv.addEventListener('pointerdown', e => { d = [e.clientX, e.clientY]; cv.style.cursor = 'grabbing'; try { cv.setPointerCapture(e.pointerId); } catch (_) {} }); cv.addEventListener('pointermove', e => { if (!d) return; st.ay += (e.clientX - d[0]) * 0.01; st.ax = Math.max(-1.5, Math.min(1.5, st.ax + (e.clientY - d[1]) * 0.01)); d = [e.clientX, e.clientY]; }); const up = () => { d = null; cv.style.cursor = 'grab'; }; cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); };
+  V.loop = draw => {                                   // calls draw(dt) about 60 times a second until stop()
+    if (V.manual) { const L = { tick: (n = 1) => { while (n-- > 0) draw(0.016); }, stop() {} }; draw(0.016); return L; }   // test mode: frames are advanced by hand
+    let on = true, last = 0; const tick = t => { if (!on) return; draw(Math.min(0.05, (t - last) / 1000 || 0.016)); last = t; requestAnimationFrame(tick); }; requestAnimationFrame(tick); return { stop() { on = false; } };
+  };
+  K.v3 = V; if (typeof module !== 'undefined') module.exports = V; else root.C3 = V;
+})(this);
+</script>
 <script>
 (function(){
   var root = document.documentElement;
@@ -131,7 +2362,10 @@ body{background:transparent}
   function height(){
     var body = document.body;
     if (!body) return;
-    var value = Math.max(body.scrollHeight, root.scrollHeight);
+    // Report the content, not the viewport: root.scrollHeight is at least the
+    // iframe's own height, so using it made every short artifact open with a
+    // large empty area under it.
+    var value = Math.max(body.scrollHeight, body.offsetHeight);
     post({ type: 'dsh-artifact:height', height: value });
   }
   if ('ResizeObserver' in window) new ResizeObserver(height).observe(document.body);

@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.4.3 — 2026-10-31
+
+The tool works; the chart looked wrong. Three renderer fixes.
+
+- **One series, one colour.** A single-series `bar`/`hbar` painted every bar
+  from the categorical palette — seven bars, seven colours — which says "seven
+  unrelated things" when the data is one measure across categories. Bars now
+  share the first palette colour; `donut` keeps one colour per slice, and a spec
+  can still ask for per-category colours with `colorBy:"category"`.
+- **No dead space under an artifact.** The frame reported
+  `max(body.scrollHeight, root.scrollHeight)`; `root.scrollHeight` is at least
+  the iframe's own height, so a 370px chart claimed 800px and the card opened
+  with a large empty area. It reports the body's height now.
+- **A card that fits its chart.** Artifact cards are capped at 980px (1200 for
+  `wide`) and centred instead of stretching across a 1400px conversation column;
+  charts use an 880px measure, bar bands are 34% padding instead of 24%, and the
+  per-chart control hints ("Hover a bar for its value…") are gone — a histogram
+  keeps `n = …`, because the sample size is data.
+- Tests: 67 pass, including a spec-level check that a single-series bar carries
+  no per-bar colour while a donut still does.
+
 ## 0.4.2 — 2026-10-31
 
 0.4.1 put `artifact` in the tool list, and the model called it — then dsh

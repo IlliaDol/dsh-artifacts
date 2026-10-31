@@ -188,7 +188,10 @@ html,body{background:#0e0e0d;color:#f0efec;overflow:hidden}
   function height(){
     var body = document.body;
     if (!body) return;
-    var value = Math.max(body.scrollHeight, root.scrollHeight);
+    // Report the content, not the viewport: root.scrollHeight is at least the
+    // iframe's own height, so using it made every short artifact open with a
+    // large empty area under it.
+    var value = Math.max(body.scrollHeight, body.offsetHeight);
     post({ type: 'dsh-artifact:height', height: value });
   }
   if ('ResizeObserver' in window) new ResizeObserver(height).observe(document.body);

@@ -53,11 +53,10 @@ array.
 
 ## Verification
 
-The gallery was mounted in Chromium: **164/164 recipes drew**, with 149 SVGs,
+The gallery was mounted in Chromium: **165/165 recipes drew**, with 149 SVGs,
 6 canvases, 9 HTML-only cards, zero exceptions, zero `NaN`/`undefined`/
-`Infinity` attributes and no console errors. The `sampling` explainer added in
-0.4.1 was rendered through the artifact tool and checked in Chromium the same
-way (SVG, no console errors). The map recipes were checked with
+`Infinity` attributes and no console errors (re-checked after the `sampling`
+recipe was added in 0.4.1). The map recipes were checked with
 D3 and `world-atlas` loaded. The `recipe` artifact path was checked separately
 for `qq`, `sankey`, `globe`, `lorenz` and `combo-layers`.
 

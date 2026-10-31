@@ -206,5 +206,4 @@ What to check before trusting the test:
 - The cookbook's own honesty note still applies: its author tested in a
   simulated browser and converted SVG to PNG, not in a real browser. This
   vendored copy was mounted in Chromium (164/164, zero failures) before
-  shipping; the `sampling` recipe added in 0.4.1 was checked in Chromium through
-  the artifact tool.
+  shipping, and again after the `sampling` recipe was added in 0.4.1 (165/165).

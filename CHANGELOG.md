@@ -27,8 +27,8 @@ The artifact tool reaches the model again, and the artifact Claude draws for
   call must be reported and retried, not silently downgraded to prose.
 - Verified against the dsh `0.2.1-rc.5` desktop registry: `artifact` appears in
   the visible tool list, a `recipe` create renders 77 KB of self-contained HTML,
-  and the cookbook rebuilds at 165 recipes. `npm run check`: 64 tests pass and
-  the package shape check is clean.
+  and the cookbook gallery mounts 165/165 recipes in Chromium with zero failures.
+  `npm run check`: 64 tests pass and the package shape check is clean.
 
 ## 0.4.0 — 2026-10-30
 

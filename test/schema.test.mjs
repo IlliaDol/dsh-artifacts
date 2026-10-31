@@ -46,6 +46,28 @@ test('an HTML widget without an sr-only summary warns, an SVG does not', () => {
   assert.equal(svg.warnings.some((warning) => /sr-only/u.test(warning)), false);
 });
 
+test('a canvas chart that paints with CSS variables is rejected', () => {
+  const content = '<h2 class="sr-only">s</h2><canvas id="c" width="400" height="200"></canvas>'
+    + '<script>const ctx = document.getElementById("c").getContext("2d"); ctx.fillStyle = "var(--text)";</script>';
+  const verdict = validate({ kind: 'widget', title: 'x', content });
+  assert.equal(verdict.ok, false, 'canvas silently ignores var() and paints black');
+  assert.match(verdict.errors.join('\n'), /canvas cannot resolve CSS variables/u);
+});
+
+test('a hand-written canvas chart warns even when its colours are concrete', () => {
+  const content = '<h2 class="sr-only">s</h2><canvas id="c" width="400" height="200"></canvas>'
+    + '<script>const ctx = document.getElementById("c").getContext("2d"); ctx.fillStyle = "#2a78d6";</script>';
+  const verdict = validate({ kind: 'widget', title: 'x', content });
+  assert.equal(verdict.ok, true);
+  assert.equal(verdict.warnings.some((warning) => /hand-written canvas chart/u.test(warning)), true);
+});
+
+test('a hardcoded white background in a widget is a warning, not a rejection', () => {
+  const verdict = validate({ kind: 'widget', title: 'x', content: '<h2 class="sr-only">s</h2><div style="background:#ffffff">x</div>' });
+  assert.equal(verdict.ok, true);
+  assert.equal(verdict.warnings.some((warning) => /hardcodes a white background/u.test(warning)), true);
+});
+
 test('recipe ids accept a bare id or an object, and reject prose', () => {
   assert.equal(validate({ kind: 'recipe', title: 'qq', content: 'qq' }).ok, true);
   assert.equal(validate({ kind: 'recipe', title: 'qq', content: '{"id":"qq"}' }).ok, true);

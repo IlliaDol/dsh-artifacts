@@ -80,6 +80,14 @@ one per design or condition — beat one crowded panel. Captions and step titles
 belong in an explainer; paragraphs of argument stay in the reply. Never answer
 such a request with ASCII art, a text diagram or a table of characters.
 
+**Do not draw a chart by hand.** A chart, histogram or statistical figure is
+`chart` (the user's numbers) or `recipe` (a prepared drawing with simulated
+data). A hand-written `<canvas>` chart has no hover, no theme and no accessible
+table, and canvas cannot read CSS variables: `ctx.fillStyle = 'var(--text)'` is
+silently ignored and paints black. The tool rejects that pattern. If a canvas is
+genuinely needed, resolve colours with `VK.theme(host)` and never hardcode
+`#fff`/`#000`.
+
 For sampling designs, `kind:"recipe"` with `"sampling"` is the whole explainer
 (one survey per design, then 1,000 surveys per design, with `Run again`).
 

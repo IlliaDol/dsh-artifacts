@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.4.4 — 2026-10-31
+
+The chart was drawn on a `<canvas>` and painted with `ctx.fillStyle =
+'var(--text)'`. Canvas cannot resolve CSS variables, so every assignment was
+silently ignored and the panels stayed black — text and bars invisible.
+
+- **The tool rejects that pattern now.** A widget that assigns `var(…)` to
+  `fillStyle`/`strokeStyle` fails validation with the fix ("resolve with
+  `VK.theme(host)`, or use `chart`/`recipe`), so a black-on-black chart cannot
+  ship again.
+- **Hand-written canvas charts warn**, even with concrete colours: no hover, no
+  theme tokens, no accessible table — `chart` and `recipe` draw it properly.
+- **Hardcoded white backgrounds warn** — the widget in question set
+  `background:#ffffff` inside a dark app.
+- **The host theme reaches the frame.** `currentTheme()` now also reads
+  `data-color-scheme`, a `dark`/`light` class, `localStorage.dsh-theme` and
+  `prefers-color-scheme`, so an artifact opens in the app's theme instead of the
+  browser default.
+- **Prompt and skill**: never draw a chart by hand; `chart` for the user's
+  numbers, `recipe` for prepared drawings; a sampling distribution is
+  `recipe:"sampling"`; canvas colours come from `VK.theme(host)`.
+- Tests: 70 pass. The user's actual failing widget is rejected by `validate()`
+  with the canvas error plus both warnings.
+
 ## 0.4.3 — 2026-10-31
 
 The tool works; the chart looked wrong. Three renderer fixes.

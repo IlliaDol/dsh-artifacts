@@ -65,7 +65,7 @@ test('a hand-written canvas chart warns even when its colours are concrete', () 
 test('a hardcoded white background in a widget is a warning, not a rejection', () => {
   const verdict = validate({ kind: 'widget', title: 'x', content: '<h2 class="sr-only">s</h2><div style="background:#ffffff">x</div>' });
   assert.equal(verdict.ok, true);
-  assert.equal(verdict.warnings.some((warning) => /hardcodes a white background/u.test(warning)), true);
+  assert.equal(verdict.warnings.some((warning) => /white background/u.test(warning)), true);
 });
 
 test('recipe ids accept a bare id or an object, and reject prose', () => {

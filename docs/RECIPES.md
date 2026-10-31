@@ -215,7 +215,7 @@ The live gallery is at `/plugins/dsh-artifacts/cookbook`; the searchable tool ac
 | `quiz` | Quiz with instant feedback | Check understanding while reading. | Log answers to build a per-topic bar chart of strengths. |
 | `flashcards` | Flashcards (flip) | Memorising terms and definitions. | Track which cards were missed and show them again first (spaced repetition). |
 | `timer` | Countdown timer | Pomodoro-style focus sessions or exercises. | Record completed sessions and show them as a calendar heatmap. |
-| `sampling` | Sampling designs explainer | Show why simple random, stratified and cluster sampling all land on the truth but not with the same precision. | Add a sample-size slider: every SD falls like 1/sqrt(n), but the ordering between the three designs does not change. |
+| `sampling` | Sampling distributions (SRS, stratified, cluster) | A Monte Carlo explainer of sampling designs: simple random, stratified and cluster all land on the truth, but their variance differs — stratified is the tightest, cluster the widest. | Add a sample-size slider: every SD falls like 1/sqrt(n), but the ordering between the three designs does not change. |
 
 ## UI mockups and art
 

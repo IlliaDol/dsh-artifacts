@@ -91,6 +91,36 @@ genuinely needed, resolve colours with `VK.theme(host)` and never hardcode
 For sampling designs, `kind:"recipe"` with `"sampling"` is the whole explainer
 (one survey per design, then 1,000 surveys per design, with `Run again`).
 
+## House style
+
+Every artifact is a page in the same product: the frame supplies the tokens and
+the components, you supply the content and the composition. Do not restate
+styles.
+
+| Class | Use |
+| --- | --- |
+| `.step` | a step title: `<p class="step"><span class="num">1</span>One survey</p>` |
+| `.caption` | one muted line under a figure |
+| `.kicker` | a small uppercase label above a title |
+| `.figure` | a block that holds one drawing; its `svg` scales to the width |
+| `.panels` / `.panel` | small multiples; each panel has an `h4` and a `.caption` |
+| `.controls` | a row of buttons and sliders |
+| `.legend` / `.swatch` | the key under a drawing |
+| `.note` | a footnote |
+| `.metric` / `.grid` | a row of headline numbers |
+| `.card` | a bordered surface, used sparingly |
+
+Colours are tokens only: `--text`, `--text-2`, `--muted`, `--surface`,
+`--surface-2`, `--border`, `--accent`, `--grid`, `--axis`. Never `#fff`, `#000`
+or a gradient. Buttons, inputs, sliders, tables and `details.data` are already
+styled — use them as they are.
+
+The tool audits every widget: a canvas that paints with `var(…)` is rejected,
+and a hardcoded white/black background, a gradient, an emoji, `position:fixed`
+or a fixed width over 980px comes back as a warning. Fix them before resending.
+
+Full contract: [docs/HOUSE-STYLE.md](docs/HOUSE-STYLE.md).
+
 ### chart
 
 ```json

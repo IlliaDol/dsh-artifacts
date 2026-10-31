@@ -2348,9 +2348,9 @@
     },
     {
       "id": "sampling",
-      "name": "Sampling designs explainer",
+      "name": "Sampling distributions (SRS, stratified, cluster)",
       "family": "interactive",
-      "when": "Show why simple random, stratified and cluster sampling all land on the truth but not with the same precision.",
+      "when": "A Monte Carlo explainer of sampling designs: simple random, stratified and cluster all land on the truth, but their variance differs — stratified is the tightest, cluster the widest.",
       "steps": [
         "Population: 160 students in 8 districts and 5 faculties, study hours drawn around each faculty mean. mu is the mean of all 160.",
         "Step 1 draws one survey per design: simple random picks 40 students anywhere, stratified picks 40 in the population's faculty shares, cluster picks 2 whole districts (40 students).",

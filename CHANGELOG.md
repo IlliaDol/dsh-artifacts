@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.5.0 — 2026-10-31
+
+The look is now a system, not a per-artifact decision. Two artifacts from two
+different models should look like the same product.
+
+- **`lib/design.js`: the house style.** `DESIGN_CSS` adds the explainer
+  vocabulary every artifact inherits — `.step`, `.caption`, `.kicker`,
+  `.figure`, `.panels`/`.panel`, `.controls`, `.note`, `.rule` — so a widget
+  composes from the design instead of restating it.
+- **`auditDesign` runs on every widget.** Nine rules with stable ids and a
+  sentence that names the fix: a canvas painted with `var(…)` and
+  `position:fixed` are errors; a hand-written canvas chart, hardcoded
+  white/black, gradients, emoji, widths over 980px and a missing `sr-only`
+  summary are warnings. The model reads them in the tool result and fixes the
+  source before the artifact is stored.
+- **The prompt and the skill teach taste, not just API.** Dark first, one
+  accent, hierarchy before decoration, the renderer draws and the model
+  composes. The full contract is `docs/HOUSE-STYLE.md`.
+- **The sampling recipe is discoverable.** It is named "Sampling distributions
+  (SRS, stratified, cluster)" and its `when` mentions Monte Carlo and variance,
+  so `action:"cookbook"` finds it for "sampling distribution", "monte carlo" and
+  "variance".
+- Tests: 77 pass, including a clean house-style widget, one fixture per rule,
+  the error/warning split, and a check that every vocabulary class reaches the
+  document.
+
 ## 0.4.4 — 2026-10-31
 
 The chart was drawn on a `<canvas>` and painted with `ctx.fillStyle =

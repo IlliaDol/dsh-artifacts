@@ -108,6 +108,15 @@ Nothing is fetched: the kit is inlined into each document by
 `scripts/build-kit.mjs`, so an artifact renders offline, in an export, and
 inside the sandbox with the network blocked.
 
+## One look, enforced
+
+The look is a system, not a per-artifact decision: one token sheet, a component
+vocabulary (`.step`, `.caption`, `.panels`, `.controls`) and an audit that runs
+on every free-form widget. A canvas chart painted with `var(…)` is rejected;
+hardcoded white or black, gradients, emoji, `position:fixed` and widths over
+980px come back as warnings the model has to fix. [docs/HOUSE-STYLE.md](docs/HOUSE-STYLE.md)
+is the contract, and `test/design.test.mjs` is its gate.
+
 [gallery.html](gallery.html) is the live surface for the same recipes — open it
 directly, or `node scripts/serve-gallery.mjs 8777`. [PROMPT.md](PROMPT.md) is the
 master prompt that rebuilds or extends this material in one go.

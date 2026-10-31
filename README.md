@@ -183,8 +183,9 @@ print dialog, not a PDF writer.
 ## Development
 
 ```sh
-npm test             # 63 unit tests: schema, markdown, zip/OOXML, store, renderers, cookbook
+npm test             # 77 unit tests: schema, design, markdown, zip/OOXML, store, renderers, cookbook
 npm run check        # tests + package-shape checks
+npm run design:check # render examples + the 165-recipe gallery in Chrome; fail on overflow or clipped text
 npm run build:kit    # inline kit/*.js and cookbook/*.js into lib/kit.js
 npm run build:cookbook # regenerate manifest.json, gallery.html and docs/RECIPES.md
 npm run render       # write examples/ for a visual check

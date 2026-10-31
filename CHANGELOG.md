@@ -18,6 +18,9 @@ different models should look like the same product.
 - **The prompt and the skill teach taste, not just API.** Dark first, one
   accent, hierarchy before decoration, the renderer draws and the model
   composes. The full contract is `docs/HOUSE-STYLE.md`.
+- **A visual gate.** `npm run design:check` renders every example and the whole
+  165-recipe gallery in headless Chrome, in dark and light, and fails on
+  horizontal overflow or clipped text. It reported clean for both themes.
 - **The sampling recipe is discoverable.** It is named "Sampling distributions
   (SRS, stratified, cluster)" and its `when` mentions Monte Carlo and variance,
   so `action:"cookbook"` finds it for "sampling distribution", "monte carlo" and

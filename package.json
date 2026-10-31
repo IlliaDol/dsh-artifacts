@@ -69,6 +69,7 @@
   "scripts": {
     "test": "node --test \"test/*.test.mjs\"",
     "check": "node --test \"test/*.test.mjs\" && node scripts/check-package.mjs",
+    "design:check": "node scripts/design-check.mjs",
     "render": "node scripts/render-example.mjs",
     "build:kit": "node scripts/build-kit.mjs",
     "build:cookbook": "node scripts/build-cookbook.mjs",

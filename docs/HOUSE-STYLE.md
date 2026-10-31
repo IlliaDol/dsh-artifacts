@@ -80,4 +80,6 @@ note).
 - Vocabulary: `lib/design.js` (`DESIGN_CSS`).
 - Audit: `lib/design.js` (`DESIGN_RULES`), run by `lib/schema.js`.
 - Tests: `test/design.test.mjs`.
+- Visual gate: `scripts/design-check.mjs` (`npm run design:check`), which
+  renders the examples and the cookbook gallery in Chrome in both themes.
 - Prompt: the "House style" paragraph in `lib/index.js` and `SKILL.md`.

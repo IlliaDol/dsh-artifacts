@@ -127,7 +127,7 @@ test('the tool creates, lists and exports an artifact', async () => {
     assert.equal(exact.recipe.id, 'qq');
     assert.match(exact.recipe.code, /function draw\(host, K\)/u);
     assert.match(tool.output.render({}, exact).at(-1).text, /function draw/u);
-    assert.equal(tool.output.presentationMeta({}, exact), undefined);
+    assert.deepEqual(tool.output.presentationMeta({}, exact), {}, 'a cookbook result has no artifact card');
 
     const listedRecipes = await tool.execute({ action: 'cookbook', family: 'distribution', limit: 3 });
     assert.equal(listedRecipes.recipes.length, 3);
@@ -187,6 +187,80 @@ function assertStrictJsonSchema(schema, path) {
     if (value.type === 'object') assertStrictJsonSchema(value, here);
     if (value.type === 'array' && value.items !== undefined) assertStrictJsonSchema(value.items, `${here}.items`);
   }
+}
+
+test('every action returns lossless JSON, because dsh rejects undefined members', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'dsh-artifacts-lossless-'));
+  try {
+    const { ctx, log } = fakeContext(directory);
+    apply(ctx, { directory });
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    const tool = log.tools[0];
+    const chart = JSON.stringify({ type: 'bar', labels: ['a', 'b'], series: [{ name: 'S', values: [1, 2] }] });
+
+    const created = await tool.execute({ action: 'create', kind: 'chart', title: 'Chart', content: chart });
+    assert.ok(isLossless(created), 'create result');
+    assert.ok(isLossless(tool.output.presentationMeta({}, created)), 'create meta');
+
+    const listed = await tool.execute({ action: 'list' });
+    assert.ok(isLossless(listed), 'list result');
+    assert.ok(isLossless(tool.output.presentationMeta({}, listed)), 'list meta');
+
+    const opened = await tool.execute({ action: 'open', id: created.id });
+    assert.ok(isLossless(opened), 'open result');
+
+    const exported = await tool.execute({ action: 'export', id: created.id, format: 'html' });
+    assert.ok(isLossless(exported), 'export result');
+
+    const updated = await tool.execute({ action: 'update', id: created.id, title: 'Chart 2' });
+    assert.ok(isLossless(updated), 'update result');
+
+    const cookbook = await tool.execute({ action: 'cookbook', recipe: 'qq' });
+    assert.ok(isLossless(cookbook), 'cookbook result');
+
+    const deleted = await tool.execute({ action: 'delete', id: created.id });
+    assert.ok(isLossless(deleted), 'delete result');
+    assert.ok(isLossless(tool.output.presentationMeta({}, deleted)), 'delete meta, which has no viewUrl');
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('enum fields are forgiving about case and surrounding whitespace', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'dsh-artifacts-enum-'));
+  try {
+    const { ctx, log } = fakeContext(directory);
+    apply(ctx, { directory });
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    const tool = log.tools[0];
+    const created = await tool.execute({
+      action: ' CREATE ',
+      kind: ' Chart ',
+      surface: 'Inline',
+      title: 'Shouty',
+      content: JSON.stringify({ type: 'bar', labels: ['a'], series: [{ name: 'S', values: [1] }] }),
+    });
+    assert.equal(created.kind, 'chart');
+    assert.equal(created.surface, 'inline');
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+/**
+ * Whether a value survives dsh's `snapshotJsonValue`: no `undefined`, no
+ * functions, no non-finite numbers. A result with any of those is rejected as
+ * "value is not lossless JSON" and the model never sees the artifact.
+ * @param {unknown} value candidate
+ * @returns {boolean} whether it is lossless JSON
+ */
+function isLossless(value) {
+  if (value === null) return true;
+  if (typeof value === 'string' || typeof value === 'boolean') return true;
+  if (typeof value === 'number') return Number.isFinite(value);
+  if (Array.isArray(value)) return value.every(isLossless);
+  if (typeof value === 'object') return Object.values(value).every(isLossless);
+  return false;
 }
 
 test('the tool rejects an invalid artifact with every reason it can report', async () => {

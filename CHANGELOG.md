@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.4.2 — 2026-10-31
+
+0.4.1 put `artifact` in the tool list, and the model called it — then dsh
+answered "value is not lossless JSON". This release fixes the result side.
+
+- **Results carried `undefined` members.** `create` always returned an
+  `exportPath` key that was undefined for every non-file kind, and `update`
+  returned `viewUrl: undefined` for a file. dsh snapshots every tool value with
+  `snapshotJsonValue`, which rejects `undefined`, so a successful create was
+  reported to the model as an invalid output. Every return path is compacted now.
+- **`presentationMeta` returned `undefined`** for `list` and `cookbook` results,
+  which the same snapshot rejects ("output.presentationMeta returned non-lossless
+  JSON"). It returns `{}` when there is no card; the client already ignores meta
+  without a `viewUrl`.
+- **Enum fields are forgiving.** `kind:"Chart"`, `" chart "`, `surface:"Inline"`
+  and `action:" CREATE "` are normalised instead of rejected, so a model that
+  capitalises a kind does not burn turns on casing.
+- Tests: 66 pass, including a lossless-JSON check across every action and its
+  `presentationMeta`, and a case-insensitivity check. Verified through the real
+  dsh `0.2.1-rc.5` registry: create chart, create recipe, list, open, export,
+  update, cookbook exact, cookbook family and delete all return `isError=false`.
+
 ## 0.4.1 — 2026-10-31
 
 The artifact tool reaches the model again, and the artifact Claude draws for

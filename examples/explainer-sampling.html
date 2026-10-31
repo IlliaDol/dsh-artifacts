@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="en" data-artifact="Sampling designs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Sampling designs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  color-scheme: light dark;
+  --bg:#faf9f5; --surface:#ffffff; --surface-2:#f4f2ed; --surface-3:#ece8df;
+  --text:#141413; --text-2:#52514e; --muted:#8a8782; --border:#e4e0d7; --border-strong:#cfc9bd;
+  --accent:#d97757; --accent-ink:#8a3b22; --accent-wash:#f7e6df;
+  --ok:#1baf7a; --warn:#eda100; --danger:#d03b3b;
+  --radius:8px; --radius-card:12px; --radius-lg:16px;
+  --font-sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --font-mono:ui-monospace,SFMono-Regular,"Cascadia Code",Consolas,monospace;
+  --shadow:0 1px 2px rgba(20,20,19,.04),0 8px 24px rgba(20,20,19,.05);
+  --maxw:720px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#141413; --surface:#1c1c1a; --surface-2:#232321; --surface-3:#2c2c29;
+    --text:#f0efec; --text-2:#c3c2b7; --muted:#8a8782; --border:#33332f; --border-strong:#484841;
+    --accent:#e08a6c; --accent-ink:#f3c6b4; --accent-wash:#3a241d;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141413; --surface:#1c1c1a; --surface-2:#232321; --surface-3:#2c2c29;
+  --text:#f0efec; --text-2:#c3c2b7; --muted:#8a8782; --border:#33332f; --border-strong:#484841;
+  --accent:#e08a6c; --accent-ink:#f3c6b4; --accent-wash:#3a241d;
+}
+:root[data-theme="light"]{
+  --bg:#faf9f5; --surface:#ffffff; --surface-2:#f4f2ed; --surface-3:#ece8df;
+  --text:#141413; --text-2:#52514e; --muted:#8a8782; --border:#e4e0d7; --border-strong:#cfc9bd;
+  --accent:#d97757; --accent-ink:#8a3b22; --accent-wash:#f7e6df;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:transparent; color:var(--text);
+  font-family:var(--font-sans); font-size:16px; line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--font-serif); font-weight:600; line-height:1.15; letter-spacing:-.01em; margin:0 0 .5em}
+h1{font-size:30px} h2{font-size:23px} h3{font-size:18px} h4{font-size:16px; font-family:var(--font-sans); font-weight:600}
+p{margin:0 0 1em}
+a{color:var(--accent-ink); text-underline-offset:2px}
+code{font-family:var(--font-mono); font-size:.88em; background:var(--surface-2); padding:.15em .4em; border-radius:4px}
+pre{font-family:var(--font-mono); font-size:13px; line-height:1.6; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; overflow:auto}
+pre code{background:none; padding:0}
+hr{border:0; border-top:1px solid var(--border); margin:24px 0}
+table{border-collapse:collapse; width:100%; font-size:14px; margin:0 0 1.2em}
+th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:top}
+th{font-weight:600; color:var(--text-2); font-size:12px; letter-spacing:.04em; text-transform:uppercase}
+blockquote{margin:0 0 1.2em; padding:2px 0 2px 16px; border-left:2px solid var(--accent); color:var(--text-2)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:24px 20px 32px}
+.muted{color:var(--text-2)} small{color:var(--muted)}
+.card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:16px 18px; box-shadow:var(--shadow)}
+.card + .card{margin-top:12px}
+.chip{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:3px 9px; border-radius:999px; background:var(--surface-2); color:var(--text-2); border:1px solid var(--border)}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px}
+.metric{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:14px 16px}
+.metric .label{font-size:12px; color:var(--text-2); margin:0 0 4px}
+.metric .value{font-size:26px; font-weight:600; line-height:1.1; margin:0; font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.legend{display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--text-2); margin:0 0 10px}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.swatch{width:10px; height:10px; border-radius:2px; display:inline-block}
+.chart-wrap{position:relative; width:100%; height:300px}
+details.data{margin-top:10px; font-size:12px; color:var(--text-2)}
+details.data summary{cursor:pointer; color:var(--text-2)}
+button{font:inherit; font-size:14px; border:1px solid var(--border-strong); background:var(--surface); color:var(--text); border-radius:var(--radius); padding:7px 12px; cursor:pointer}
+button:hover{background:var(--surface-2)}
+button.primary{background:var(--text); color:var(--bg); border-color:var(--text)}
+input,select,textarea{font:inherit; font-size:14px; color:var(--text); background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--radius); padding:7px 10px}
+input[type=range]{padding:0; accent-color:var(--accent)}
+
+body{background:transparent}
+/* Shared surface for the gallery and the DSH widget. Tokens first, so a host
+   can override them and every chart follows without a second stylesheet. */
+
+:root {
+  --vz-text: #1b1b19;
+  --vz-dim: #5f5e5a;
+  --vz-faint: #8a8782;
+  --vz-line: #e4e2da;
+  --vz-surface: #ffffff;
+  --vz-page: #f7f6f2;
+  --vz-accent: #2a78d6;
+  --vz-radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --vz-text: #ecebe6;
+    --vz-dim: #b5b3aa;
+    --vz-faint: #8b897f;
+    --vz-line: #35342f;
+    --vz-surface: #1c1c1a;
+    --vz-page: #141413;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--vz-page);
+  color: var(--vz-text);
+  font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Everything is selectable. A visualisation is a document, not an image. */
+body, body * {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+a { color: var(--vz-accent); }
+
+.vz-wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 24px 96px;
+}
+
+.vz-head h1 {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+}
+
+.vz-head p {
+  color: var(--vz-dim);
+  margin: 0 0 22px;
+  max-width: 62ch;
+}
+
+.vz-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 26px;
+  position: sticky;
+  top: 0;
+  padding: 12px 0;
+  background: color-mix(in srgb, var(--vz-page) 88%, transparent);
+  backdrop-filter: blur(8px);
+  z-index: 5;
+}
+
+.vz-chip, .vz-button {
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--vz-line);
+  background: var(--vz-surface);
+  color: var(--vz-dim);
+  cursor: pointer;
+  transition: border-color .12s ease, color .12s ease, background .12s ease;
+}
+
+.vz-chip:hover, .vz-button:hover { color: var(--vz-text); border-color: var(--vz-dim); }
+.vz-chip[aria-pressed="true"] { background: var(--vz-text); color: var(--vz-surface); border-color: var(--vz-text); }
+.vz-button { border-radius: 7px; }
+
+.vz-search {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--vz-line);
+  background: var(--vz-surface);
+  color: var(--vz-text);
+  min-width: 200px;
+}
+
+.vz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 520px) {
+  .vz-grid { grid-template-columns: 1fr; }
+  .vz-wrap { padding: 24px 14px 64px; }
+}
+
+.vz-card {
+  background: var(--vz-surface);
+  border: 1px solid var(--vz-line);
+  border-radius: var(--vz-radius);
+  padding: 18px 18px 14px;
+  min-width: 0;
+  content-visibility: auto;
+  contain-intrinsic-size: 420px;
+}
+
+.vz-card > h2 {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 0 2px;
+}
+
+.vz-card > .vz-when {
+  color: var(--vz-dim);
+  font-size: 12.5px;
+  margin: 0 0 16px;
+  max-width: 60ch;
+}
+
+.vz-plot { min-height: 120px; }
+
+.vz-code {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--vz-text) 5%, var(--vz-surface));
+  color: var(--vz-dim);
+  font-family: ui-monospace, SFMono-Regular, "Cascadia Code", Menlo, monospace;
+  font-size: 11.5px;
+  line-height: 1.5;
+  overflow: auto;
+  max-height: 320px;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.vz-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.vz-family {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--vz-faint);
+  margin: 0 0 6px;
+}
+
+/* The same tokens the kit reads, expressed for a host that already has a theme. */
+[data-vz="widget"] {
+  --vz-text: var(--dsw-alias-label-primary, #1b1b19);
+  --vz-dim: var(--dsw-alias-label-secondary, #5f5e5a);
+  --vz-faint: var(--dsw-alias-label-tertiary, #8a8782);
+  --vz-line: var(--dsw-alias-border-l2, #e4e2da);
+  --vz-surface: var(--dsw-alias-bg-layer-1, #fff);
+  --vz-page: transparent;
+}
+
+:root{--vz-text:var(--text);--vz-dim:var(--text-2);--vz-faint:var(--muted);--vz-line:var(--border);--vz-surface:var(--surface);--vz-accent:var(--accent);--grid:var(--border);--axis:var(--border-strong);--card:var(--surface-2)}
+#recipe{width:100%}#recipe svg{display:block;max-width:100%;height:auto}#recipe canvas{display:block;max-width:100%}
+</style>
+</head>
+<body>
+<div class="wrap" style="padding:6px 0 4px">
+<h2 class="sr-only">Sampling designs explainer: Show why simple random, stratified and cluster sampling all land on the truth but not with the same precision.</h2>
+<div id="recipe"></div>
+</div>
+<script>/* viz-kit.js: the small toolkit every recipe uses.
+   Idea: a chart is just (1) scales that map data to pixels, (2) marks (SVG shapes), (3) axes.
+   Nothing here draws a whole chart; recipes compose these primitives. */
+(function (root) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const K = {};
+
+  // Fixed categorical palette (never cycled past 8)
+  K.C = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948'];
+
+  // ---- SVG building blocks -------------------------------------------------
+  K.el = (tag, attrs, parent) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  };
+  K.text = (parent, x, y, s, attrs) => {
+    const t = K.el('text', Object.assign({ x, y, 'font-size': 11, fill: 'var(--muted,#898781)' }, attrs || {}), parent);
+    t.textContent = s;
+    return t;
+  };
+  K.path = pts => pts.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1]).join('');
+
+  // ---- Scales: data value -> pixel ----------------------------------------
+  K.linear = (d0, d1, r0, r1) => {
+    const f = v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+    f.domain = [d0, d1];
+    return f;
+  };
+  K.band = (keys, r0, r1, pad = 0.2) => {
+    const step = (r1 - r0) / keys.length, bw = step * (1 - pad);
+    const f = k => r0 + keys.indexOf(k) * step + (step - bw) / 2;
+    f.bw = bw; f.step = step;
+    return f;
+  };
+  K.ticks = (lo, hi, n = 5) => {
+    let st = (hi - lo) / n;
+    const p = Math.pow(10, Math.floor(Math.log10(st))), m = st / p;
+    st = (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p;
+    const out = [];
+    for (let v = Math.ceil(lo / st) * st; v <= hi + 1e-9; v += st) out.push(+v.toFixed(6));
+    return out;
+  };
+  K.range = (lo, hi, n) => Array.from({ length: n }, (_, i) => lo + (hi - lo) * i / (n - 1));
+
+  // ---- Stage + axes --------------------------------------------------------
+  K.stage = (host, w = 320, h = 220, m = {}) => {
+    m = Object.assign({ t: 10, r: 12, b: 28, l: 40 }, m);
+    const svg = K.el('svg', { viewBox: `0 0 ${w} ${h}`, width: '100%', role: 'img' });
+    host.appendChild(svg);
+    const g = K.el('g', { transform: `translate(${m.l},${m.t})` }, svg);
+    return { svg, g, W: w - m.l - m.r, H: h - m.t - m.b, m };
+  };
+  K.axisY = (st, y, n = 4, fmt = v => v) => {
+    const [a, b] = y.domain;
+    K.ticks(Math.min(a, b), Math.max(a, b), n).forEach(v => {
+      K.el('line', { x1: 0, x2: st.W, y1: y(v), y2: y(v), stroke: 'var(--grid,#e1e0d9)', 'stroke-width': 0.5 }, st.g);
+      K.text(st.g, -6, y(v) + 4, fmt(v), { 'text-anchor': 'end' });
+    });
+  };
+  K.axisX = (st, x, n = 5, fmt = v => v) => {
+    const [a, b] = x.domain;
+    K.ticks(Math.min(a, b), Math.max(a, b), n).forEach(v => K.text(st.g, x(v), st.H + 16, fmt(v), { 'text-anchor': 'middle' }));
+  };
+  K.axisBand = (st, x, keys) =>
+    keys.forEach(k => K.text(st.g, x(k) + x.bw / 2, st.H + 16, k, { 'text-anchor': 'middle' }));
+
+  // ---- Geometry for circular charts ---------------------------------------
+  K.polar = (cx, cy, r, a) => [cx + r * Math.sin(a), cy - r * Math.cos(a)]; // angle 0 = 12 o'clock, clockwise
+  K.arc = (cx, cy, r0, r1, a0, a1) => {
+    const big = a1 - a0 > Math.PI ? 1 : 0;
+    const p0 = K.polar(cx, cy, r1, a0), p1 = K.polar(cx, cy, r1, a1);
+    const p2 = K.polar(cx, cy, r0, a1), p3 = K.polar(cx, cy, r0, a0);
+    return `M${p0}A${r1} ${r1} 0 ${big} 1 ${p1}L${p2}A${r0} ${r0} 0 ${big} 0 ${p3}Z`;
+  };
+
+  // ---- Statistics ----------------------------------------------------------
+  K.sum = a => a.reduce((s, x) => s + x, 0);
+  K.mean = a => K.sum(a) / a.length;
+  K.sd = a => { const m = K.mean(a); return Math.sqrt(K.sum(a.map(x => (x - m) ** 2)) / (a.length - 1)); };
+  K.sorted = a => a.slice().sort((p, q) => p - q);
+  K.quantile = (s, q) => { const i = (s.length - 1) * q, lo = Math.floor(i), hi = Math.ceil(i); return s[lo] + (s[hi] - s[lo]) * (i - lo); };
+  K.hist = (data, lo, hi, k) => {
+    const w = (hi - lo) / k;
+    const bins = Array.from({ length: k }, (_, i) => ({ x0: lo + i * w, x1: lo + (i + 1) * w, n: 0 }));
+    data.forEach(v => { bins[Math.min(k - 1, Math.max(0, Math.floor((v - lo) / w)))].n++; });
+    return bins;
+  };
+  K.bw = data => 1.06 * K.sd(data) * Math.pow(data.length, -0.2);            // Silverman's rule
+  K.kde = (data, bw, xs) => xs.map(x =>
+    K.sum(data.map(d => Math.exp(-0.5 * ((x - d) / bw) ** 2))) / (data.length * bw * Math.sqrt(2 * Math.PI)));
+  K.invNorm = p => {                                                          // Abramowitz-Stegun 26.2.23
+    const f = q => { const t = Math.sqrt(-2 * Math.log(q)); return t - (2.515517 + 0.802853 * t + 0.010328 * t * t) / (1 + 1.432788 * t + 0.189269 * t * t + 0.001308 * t ** 3); };
+    return p < 0.5 ? -f(p) : f(1 - p);
+  };
+
+  // ---- Reproducible fake data (seeded, so every run looks the same) -------
+  K.rng = seed => () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+  K.normal = r => { const u = r() || 1e-9, v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  K.sample = (seed, n, mu, sd) => { const r = K.rng(seed); return Array.from({ length: n }, () => mu + sd * K.normal(r)); };
+  K.data = { langs: [['Python', 68], ['SQL', 57], ['R', 41], ['Java', 29], ['Julia', 12]] };
+
+  // ---- Show a recipe's source as readable text -----------------------------
+  K.codeOf = fn => {
+    const lines = fn.toString().replace(/^fn\s*\(/, 'function draw(').split('\n');
+    const base = lines[lines.length - 1].match(/^\s*/)[0].length;
+    return lines.map((l, i) => (i ? l.slice(base) : l)).join('\n');
+  };
+
+  // ======================= batch 2+ helpers =======================
+  // ---- Colour ramps ---------------------------------------------------------
+  K.hex = c => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
+  K.mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  K.rgb = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+  K.clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  K.seq = t => K.rgb(K.mix(K.hex('#e8f1fc'), K.hex('#1f4e9c'), K.clamp(t, 0, 1)));               // light -> dark blue
+  K.div = t => t < 0.5 ? K.rgb(K.mix(K.hex('#e34948'), K.hex('#f4f3ee'), t * 2)) : K.rgb(K.mix(K.hex('#f4f3ee'), K.hex('#2a78d6'), (t - 0.5) * 2)); // t in 0..1
+  // ---- Curves and legends -----------------------------------------------------
+  K.curve = pts => {                                   // Catmull-Rom spline converted to cubic Beziers
+    if (pts.length < 3) return K.path(pts);
+    let d = `M${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      d += `C${p1[0] + (p2[0] - p0[0]) / 6} ${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6} ${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]} ${p2[1]}`;
+    }
+    return d;
+  };
+  K.legend = (parent, items, x, y, gap = 70) => items.forEach(([name, col], i) => {
+    K.el('rect', { x: x + i * gap, y, width: 10, height: 10, rx: 2, fill: col }, parent);
+    K.text(parent, x + i * gap + 14, y + 9, name);
+  });
+  // ---- Regression -----------------------------------------------------------
+  K.lin = (xs, ys) => {
+    const n = xs.length, mx = K.mean(xs), my = K.mean(ys);
+    let sxx = 0, sxy = 0; xs.forEach((x, i) => { sxx += (x - mx) ** 2; sxy += (x - mx) * (ys[i] - my); });
+    const b = sxy / sxx, a = my - b * mx;
+    const s = Math.sqrt(K.sum(xs.map((x, i) => (ys[i] - a - b * x) ** 2)) / (n - 2));
+    return { n, mx, my, sxx, a, b, s };
+  };
+  K.corr = (xs, ys) => { const mx = K.mean(xs), my = K.mean(ys); let c = 0, p = 0, q = 0; xs.forEach((x, i) => { c += (x - mx) * (ys[i] - my); p += (x - mx) ** 2; q += (ys[i] - my) ** 2; }); return c / Math.sqrt(p * q); };
+  // ---- Hierarchies ------------------------------------------------------------
+  K.sumTree = n => { if (n.children) n.value = K.sum(n.children.map(K.sumTree)); return n.value; };
+  K.squarify = (items, x, y, w, h) => {                // squarified treemap (Bruls et al.)
+    const total = K.sum(items.map(i => i.value)), k = w * h / total, out = [];
+    let rest = items.map(i => ({ item: i, a: i.value * k })), rx = x, ry = y, rw = w, rh = h;
+    const worst = (row, side) => { const s = K.sum(row.map(r => r.a)); return Math.max(side * side * Math.max(...row.map(r => r.a)) / (s * s), s * s / (side * side * Math.min(...row.map(r => r.a)))); };
+    while (rest.length) {
+      const side = Math.min(rw, rh), row = [rest[0]]; let i = 1;
+      while (i < rest.length && worst(row.concat(rest[i]), side) <= worst(row, side)) { row.push(rest[i]); i++; }
+      rest = rest.slice(row.length);
+      const s = K.sum(row.map(r => r.a));
+      if (rw >= rh) { const cw = s / rh; let cy = ry; row.forEach(r => { const ch = r.a / cw; out.push({ item: r.item, x: rx, y: cy, w: cw, h: ch }); cy += ch; }); rx += cw; rw -= cw; }
+      else { const ch = s / rw; let cx = rx; row.forEach(r => { const cw = r.a / ch; out.push({ item: r.item, x: cx, y: ry, w: cw, h: ch }); cx += cw; }); ry += ch; rh -= ch; }
+    }
+    return out;
+  };
+  K.partition = root => { const out = []; (function rec(n, d, x0, x1) { out.push({ n, depth: d, x0, x1 }); if (n.children) { let a = x0; n.children.forEach(c => { const w = (x1 - x0) * c.value / n.value; rec(c, d + 1, a, a + w); a += w; }); } })(root, 0, 0, 1); return out; };
+  K.tree = root => { let leaf = 0; const nodes = []; (function rec(n, d) { if (!n.children) n._x = leaf++; else { n.children.forEach(c => rec(c, d + 1)); n._x = (n.children[0]._x + n.children[n.children.length - 1]._x) / 2; } n._d = d; nodes.push(n); })(root, 0); return { nodes, leaves: leaf }; };
+  K.pack = values => {                                 // greedy circle packing along a spiral
+    const rs = values.map(Math.sqrt), order = rs.map((_, i) => i).sort((a, b) => rs[b] - rs[a]), placed = [];
+    order.forEach(i => {
+      const r = rs[i];
+      for (let k = 0; k < 6000; k++) {
+        const x = placed.length ? k * 0.12 * Math.cos(k * 0.5) : 0, y = placed.length ? k * 0.12 * Math.sin(k * 0.5) : 0;
+        if (placed.every(p => Math.hypot(p.x - x, p.y - y) >= p.r + r + 0.6)) { placed.push({ i, x, y, r }); return; }
+      }
+    });
+    return placed.sort((a, b) => a.i - b.i);
+  };
+  // ---- Flow and networks ------------------------------------------------------
+  K.sankey = (nodes, links, w, h, nw = 10, pad = 8) => {
+    const by = {}; nodes.forEach(n => { by[n.id] = Object.assign({ inV: 0, outV: 0, s: 0, t: 0 }, n); });
+    links.forEach(l => { by[l.s].outV += l.v; by[l.t].inV += l.v; });
+    const maxL = Math.max(...nodes.map(n => n.layer)), layers = [];
+    nodes.forEach(n => { (layers[n.layer] = layers[n.layer] || []).push(by[n.id]); by[n.id].v = Math.max(by[n.id].inV, by[n.id].outV); });
+    const ky = Math.min(...layers.map(L => (h - pad * (L.length - 1)) / K.sum(L.map(n => n.v))));
+    layers.forEach((L, li) => { let y = 0; L.forEach(n => { n.x = li * (w - nw) / maxL; n.y = y; n.h = n.v * ky; y += n.h + pad; }); });
+    const paths = links.map(l => {
+      const a = by[l.s], b = by[l.t], th = l.v * ky, y0 = a.y + a.s + th / 2, y1 = b.y + b.t + th / 2; a.s += th; b.t += th;
+      const x0 = a.x + nw, x1 = b.x, mx = (x0 + x1) / 2;
+      return { d: `M${x0} ${y0}C${mx} ${y0} ${mx} ${y1} ${x1} ${y1}`, w: th, link: l };
+    });
+    return { nodes: by, paths };
+  };
+  K.force = (n, edges, w, h, iters = 250, seed = 1) => {   // Fruchterman-Reingold
+    const r = K.rng(seed), p = Array.from({ length: n }, () => ({ x: w * (0.25 + 0.5 * r()), y: h * (0.25 + 0.5 * r()) }));
+    const k = Math.sqrt(w * h / n) * 0.7; let t = w / 8;
+    for (let it = 0; it < iters; it++) {
+      p.forEach(a => { a.dx = 0; a.dy = 0; });
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+        const dx = p[i].x - p[j].x, dy = p[i].y - p[j].y, d = Math.hypot(dx, dy) || 0.01, f = k * k / d;
+        p[i].dx += dx / d * f; p[i].dy += dy / d * f; p[j].dx -= dx / d * f; p[j].dy -= dy / d * f;
+      }
+      edges.forEach(([i, j]) => { const dx = p[i].x - p[j].x, dy = p[i].y - p[j].y, d = Math.hypot(dx, dy) || 0.01, f = d * d / k; p[i].dx -= dx / d * f; p[i].dy -= dy / d * f; p[j].dx += dx / d * f; p[j].dy += dy / d * f; });
+      p.forEach(a => { const m = Math.hypot(a.dx, a.dy) || 1; a.x = K.clamp(a.x + a.dx / m * Math.min(m, t), 8, w - 8); a.y = K.clamp(a.y + a.dy / m * Math.min(m, t), 8, h - 8); });
+      t *= 0.97;
+    }
+    return p;
+  };
+  // ---- 3D and signals ---------------------------------------------------------
+  K.rot = ([x, y, z], ax, ay) => { const x1 = x * Math.cos(ay) + z * Math.sin(ay), z1 = -x * Math.sin(ay) + z * Math.cos(ay); return [x1, y * Math.cos(ax) - z1 * Math.sin(ax), y * Math.sin(ax) + z1 * Math.cos(ax)]; };
+  K.proj = ([x, y, z], cx, cy, s = 70, d = 5) => { const f = d / (d - z); return [cx + x * s * f, cy - y * s * f, z]; };
+  K.dft = x => Array.from({ length: x.length / 2 }, (_, k) => { let re = 0, im = 0; x.forEach((v, n) => { const a = -2 * Math.PI * k * n / x.length; re += v * Math.cos(a); im += v * Math.sin(a); }); return Math.hypot(re, im) * 2 / x.length; });
+  // ---- Sample tables used by several recipes ------------------------------------
+  K.series = (seed, n, base, slope, amp, noise) => { const r = K.rng(seed); return Array.from({ length: n }, (_, i) => base + slope * i + amp * Math.sin(i / 12 * 2 * Math.PI) + noise * K.normal(r)); };
+
+  if (typeof module !== 'undefined') module.exports = K; else root.Kit = K;
+})(this);
+</script>
+<script>/* viz3d.js: tiny helpers for animated and 3D canvas scenes (no WebGL, no libraries).
+   A 3D scene = points [x,y,z] -> rotate -> perspective-project -> draw 2D shapes far-to-near.
+
+   Vendored with the cookbook. Exposed as C3, not V3: dsh-artifacts already owns
+   a V3 global for widgets, and recipes only reach this through Kit.v3. */
+(function (root) {
+  const K = root.Kit || (typeof require !== 'undefined' ? require('./viz-kit.js') : {});
+  const V = {};
+  V.rot = (p, ax, ay) => { const c = Math.cos(ay), s = Math.sin(ay), x = p[0] * c + p[2] * s, z = -p[0] * s + p[2] * c, c2 = Math.cos(ax), s2 = Math.sin(ax); return [x, p[1] * c2 - z * s2, p[1] * s2 + z * c2]; };       // turn about y, then about x
+  V.proj = (p, W, H, s, d = 4) => { const f = d / (d - p[2]); return [W / 2 + p[0] * s * f, H / 2 - p[1] * s * f, f]; };                                       // perspective: nearer (larger z) = bigger
+  V.hsl = (h, s, l) => { h = ((h % 360) + 360) % 360; s /= 100; l /= 100; const a = s * Math.min(l, 1 - l), f = n => { const k = (n + h / 30) % 12; return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))); }; return `rgb(${f(0)},${f(8)},${f(4)})`; };
+  V.canvas = (host, W, H) => { const cv = document.createElement('canvas'), dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1; cv.width = W * dpr; cv.height = H * dpr; cv.style.cssText = 'width:100%;height:auto;display:block;touch-action:none;cursor:grab;border-radius:8px'; host.appendChild(cv); const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); cv.__ctx = ctx; cv.__W = W; cv.__H = H; return { cv, ctx, W, H }; };
+  V.drag = (cv, st) => { let d = null; cv.addEventListener('pointerdown', e => { d = [e.clientX, e.clientY]; cv.style.cursor = 'grabbing'; try { cv.setPointerCapture(e.pointerId); } catch (_) {} }); cv.addEventListener('pointermove', e => { if (!d) return; st.ay += (e.clientX - d[0]) * 0.01; st.ax = Math.max(-1.5, Math.min(1.5, st.ax + (e.clientY - d[1]) * 0.01)); d = [e.clientX, e.clientY]; }); const up = () => { d = null; cv.style.cursor = 'grab'; }; cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); };
+  V.loop = draw => {                                   // calls draw(dt) about 60 times a second until stop()
+    if (V.manual) { const L = { tick: (n = 1) => { while (n-- > 0) draw(0.016); }, stop() {} }; draw(0.016); return L; }   // test mode: frames are advanced by hand
+    let on = true, last = 0; const tick = t => { if (!on) return; draw(Math.min(0.05, (t - last) / 1000 || 0.016)); last = t; requestAnimationFrame(tick); }; requestAnimationFrame(tick); return { stop() { on = false; } };
+  };
+  K.v3 = V; if (typeof module !== 'undefined') module.exports = V; else root.C3 = V;
+})(this);
+</script>
+<script>
+(function(){
+const clickChanges = (sel) => (host) => { const b = host.querySelector(sel), before = host.innerHTML; b.click(); if (host.innerHTML === before) throw new Error("control did nothing: " + sel); };
+const slideChanges = (host, v) => { const i = host.querySelector("input[type=range]"), before = host.innerHTML; i.value = v; i.dispatchEvent(new Event("input", { bubbles: true })); if (host.innerHTML === before) throw new Error("slider did nothing"); };
+const typeInto = (host, sel, v) => { const i = host.querySelector(sel), before = host.innerHTML; i.value = v; i.dispatchEvent(new Event('input', { bubbles: true })); if (host.innerHTML === before) throw new Error('input did nothing: ' + sel); };
+/* Tiny helpers shared by the diagram recipes: boxes, arrows, trimming an arrow to a box edge. */
+const D = {
+  defs: (K, parent) => { const d = K.el('defs', {}, parent), m = K.el('marker', { id: 'ah', viewBox: '0 0 10 10', refX: 8, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' }, d); K.el('path', { d: 'M2 1L8 5L2 9', fill: 'none', stroke: 'context-stroke', 'stroke-width': 1.5, 'stroke-linecap': 'round' }, m); },
+  trim: (a, b) => { const dx = b.x - a.x, dy = b.y - a.y, t = Math.min(a.w / 2 / (Math.abs(dx) || 1e-9), a.h / 2 / (Math.abs(dy) || 1e-9)), u = Math.min(b.w / 2 / (Math.abs(dx) || 1e-9), b.h / 2 / (Math.abs(dy) || 1e-9)); return [a.x + dx * t, a.y + dy * t, b.x - dx * u, b.y - dy * u]; },
+  node: (K, g, n, col) => { if (n.type === 'diamond') K.el('polygon', { points: `${n.x},${n.y - n.h / 2} ${n.x + n.w / 2},${n.y} ${n.x},${n.y + n.h / 2} ${n.x - n.w / 2},${n.y}`, fill: 'var(--card,#f4f3ee)', stroke: col }, g); else K.el('rect', { x: n.x - n.w / 2, y: n.y - n.h / 2, width: n.w, height: n.h, rx: n.type === 'pill' ? n.h / 2 : 7, fill: 'var(--card,#f4f3ee)', stroke: col }, g); K.text(g, n.x, n.y + 4, n.label, { 'text-anchor': 'middle', fill: 'var(--text,#222)' }); },
+};
+const RECIPES_B7 = [
+// =============================== SOFTWARE DIAGRAMS ===============================
+{
+  id: 'flowchart', family: 'diagrams', name: 'Flowchart (data-driven)',
+  when: 'A process with decisions.',
+  steps: ['Describe the chart as DATA: nodes (id, position, size, shape, label) and edges (from, to, optional label).',
+          'One generic renderer draws every node (pill, box, diamond) and every edge: the straight line between the two centres is trimmed to the box borders (D.trim) and given an arrowhead from an SVG <marker>.',
+          'To change the chart you edit the data, never the drawing code. (Mermaid does the layout for you from text; here layout is explicit.)'],
+  combine: 'Add counts on the edges to turn it into a Sankey-like flow; colour nodes by status.',
+  fn(host, K) {
+    const N = { s: { x: 160, y: 24, w: 80, h: 28, type: 'pill', label: 'Start' }, l: { x: 160, y: 74, w: 110, h: 30, label: 'Load data' }, q: { x: 160, y: 130, w: 130, h: 46, type: 'diamond', label: 'Missing values?' }, i: { x: 270, y: 130, w: 80, h: 30, label: 'Impute' }, t: { x: 160, y: 186, w: 110, h: 30, label: 'Train model' }, e: { x: 160, y: 232, w: 80, h: 28, type: 'pill', label: 'End' } };
+    Object.values(N).forEach(n => { n.type = n.type || 'box'; });
+    const E = [['s', 'l'], ['l', 'q'], ['q', 'i', 'yes'], ['q', 't', 'no'], ['i', 't'], ['t', 'e']], st = K.stage(host, 320, 260, { l: 0, r: 0, t: 0, b: 0 }); D.defs(K, st.g);
+    E.forEach(([a, b, lab]) => { const [x1, y1, x2, y2] = D.trim(N[a], N[b]); K.el('line', { x1, y1, x2, y2, stroke: 'var(--text,#555)', 'stroke-width': 1.4, 'marker-end': 'url(#ah)' }, st.g); if (lab) K.text(st.g, (x1 + x2) / 2 + 6, (y1 + y2) / 2 - 4, lab); });
+    Object.values(N).forEach((n, i) => D.node(K, st.g, n, K.C[n.type === 'diamond' ? 1 : n.type === 'pill' ? 2 : 0]));
+  },
+},
+{
+  id: 'sequence', family: 'diagrams', name: 'Sequence diagram',
+  when: 'Who calls whom, in what order (API flows, protocols).',
+  steps: ['One column per participant with a dashed lifeline. Time runs downwards.',
+          'Messages are a list [from, to, label, isReturn]; message i is drawn at y = top + i * step as a horizontal arrow between the two lifelines with its label above.',
+          'Return messages are dashed.'],
+  combine: 'Mermaid draws the same from text: sequenceDiagram.',
+  fn(host, K) {
+    const P = ['User', 'App', 'API', 'DB'], M = [['User', 'App', 'click search'], ['App', 'API', 'GET /items'], ['API', 'DB', 'SELECT ...'], ['DB', 'API', 'rows', 1], ['API', 'App', '200 JSON', 1], ['App', 'User', 'render list', 1]];
+    const st = K.stage(host, 320, 240, { l: 6, r: 6, t: 6, b: 4 }), x = K.band(P, 0, st.W, 0.5); D.defs(K, st.g);
+    P.forEach(p => { const cx = x(p) + x.bw / 2; K.el('rect', { x: x(p) - 4, y: 0, width: x.bw + 8, height: 24, rx: 5, fill: K.C[0], 'fill-opacity': 0.15, stroke: K.C[0] }, st.g); K.text(st.g, cx, 16, p, { 'text-anchor': 'middle', fill: 'var(--text,#222)' }); K.el('line', { x1: cx, x2: cx, y1: 24, y2: st.H, stroke: 'var(--axis,#c3c2b7)', 'stroke-dasharray': '4 4' }, st.g); });
+    M.forEach(([a, b, t, ret], i) => { const y = 54 + i * 30, xa = x(a) + x.bw / 2, xb = x(b) + x.bw / 2; K.el('line', { x1: xa, x2: xb + (xb > xa ? -2 : 2), y1: y, y2: y, stroke: 'var(--text,#555)', 'stroke-dasharray': ret ? '5 3' : '', 'marker-end': 'url(#ah)' }, st.g); K.text(st.g, (xa + xb) / 2, y - 5, t, { 'text-anchor': 'middle' }); });
+  },
+},
+{
+  id: 'classdiagram', family: 'diagrams', name: 'Class diagram',
+  when: 'Object-oriented design: classes, fields, methods and inheritance.',
+  steps: ['Each class is a box in three compartments (name, fields, methods) separated by lines; the height comes from the number of rows.',
+          'Inheritance is a line to the parent with a hollow triangle at the parent end.'],
+  combine: 'Mermaid: classDiagram.',
+  fn(host, K) {
+    const st = K.stage(host, 320, 230, { l: 6, r: 6, t: 6, b: 6 }), cls = (x, y, w, name, f, m, col) => { const rh = 15, h = 20 + (f.length + m.length) * rh + 8; K.el('rect', { x, y, width: w, height: h, rx: 4, fill: 'var(--card,#f4f3ee)', stroke: col }, st.g); K.el('rect', { x, y, width: w, height: 20, rx: 4, fill: col, 'fill-opacity': 0.3 }, st.g); K.text(st.g, x + w / 2, y + 14, name, { 'text-anchor': 'middle', 'font-weight': 500, fill: 'var(--text,#222)' }); K.el('line', { x1: x, x2: x + w, y1: y + 20 + f.length * rh + 4, y2: y + 20 + f.length * rh + 4, stroke: col }, st.g); f.forEach((t, i) => K.text(st.g, x + 6, y + 33 + i * rh, t, { fill: 'var(--text,#333)' })); m.forEach((t, i) => K.text(st.g, x + 6, y + 37 + (f.length + i) * rh, t, { fill: 'var(--text,#333)' })); return h; };
+    cls(80, 4, 160, 'Model', ['+name: str'], ['+fit(X, y)', '+predict(X)'], K.C[0]);
+    cls(10, 140, 130, 'LinearReg', ['+coef: array'], ['+fit(X, y)'], K.C[1]); cls(180, 140, 130, 'TreeModel', ['+depth: int'], ['+fit(X, y)'], K.C[2]);
+    [[75, 140], [245, 140]].forEach(([x, y]) => { K.el('line', { x1: x, y1: y, x2: x, y2: 108, stroke: 'var(--text,#555)' }, st.g); K.el('line', { x1: x, y1: 108, x2: 160, y2: 108, stroke: 'var(--text,#555)' }, st.g); });
+    K.el('line', { x1: 160, y1: 108, x2: 160, y2: 98, stroke: 'var(--text,#555)' }, st.g); K.el('polygon', { points: '160,86 152,100 168,100', fill: 'var(--bg,#fff)', stroke: 'var(--text,#555)' }, st.g);
+  },
+},
+{
+  id: 'statemachine', family: 'diagrams', name: 'State machine',
+  when: 'Something that is in exactly one state and moves on events (orders, connections, UI).',
+  steps: ['States are rounded boxes (data: id, position); transitions are [from, to, label] edges.',
+          'Reuse the flowchart renderer, add a filled start dot and a double-ring end state.'],
+  combine: 'Highlight the current state and drive it from buttons (state machine + interactive).',
+  fn(host, K) {
+    const N = { d: { x: 44, y: 60, w: 72, h: 32, label: 'Draft' }, r: { x: 160, y: 60, w: 72, h: 32, label: 'Review' }, a: { x: 276, y: 60, w: 72, h: 32, label: 'Approved' }, x: { x: 160, y: 150, w: 72, h: 32, label: 'Rejected' } };
+    Object.values(N).forEach(n => { n.type = 'pill'; });
+    const E = [['d', 'r', 'submit'], ['r', 'a', 'approve'], ['r', 'x', 'reject'], ['x', 'd', 'revise']], st = K.stage(host, 320, 200, { l: 0, r: 0, t: 0, b: 0 }); D.defs(K, st.g);
+    K.el('circle', { cx: 12, cy: 24, r: 5, fill: 'var(--text,#333)' }, st.g); K.el('line', { x1: 14, y1: 28, x2: 40, y2: 48, stroke: 'var(--text,#555)', 'marker-end': 'url(#ah)' }, st.g);
+    E.forEach(([a, b, lab]) => { const [x1, y1, x2, y2] = D.trim(N[a], N[b]); K.el('line', { x1, y1, x2, y2, stroke: 'var(--text,#555)', 'marker-end': 'url(#ah)' }, st.g); K.text(st.g, (x1 + x2) / 2 + (a === 'x' ? -34 : 0), (y1 + y2) / 2 - (a === 'x' ? 0 : 6), lab, { 'text-anchor': 'middle' }); });
+    Object.values(N).forEach((n, i) => D.node(K, st.g, n, K.C[i % 4]));
+    K.el('circle', { cx: 270, cy: 60, r: 21, fill: 'none', stroke: K.C[2], 'stroke-width': 0 }, st.g);
+  },
+},
+{
+  id: 'swimlane', family: 'diagrams', name: 'Swimlane (cross-functional) diagram',
+  when: 'A process that passes between people or teams.',
+  steps: ['One horizontal lane per actor (band scale on y); steps are boxes placed in the lane of the actor who performs them, left to right in time order.',
+          'Arrows connect consecutive steps; a vertical segment means a hand-off.'],
+  combine: 'Add durations to the boxes to see where time is lost.',
+  fn(host, K) {
+    const lanes = ['Customer', 'Support', 'Engineering'], steps = [['Report bug', 0], ['Triage', 1], ['Fix', 2], ['Review', 2], ['Notify', 1], ['Confirm', 0]];
+    const st = K.stage(host, 320, 210, { l: 80, r: 6, t: 4, b: 4 }), y = K.band(lanes, 0, st.H, 0.06), bw = 40, step = (st.W - bw) / (steps.length - 1); D.defs(K, st.g);
+    lanes.forEach((l, i) => { K.el('rect', { x: 0, y: y(l), width: st.W, height: y.bw, fill: i % 2 ? 'var(--card,#f4f3ee)' : 'none', stroke: 'var(--grid,#e1e0d9)' }, st.g); K.text(st.g, -6, y(l) + y.bw / 2 + 4, l, { 'text-anchor': 'end', fill: 'var(--text,#333)' }); });
+    const P = steps.map(([t, l], i) => ({ x: bw / 2 + i * step, y: y(lanes[l]) + y.bw / 2, w: bw, h: 30, label: t }));
+    P.slice(1).forEach((b, i) => { const a = P[i]; K.el('path', { d: `M${a.x + bw / 2} ${a.y}H${(a.x + bw / 2 + b.x - bw / 2) / 2}V${b.y}L${b.x - bw / 2} ${b.y}`, fill: 'none', stroke: 'var(--text,#555)', 'marker-end': 'url(#ah)' }, st.g); });
+    P.forEach((p, i) => { K.el('rect', { x: p.x - bw / 2, y: p.y - 15, width: bw, height: 30, rx: 5, fill: K.C[steps[i][1]], 'fill-opacity': 0.85 }, st.g); K.text(st.g, p.x, p.y + 3, p.label.split(' ')[0], { 'text-anchor': 'middle', fill: '#fff', 'font-size': 9 }); });
+  },
+},
+{
+  id: 'decisiontree', family: 'diagrams', name: 'Decision tree (classifier)',
+  when: 'Explain how a tree model reaches a decision.',
+  steps: ['Tree data: internal nodes hold a question, leaves hold a class. K.tree gives positions (depth = row, slot = column).',
+          'Edges are labelled yes / no; leaves are coloured by class so the reader can see which regions are pure.'],
+  combine: 'Draw the same tree\'s splits as lines on a scatter plot (decision boundary recipe).',
+  fn(host, K) {
+    const t = { q: 'hours > 5?', children: [{ q: 'prior > 60?', children: [{ leaf: 'fail' }, { leaf: 'pass' }] }, { q: 'sleep > 6?', children: [{ leaf: 'pass' }, { leaf: 'pass' }] }] };
+    const L = K.tree(t), st = K.stage(host, 320, 220, { l: 10, r: 10, t: 10, b: 10 }), x = K.linear(0, L.leaves - 1, 40, st.W - 40), y = d => d * 76 + 14; D.defs(K, st.g);
+    L.nodes.forEach(n => (n.children || []).forEach((c, i) => { K.el('line', { x1: x(n._x), y1: y(n._d) + 14, x2: x(c._x), y2: y(c._d) - 14, stroke: 'var(--text,#555)', 'marker-end': 'url(#ah)' }, st.g); K.text(st.g, (x(n._x) + x(c._x)) / 2 + (i ? 8 : -8), (y(n._d) + y(c._d)) / 2, i ? 'no' : 'yes', { 'text-anchor': i ? 'start' : 'end' }); }));
+    L.nodes.forEach(n => { const leaf = !!n.leaf; K.el('rect', { x: x(n._x) - (leaf ? 30 : 38), y: y(n._d) - 14, width: leaf ? 60 : 76, height: 28, rx: leaf ? 14 : 6, fill: leaf ? (n.leaf === 'pass' ? K.C[2] : K.C[7]) : 'var(--card,#f4f3ee)', 'fill-opacity': leaf ? 0.85 : 1, stroke: leaf ? 'none' : K.C[0] }, st.g); K.text(st.g, x(n._x), y(n._d) + 4, n.q || n.leaf, { 'text-anchor': 'middle', fill: leaf ? '#fff' : 'var(--text,#222)' }); });
+  },
+},
+{
+  id: 'topology', family: 'diagrams', name: 'Network topology diagram',
+  when: 'How devices and services are wired together.',
+  steps: ['Hub-and-spoke layout: the router in the centre, switches on a ring around it, end devices on a larger ring around their switch.',
+          'Positions come from K.polar. Use different shapes (circle, square, hexagon) to tell device types apart, with a legend.'],
+  combine: 'Colour links by load to overlay data on the topology.',
+  fn(host, K) {
+    const st = K.stage(host, 320, 240, { l: 4, r: 4, t: 4, b: 18 }), cx = st.W / 2, cy = st.H / 2;
+    const sw = [0, 1, 2].map(i => K.polar(cx, cy, 62, i * 2 * Math.PI / 3 + 0.5));
+    sw.forEach((p, i) => { K.el('line', { x1: cx, y1: cy, x2: p[0], y2: p[1], stroke: 'var(--axis,#b4b2a9)', 'stroke-width': 2 }, st.g); for (let j = 0; j < 3; j++) { const q = K.polar(p[0], p[1], 38, i * 2 * Math.PI / 3 + 0.5 + (j - 1) * 0.7); K.el('line', { x1: p[0], y1: p[1], x2: q[0], y2: q[1], stroke: 'var(--axis,#b4b2a9)' }, st.g); K.el('circle', { cx: q[0], cy: q[1], r: 5, fill: K.C[2] }, st.g); } });
+    sw.forEach(p => K.el('rect', { x: p[0] - 9, y: p[1] - 9, width: 18, height: 18, rx: 3, fill: K.C[0] }, st.g));
+    K.el('polygon', { points: K.range(0, 5, 6).map(i => K.polar(cx, cy, 15, i * Math.PI / 3).join(',')).join(' '), fill: K.C[1] }, st.g);
+    K.legend(st.g, [['router', K.C[1]], ['switch', K.C[0]], ['device', K.C[2]]], 40, st.H + 4, 80);
+  },
+},
+{
+  id: 'gitgraph', family: 'diagrams', name: 'Git branch graph',
+  when: 'Explain branching and merging.',
+  steps: ['Each branch is a horizontal lane (y). Each commit is a circle at (x = commit index, y = its lane).',
+          'Branching: a curve from a commit on the parent lane to the first commit of the new lane; merging: a curve back. Lane colour identifies the branch.'],
+  combine: 'Annotate commits with tags or CI status.',
+  fn(host, K) {
+    const st = K.stage(host, 320, 150, { l: 50, r: 10, t: 14, b: 10 }), x = i => 10 + i * 34, y = l => 14 + l * 44, lanes = ['main', 'feature', 'hotfix'];
+    const C = [[0, 0], [1, 0], [2, 1], [3, 1], [4, 0], [5, 2], [6, 0], [7, 0]], link = (a, b) => K.el('path', { d: `M${x(C[a][0])} ${y(C[a][1])}C${(x(C[a][0]) + x(C[b][0])) / 2} ${y(C[a][1])} ${(x(C[a][0]) + x(C[b][0])) / 2} ${y(C[b][1])} ${x(C[b][0])} ${y(C[b][1])}`, fill: 'none', stroke: K.C[Math.max(C[a][1], C[b][1])], 'stroke-width': 3 }, st.g);
+    [[0, 1], [1, 2], [2, 3], [3, 4], [1, 4], [4, 5], [5, 6], [4, 6], [6, 7]].forEach(([a, b]) => link(a, b));
+    C.forEach(([i, l]) => K.el('circle', { cx: x(i), cy: y(l), r: 6, fill: 'var(--bg,#fff)', stroke: K.C[l], 'stroke-width': 3 }, st.g)); lanes.forEach((n, l) => K.text(st.g, -8, y(l) + 4, n, { 'text-anchor': 'end', fill: K.C[l] }));
+  },
+},
+{
+  id: 'architecture', family: 'diagrams', name: 'Layered architecture diagram',
+  when: 'High-level structure of a system (UI, services, data).',
+  steps: ['Three full-width layers stacked top to bottom (band scale); each holds component boxes laid out evenly.',
+          'Vertical arrows show allowed calls (top layer calls the layer below).'],
+  combine: 'Overlay latency or error rate per component.',
+  fn(host, K) {
+    const L = [['Frontend', ['Web app', 'Mobile']], ['Services', ['Auth', 'Search', 'Billing']], ['Data', ['Postgres', 'Cache']]];
+    const st = K.stage(host, 320, 230, { l: 4, r: 4, t: 4, b: 4 }), y = K.band(L.map(r => r[0]), 0, st.H, 0.22); D.defs(K, st.g);
+    L.forEach(([nm, comps], i) => { K.el('rect', { x: 0, y: y(nm), width: st.W, height: y.bw, rx: 8, fill: K.C[i], 'fill-opacity': 0.12, stroke: K.C[i] }, st.g); K.text(st.g, 8, y(nm) + 14, nm, { fill: K.C[i], 'font-weight': 500 }); const w = (st.W - 20 - (comps.length - 1) * 10) / comps.length; comps.forEach((c, j) => { K.el('rect', { x: 10 + j * (w + 10), y: y(nm) + 24, width: w, height: y.bw - 32, rx: 5, fill: 'var(--bg,#fff)', stroke: K.C[i] }, st.g); K.text(st.g, 10 + j * (w + 10) + w / 2, y(nm) + 24 + (y.bw - 32) / 2 + 4, c, { 'text-anchor': 'middle', fill: 'var(--text,#222)' }); }); if (i < 2) K.el('line', { x1: st.W / 2, y1: y(nm) + y.bw, x2: st.W / 2, y2: y(L[i + 1][0]), stroke: 'var(--text,#555)', 'stroke-width': 1.6, 'marker-end': 'url(#ah)' }, st.g); });
+  },
+},
+{
+  id: 'kanban', family: 'diagrams', name: 'Kanban board (HTML)',
+  when: 'Work items by status.',
+  steps: ['Data: columns with a list of cards. HTML grid: one flex column per status.',
+          'A button on each card moves it to the next column (state change, redraw).'],
+  combine: 'Count per column feeds a cumulative-flow chart.',
+  test: host => { const before = host.innerHTML; host.querySelector('button').click(); if (host.innerHTML === before) throw new Error('kanban move did nothing'); },
+  fn(host, K) {
+    const cols = [['To do', ['Clean data', 'Plot ROC']], ['Doing', ['Train model']], ['Done', ['Load CSV']]], root = document.createElement('div'); host.appendChild(root);
+    const draw = () => { root.innerHTML = ''; root.style.cssText = 'display:flex;gap:8px;font-size:12px'; cols.forEach(([name, cards], ci) => { const c = document.createElement('div'); c.style.cssText = 'flex:1;background:var(--card,#f4f3ee);border-radius:8px;padding:8px;min-height:110px'; c.innerHTML = '<b>' + name + ' (' + cards.length + ')</b>'; cards.forEach((t, i) => { const k = document.createElement('div'); k.style.cssText = 'background:var(--bg,#fff);border:.5px solid var(--grid,#ddd);border-radius:6px;padding:6px;margin-top:6px;display:flex;justify-content:space-between;gap:4px'; k.innerHTML = '<span>' + t + '</span>'; if (ci < cols.length - 1) { const b = document.createElement('button'); b.textContent = '→'; b.style.cssText = 'padding:0 6px;font-size:12px'; b.addEventListener('click', () => { cols[ci + 1][1].push(cols[ci][1].splice(i, 1)[0]); draw(); }); k.appendChild(b); } c.appendChild(k); }); root.appendChild(c); }); };
+    draw();
+  },
+},
+
+// =============================== TABLES, TEXT & DASHBOARDS ===============================
+{
+  id: 'sorttable', family: 'tables', name: 'Sortable table',
+  when: 'Rows the reader wants to rank by different columns.',
+  steps: ['Keep the data in an array of row objects and a state { column, direction }.',
+          'Clicking a header sets the state and sorts a COPY of the array (numbers numerically, text alphabetically); then the whole <tbody> is rebuilt.',
+          'Align numbers right, text left; show an arrow on the sorted column.'],
+  combine: 'Feed the same sorted array to a chart (table and chart can never disagree).',
+  test: host => { const th = host.querySelectorAll('th')[1], before = host.querySelector('tbody tr td').textContent; th.click(); if (host.querySelector('tbody tr td').textContent === before) throw new Error('sort did nothing'); },
+  fn(host, K) {
+    const rows = [{ name: 'Python', users: 68, growth: 12 }, { name: 'SQL', users: 57, growth: 4 }, { name: 'R', users: 41, growth: -3 }, { name: 'Java', users: 29, growth: -6 }, { name: 'Julia', users: 12, growth: 19 }], cols = ['name', 'users', 'growth'], S = { c: 'name', d: 1 };
+    const t = document.createElement('table'); t.style.cssText = 'border-collapse:collapse;width:100%;font-size:13px'; host.appendChild(t);
+    const draw = () => { const data = rows.slice().sort((a, b) => (a[S.c] > b[S.c] ? 1 : -1) * S.d); t.innerHTML = '<thead><tr>' + cols.map(c => '<th style="cursor:pointer;text-align:' + (c === 'name' ? 'left' : 'right') + ';border-bottom:1px solid var(--axis,#aaa);padding:6px">' + c + (S.c === c ? (S.d > 0 ? ' ▲' : ' ▼') : '') + '</th>').join('') + '</tr></thead><tbody>' + data.map(r => '<tr>' + cols.map(c => '<td style="padding:6px;border-bottom:.5px solid var(--grid,#ddd);text-align:' + (c === 'name' ? 'left' : 'right') + '">' + r[c] + '</td>').join('') + '</tr>').join('') + '</tbody>'; t.querySelectorAll('th').forEach((th, i) => th.addEventListener('click', () => { S.d = S.c === cols[i] ? -S.d : 1; S.c = cols[i]; draw(); })); };
+    draw();
+  },
+},
+{
+  id: 'heattable', family: 'tables', name: 'Heat table (conditional formatting)',
+  when: 'A table where patterns matter more than exact numbers.',
+  steps: ['For every numeric column find min and max; map each cell to t = (value - min) / (max - min).',
+          'Use t as the background colour from a sequential ramp (K.seq); choose white text above t = 0.55 so contrast stays readable.',
+          'Normalise per COLUMN so different units are comparable.'],
+  combine: 'Add a sparkline column.',
+  fn(host, K) {
+    const head = ['Model', 'Accuracy', 'Recall', 'Time (s)'], rows = [['Linear', 0.82, 0.74, 1.2], ['Tree', 0.86, 0.8, 3.4], ['Forest', 0.91, 0.87, 18], ['Boosting', 0.93, 0.9, 25], ['Neural net', 0.92, 0.89, 90]];
+    const t = document.createElement('table'); t.style.cssText = 'border-collapse:collapse;width:100%;font-size:13px'; host.appendChild(t);
+    const mm = [1, 2, 3].map(c => [Math.min(...rows.map(r => r[c])), Math.max(...rows.map(r => r[c]))]);
+    t.innerHTML = '<tr>' + head.map(h => '<th style="padding:6px;text-align:left">' + h + '</th>').join('') + '</tr>' + rows.map(r => '<tr><td style="padding:6px">' + r[0] + '</td>' + [1, 2, 3].map(c => { const tt = (r[c] - mm[c - 1][0]) / (mm[c - 1][1] - mm[c - 1][0]); return '<td style="padding:6px;background:' + K.seq(c === 3 ? 1 - tt : tt) + ';color:' + ((c === 3 ? 1 - tt : tt) > 0.55 ? '#fff' : '#222') + '">' + r[c] + '</td>'; }).join('') + '</tr>').join('');
+  },
+},
+{
+  id: 'sparktable', family: 'tables', name: 'Table with sparklines',
+  when: 'Numbers plus their recent trend in one row.',
+  steps: ['Build the table rows from data; for each row add an empty cell.',
+          'Draw a tiny SVG line (K.path on the row\'s own series, scaled to its min and max) inside that cell.'],
+  combine: 'Combine with sort: re-drawing the rows keeps the sparklines aligned.',
+  fn(host, K) {
+    const t = document.createElement('table'); t.style.cssText = 'border-collapse:collapse;width:100%;font-size:13px'; host.appendChild(t);
+    t.innerHTML = '<tr><th style="text-align:left;padding:6px">Metric</th><th style="text-align:right">Now</th><th style="text-align:left;padding-left:12px">Last 20 days</th></tr>';
+    [['Visits', 11, 1.2], ['Signups', 12, 0.4], ['Churn', 13, -0.6]].forEach(([n, seed, slope]) => { const s = K.series(seed, 20, 50, slope, 5, 3), tr = document.createElement('tr'); tr.innerHTML = '<td style="padding:6px;border-top:.5px solid var(--grid,#ddd)">' + n + '</td><td style="text-align:right;border-top:.5px solid var(--grid,#ddd)">' + s[19].toFixed(1) + '</td><td style="padding-left:12px;border-top:.5px solid var(--grid,#ddd)"></td>'; t.appendChild(tr); const svg = K.el('svg', { viewBox: '0 0 100 24', width: 100, height: 24 }), x = K.linear(0, 19, 2, 98), y = K.linear(Math.min(...s), Math.max(...s), 21, 3); K.el('path', { d: K.path(s.map((v, i) => [x(i), y(v)])), fill: 'none', stroke: K.C[0], 'stroke-width': 1.6 }, svg); K.el('circle', { cx: x(19), cy: y(s[19]), r: 2.5, fill: K.C[1] }, svg); tr.lastChild.appendChild(svg); });
+  },
+},
+{
+  id: 'kpi', family: 'tables', name: 'KPI tiles',
+  when: 'The 3 to 5 numbers someone must see first.',
+  steps: ['Each tile: a label, one big number, and a change versus the previous period (arrow + percent).',
+          'Colour the change by whether it is GOOD, not by whether it is positive (churn up is bad).'],
+  combine: 'Place above charts in a dashboard; clicking a tile filters the charts below.',
+  fn(host, K) {
+    const T = [['Revenue', '€ 48.2k', 6.4, 1], ['Users', '3,120', 2.1, 1], ['Churn', '4.8%', 0.7, -1], ['NPS', '41', -3, 1]], root = document.createElement('div'); root.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px'; host.appendChild(root);
+    T.forEach(([l, v, d, good]) => { const up = d > 0, ok = (up ? 1 : -1) * good > 0, c = document.createElement('div'); c.style.cssText = 'background:var(--card,#f4f3ee);border-radius:10px;padding:10px 12px'; c.innerHTML = '<div style="font-size:12px;opacity:.7">' + l + '</div><div style="font-size:22px;font-weight:500">' + v + '</div><div style="font-size:12px;color:' + (ok ? '#1baf7a' : '#e34948') + '">' + (up ? '▲ ' : '▼ ') + Math.abs(d) + '% vs last month</div>'; root.appendChild(c); });
+  },
+},
+{
+  id: 'gauge', family: 'tables', name: 'Gauge (dial)',
+  when: 'One value against a range with good/bad zones (speed, utilisation, score).',
+  steps: ['Half-circle track from -90 to +90 degrees split into coloured zones with K.arc.',
+          'Needle angle = -90 + value / max * 180 degrees; draw a line from the centre with K.polar and a hub circle.'],
+  combine: 'Use sparingly: a bullet chart carries the same information with less space.',
+  fn(host, K) {
+    const st = K.stage(host, 320, 170, { l: 10, r: 10, t: 10, b: 10 }), cx = st.W / 2, cy = st.H - 14, v = 72, Z = [[0, 0.4, K.C[7]], [0.4, 0.7, K.C[3]], [0.7, 1, K.C[2]]];
+    Z.forEach(([a, b, c]) => K.el('path', { d: K.arc(cx, cy, 70, 104, -Math.PI / 2 + a * Math.PI, -Math.PI / 2 + b * Math.PI - 0.01), fill: c }, st.g));
+    const p = K.polar(cx, cy, 92, -Math.PI / 2 + v / 100 * Math.PI); K.el('line', { x1: cx, y1: cy, x2: p[0], y2: p[1], stroke: 'var(--text,#222)', 'stroke-width': 3, 'stroke-linecap': 'round' }, st.g); K.el('circle', { cx, cy, r: 7, fill: 'var(--text,#222)' }, st.g);
+    K.text(st.g, cx, cy - 26, v + '%', { 'text-anchor': 'middle', 'font-size': 20, fill: 'var(--text,#222)', 'font-weight': 500 });
+  },
+},
+{
+  id: 'wordcloud', family: 'tables', name: 'Word cloud',
+  when: 'A quick look at the most frequent terms (not for precise comparison).',
+  steps: ['Font size grows with the word\'s count (linear between 11 and 34 px).',
+          'Place words biggest first along a spiral from the centre; the first spot whose box (width = characters * size * 0.64, height = size) overlaps no placed word wins.'],
+  combine: 'A bar chart of the top 10 words is easier to read; use the cloud only for mood.',
+  fn(host, K) {
+    const W = [['data', 40], ['model', 34], ['python', 30], ['plot', 24], ['table', 22], ['stats', 20], ['sql', 18], ['chart', 16], ['code', 15], ['test', 12], ['graph', 11], ['map', 9], ['tree', 8], ['flow', 8]];
+    const st = K.stage(host, 320, 200, { l: 0, r: 0, t: 0, b: 0 }), placed = [];
+    W.forEach(([w, c], i) => { const fs = 11 + (c - 8) / 32 * 23, bw = w.length * fs * 0.64 + 4, bh = fs; for (let k = 0; k < 4000; k++) { const a = k * 0.35, r = k * 0.09, x = st.W / 2 + r * Math.cos(a) * 1.5 - bw / 2, y = st.H / 2 + r * Math.sin(a) + bh / 3; if (x < 2 || y - bh < 2 || x + bw > st.W - 2 || y > st.H - 2) continue; if (placed.every(p => x > p.x + p.w + 1 || x + bw < p.x - 1 || y - bh > p.y + 1 || y < p.y - p.h - 1)) { placed.push({ x, y, w: bw, h: bh }); K.text(st.g, x, y, w, { 'font-size': fs, fill: K.C[i % 8], 'font-weight': 500 }); break; } } });
+  },
+},
+{
+  id: 'plans', family: 'tables', name: 'Comparison (pricing) cards',
+  when: 'Two to four options compared on the same features.',
+  steps: ['Data: options with a price and a feature list. One flex card per option, same feature rows in the same order.',
+          'Highlight the recommended card with a coloured border.'],
+  combine: 'A toggle (monthly/yearly) changes prices with one state variable.',
+  fn(host, K) {
+    const P = [['Free', '€0', ['1 project', '100 MB', 'Community help']], ['Pro', '€12', ['10 projects', '10 GB', 'Email help'], 1], ['Team', '€30', ['Unlimited', '1 TB', 'Priority help']]], root = document.createElement('div'); root.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap'; host.appendChild(root);
+    P.forEach(([n, p, f, hi]) => { const c = document.createElement('div'); c.style.cssText = 'flex:1;min-width:100px;border-radius:10px;padding:12px;border:' + (hi ? '2px solid #2a78d6' : '.5px solid var(--grid,#ccc)'); c.innerHTML = '<div style="font-weight:500">' + n + '</div><div style="font-size:22px">' + p + '<span style="font-size:12px;opacity:.6">/mo</span></div>' + f.map(x => '<div style="font-size:12px;padding:3px 0">✓ ' + x + '</div>').join(''); root.appendChild(c); });
+  },
+},
+{
+  id: 'monthcal', family: 'tables', name: 'Month calendar',
+  when: 'Dates, deadlines and events at a glance.',
+  steps: ['Find the weekday of the 1st with new Date(Date.UTC(year, month, 1)).getUTCDay() and the number of days in the month.',
+          'Fill a 7-column grid: blank cells for the offset, then one cell per day; highlight event days.'],
+  combine: 'Colour days by value for the calendar heatmap.',
+  fn(host, K) {
+    const y = 2026, m = 9, first = (new Date(Date.UTC(y, m, 1)).getUTCDay() + 6) % 7, days = new Date(Date.UTC(y, m + 1, 0)).getUTCDate(), ev = { 8: 'Exam', 15: 'Report', 29: 'Today' }, root = document.createElement('div'); host.appendChild(root);
+    root.innerHTML = '<div style="font-weight:500;margin-bottom:6px">October ' + y + '</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-size:12px;text-align:center">' + ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => '<div style="opacity:.6">' + d + '</div>').join('') + Array(first).fill('<div></div>').join('') + Array.from({ length: days }, (_, i) => '<div style="padding:6px 0;border-radius:6px;' + (ev[i + 1] ? 'background:#2a78d6;color:#fff' : 'background:var(--card,#f4f3ee)') + '" title="' + (ev[i + 1] || '') + '">' + (i + 1) + '</div>').join('') + '</div>';
+  },
+},
+{
+  id: 'filterlist', family: 'tables', name: 'Searchable list (live filter)',
+  when: 'Long lists where the reader knows what they are looking for.',
+  steps: ['State: the search string. On every input event filter the array with a case-insensitive includes() and redraw the list.',
+          'Show the count of matches; keep the input focused (redraw only the list, not the input).'],
+  combine: 'Combine with a map or chart that highlights the filtered items.',
+  test: host => typeInto(host, 'input', 'py'),
+  fn(host, K) {
+    const items = ['Python', 'pandas', 'NumPy', 'SQL', 'scikit-learn', 'Matplotlib', 'PyTorch', 'R', 'Julia'], inp = document.createElement('input'), ul = document.createElement('ul'), n = document.createElement('div'); inp.placeholder = 'search'; inp.style.cssText = 'padding:6px;width:100%;box-sizing:border-box;margin-bottom:6px'; n.style.cssText = 'font-size:12px;opacity:.7'; ul.style.cssText = 'margin:6px 0;padding-left:18px'; host.append(inp, n, ul);
+    const draw = q => { const m = items.filter(i => i.toLowerCase().includes(q.toLowerCase())); ul.innerHTML = m.map(i => '<li>' + i + '</li>').join(''); n.textContent = m.length + ' of ' + items.length; };
+    inp.addEventListener('input', () => draw(inp.value)); draw('');
+  },
+},
+
+// =============================== INTERACTIVE EXPLAINERS ===============================
+{
+  id: 'bubblesort', family: 'interactive', name: 'Bubble sort stepper',
+  when: 'Teach an algorithm step by step.',
+  steps: ['State: the array, the position j being compared, and the number of passes done i. Step(): compare a[j] and a[j+1], swap if needed, advance j; at the end of a pass increase i.',
+          'Draw: bars; orange = being compared, green = already in final place, blue = rest.'],
+  combine: 'Show the comparison count as a line chart growing with n.',
+  test: clickChanges('button'),
+  fn(host, K) {
+    const r = K.rng(6), N = 12; let a = Array.from({ length: N }, (_, i) => i + 1).sort(() => r() - 0.5), i = 0, j = 0, cmp = 0;
+    const bar = document.createElement('div'); bar.style.cssText = 'margin-bottom:4px;font-size:12px'; bar.innerHTML = '<button>Step</button> <span></span>'; host.appendChild(bar); const view = document.createElement('div'); host.appendChild(view);
+    const draw = (p, q) => { view.innerHTML = ''; const st = K.stage(view, 320, 170, { l: 4, r: 4, t: 4, b: 4 }), x = K.band(a.map((_, k) => k), 0, st.W, 0.15), y = K.linear(0, N, st.H, 0); a.forEach((v, k) => K.el('rect', { x: x(k), y: y(v), width: x.bw, height: st.H - y(v), rx: 3, fill: k === p || k === q ? K.C[1] : k >= N - i ? K.C[2] : K.C[0] }, st.g)); bar.querySelector('span').textContent = ' comparisons: ' + cmp; };
+    const step = () => { if (i >= N - 1) return; cmp++; if (a[j] > a[j + 1]) { const t = a[j]; a[j] = a[j + 1]; a[j + 1] = t; } draw(j, j + 1); j++; if (j >= N - 1 - i) { j = 0; i++; } };
+    bar.querySelector('button').addEventListener('click', step); draw(-1, -1);
+  },
+},
+{
+  id: 'gradientdescent', family: 'interactive', name: 'Gradient descent explorer',
+  when: 'Teach learning rates: too small is slow, too large overshoots or diverges.',
+  steps: ['Loss = x^2, gradient = 2x. Update: x = x - learningRate * 2x.',
+          'Slider sets the learning rate; Run repeats the update and records the trail. With rate 0.5 it lands on 0 in one step; above 1.0 it diverges.'],
+  combine: 'Plot loss against step number next to the parabola (linked views).',
+  test: host => { const b = host.querySelectorAll('button')[0], before = host.innerHTML; b.click(); if (host.innerHTML === before) throw new Error('run did nothing'); },
+  fn(host, K) {
+    const ctl = document.createElement('div'); ctl.style.cssText = 'font-size:12px;margin-bottom:4px'; ctl.innerHTML = '<button>Run 8 steps</button> rate <input type="range" min="0.05" max="1.05" step="0.05" value="0.3"> <b>0.30</b>'; host.appendChild(ctl); const view = document.createElement('div'); host.appendChild(view);
+    let trail = [-4]; const draw = () => { view.innerHTML = ''; const st = K.stage(view, 320, 190, { l: 10, r: 10, t: 6, b: 18 }), x = K.linear(-5, 5, 0, st.W), y = K.linear(0, 25, st.H, 0); K.el('path', { d: K.path(K.range(-5, 5, 80).map(v => [x(v), y(v * v)])), fill: 'none', stroke: 'var(--muted,#898781)', 'stroke-width': 2 }, st.g); trail.forEach((v, i) => { if (Math.abs(v) <= 5) K.el('circle', { cx: x(v), cy: y(v * v), r: i === trail.length - 1 ? 7 : 3.5, fill: i === trail.length - 1 ? K.C[0] : K.C[1], 'fill-opacity': i === trail.length - 1 ? 1 : 0.6 }, st.g); }); };
+    const rate = ctl.querySelector('input'); rate.addEventListener('input', () => { ctl.querySelector('b').textContent = (+rate.value).toFixed(2); trail = [-4]; draw(); });
+    ctl.querySelector('button').addEventListener('click', () => { trail = [-4]; for (let i = 0; i < 8; i++) trail.push(trail[trail.length - 1] * (1 - 2 * rate.value)); draw(); }); draw();
+  },
+},
+{
+  id: 'binsearch', family: 'interactive', name: 'Binary search visualiser',
+  when: 'Show why halving the search range is so fast.',
+  steps: ['State: low and high indexes of the remaining range. Each step looks at the middle element and discards the half that cannot contain the target.',
+          'Draw all items as cells; dim the discarded ones; outline the current middle. 16 items need at most 4 steps.'],
+  combine: 'Plot steps against list size to show the logarithmic growth.',
+  test: clickChanges('button'),
+  fn(host, K) {
+    const N = 16, target = 11; let lo = 0, hi = N - 1, steps = 0, found = false;
+    const bar = document.createElement('div'); bar.style.cssText = 'margin-bottom:4px;font-size:12px'; bar.innerHTML = '<button>Step</button> looking for <b>' + target + '</b> <span></span>'; host.appendChild(bar); const view = document.createElement('div'); host.appendChild(view);
+    const draw = () => { view.innerHTML = ''; const st = K.stage(view, 320, 90, { l: 4, r: 4, t: 8, b: 4 }), c = st.W / N, mid = (lo + hi) >> 1; for (let i = 0; i < N; i++) { const inside = i >= lo && i <= hi; K.el('rect', { x: i * c, y: 14, width: c - 2, height: 34, rx: 4, fill: found && i === mid ? K.C[2] : inside ? K.C[0] : 'var(--grid,#e1e0d9)', 'fill-opacity': inside ? 0.85 : 0.5, stroke: i === mid && !found ? K.C[1] : 'none', 'stroke-width': 2.5 }, st.g); K.text(st.g, i * c + c / 2 - 1, 36, i, { 'text-anchor': 'middle', fill: inside ? '#fff' : 'var(--muted,#888)' }); } bar.querySelector('span').textContent = ' steps: ' + steps + (found ? ' (found)' : ''); };
+    bar.querySelector('button').addEventListener('click', () => { if (found || lo > hi) return; const mid = (lo + hi) >> 1; steps++; if (mid === target) found = true; else if (mid < target) lo = mid + 1; else hi = mid - 1; draw(); }); draw();
+  },
+},
+{
+  id: 'compound', family: 'interactive', name: 'Compound interest calculator',
+  when: 'A formula with parameters people want to play with.',
+  steps: ['Inputs: start amount, yearly rate, years (sliders). Formula: balance = start * (1 + rate)^year.',
+          'Redraw a line (balance by year) with an area underneath and print the final value. Sliders are the only state.'],
+  combine: 'Add a second scenario line for comparison.',
+  test: host => slideChanges(host, 9),
+  fn(host, K) {
+    const ctl = document.createElement('div'); ctl.style.cssText = 'font-size:12px;margin-bottom:4px'; ctl.innerHTML = 'rate % <input type="range" min="0" max="12" step="1" value="5"> <b></b>'; host.appendChild(ctl); const view = document.createElement('div'); host.appendChild(view);
+    const draw = r => { view.innerHTML = ''; const yrs = K.range(0, 30, 31), v = yrs.map(t => 1000 * Math.pow(1 + r / 100, t)), st = K.stage(view, 320, 200, { l: 44 }), x = K.linear(0, 30, 0, st.W), y = K.linear(0, 1000 * Math.pow(1.12, 30), st.H, 0); K.axisY(st, y, 4, q => q === 0 ? '0' : Math.round(q / 1000) + 'k'); K.axisX(st, x, 5); const pts = v.map((q, i) => [x(i), y(q)]); K.el('path', { d: K.path(pts) + `L${x(30)} ${y(0)}L${x(0)} ${y(0)}Z`, fill: K.C[0], 'fill-opacity': 0.2 }, st.g); K.el('path', { d: K.path(pts), fill: 'none', stroke: K.C[0], 'stroke-width': 2 }, st.g); ctl.querySelector('b').textContent = ' ' + r + '% -> €' + Math.round(v[30]).toLocaleString('en-US') + ' after 30 years (from €1,000)'; };
+    ctl.querySelector('input').addEventListener('input', e => draw(+e.target.value)); draw(5);
+  },
+},
+{
+  id: 'quiz', family: 'interactive', name: 'Quiz with instant feedback',
+  when: 'Check understanding while reading.',
+  steps: ['Data: questions with options, the index of the right option and an explanation.',
+          'Render the options as buttons; on click mark the choice right/wrong, reveal the explanation and keep a running score. Next question redraws.'],
+  combine: 'Log answers to build a per-topic bar chart of strengths.',
+  test: host => { const b = host.querySelector('button.opt'), before = host.innerHTML; b.click(); if (host.innerHTML === before) throw new Error('quiz click did nothing'); },
+  fn(host, K) {
+    const Q = [['Which plot checks normality?', ['Pie chart', 'Q-Q plot', 'Gantt chart'], 1, 'A Q-Q plot compares sample quantiles with normal quantiles.'], ['What should a bar chart axis start at?', ['0', 'The minimum value', 'Anything'], 0, 'Bar length encodes value, so truncating the axis lies.']]; let i = 0, score = 0;
+    const root = document.createElement('div'); root.style.fontSize = '13px'; host.appendChild(root);
+    const draw = () => { if (i >= Q.length) { root.innerHTML = '<b>Score: ' + score + ' / ' + Q.length + '</b>'; return; } const [q, o, ans, why] = Q[i]; root.innerHTML = '<div style="font-weight:500;margin-bottom:6px">' + q + '</div>'; o.forEach((t, k) => { const b = document.createElement('button'); b.className = 'opt'; b.textContent = t; b.style.cssText = 'display:block;width:100%;text-align:left;margin:4px 0;padding:8px'; b.addEventListener('click', () => { if (root.dataset.done) return; root.dataset.done = 1; if (k === ans) score++; b.style.background = k === ans ? '#bfe9d6' : '#f5c2c0'; root.insertAdjacentHTML('beforeend', '<div style="margin-top:8px">' + (k === ans ? 'Correct. ' : 'Not quite. ') + why + '</div><button class="next" style="margin-top:6px">Next</button>'); root.querySelector('.next').addEventListener('click', () => { delete root.dataset.done; i++; draw(); }); }); root.appendChild(b); }); }; draw();
+  },
+},
+{
+  id: 'flashcards', family: 'interactive', name: 'Flashcards (flip)',
+  when: 'Memorising terms and definitions.',
+  steps: ['State: current card index and whether it is flipped.',
+          'Clicking the card toggles the side; Next advances the index.'],
+  combine: 'Track which cards were missed and show them again first (spaced repetition).',
+  test: host => { const b = host.querySelector('.fcard'), before = host.innerHTML; b.click(); if (host.innerHTML === before) throw new Error('flip did nothing'); },
+  fn(host, K) {
+    const C = [['skewness', 'A measure of asymmetry of a distribution'], ['ROC curve', 'True positive rate vs false positive rate over all thresholds'], ['KDE', 'A smooth estimate of a density built from kernels']]; let i = 0, flip = 0;
+    const root = document.createElement('div'); host.appendChild(root);
+    const draw = () => { root.innerHTML = '<div class="fcard" style="cursor:pointer;background:var(--card,#f4f3ee);border-radius:12px;padding:30px 16px;text-align:center;font-size:' + (flip ? 14 : 20) + 'px;min-height:60px">' + C[i][flip] + '</div><div style="margin-top:8px;font-size:12px"><button class="n">Next</button> ' + (i + 1) + ' / ' + C.length + '</div>'; root.querySelector('.fcard').addEventListener('click', () => { flip ^= 1; draw(); }); root.querySelector('.n').addEventListener('click', () => { i = (i + 1) % C.length; flip = 0; draw(); }); }; draw();
+  },
+},
+{
+  id: 'timer', family: 'interactive', name: 'Countdown timer',
+  when: 'Pomodoro-style focus sessions or exercises.',
+  steps: ['State: seconds left and a timer handle. Every second subtract one and redraw; at zero stop.',
+          'Draw a ring whose arc length is the remaining fraction (K.arc) with the time as text in the middle.'],
+  combine: 'Record completed sessions and show them as a calendar heatmap.',
+  test: clickChanges('button'),
+  fn(host, K) {
+    const T = 25 * 60; let left = T, h = null;
+    const bar = document.createElement('div'); bar.style.marginBottom = '4px'; bar.innerHTML = '<button>Start</button> <button>Reset</button>'; host.appendChild(bar); const view = document.createElement('div'); host.appendChild(view);
+    const draw = () => { view.innerHTML = ''; const st = K.stage(view, 320, 190, { t: 4, b: 4 }), cx = st.W / 2, cy = st.H / 2; K.el('circle', { cx, cy, r: 62, fill: 'none', stroke: 'var(--grid,#e1e0d9)', 'stroke-width': 10 }, st.g); if (left > 0) K.el('path', { d: K.arc(cx, cy, 57, 67, 0, Math.max(0.001, left / T * 2 * Math.PI - 0.001)), fill: K.C[1] }, st.g); K.text(st.g, cx, cy + 8, String(Math.floor(left / 60)).padStart(2, '0') + ':' + String(left % 60).padStart(2, '0'), { 'text-anchor': 'middle', 'font-size': 28, fill: 'var(--text,#222)' }); };
+    const [s, r] = bar.querySelectorAll('button'); s.addEventListener('click', () => { if (h) { clearInterval(h); h = null; s.textContent = 'Start'; } else { h = setInterval(() => { left = Math.max(0, left - 1); draw(); if (!left) { clearInterval(h); h = null; s.textContent = 'Start'; } }, 1000); s.textContent = 'Pause'; left -= 1; draw(); } });
+    r.addEventListener('click', () => { if (h) { clearInterval(h); h = null; s.textContent = 'Start'; } left = T; draw(); }); draw();
+  },
+},
+{
+  id: 'sampling', family: 'interactive', name: 'Sampling designs explainer',
+  when: 'Show why simple random, stratified and cluster sampling all land on the truth but not with the same precision.',
+  steps: ['Population: 160 students in 8 districts and 5 faculties, study hours drawn around each faculty mean. mu is the mean of all 160.',
+          'Step 1 draws one survey per design: simple random picks 40 students anywhere, stratified picks 40 in the population\'s faculty shares, cluster picks 2 whole districts (40 students).',
+          'Step 2 repeats each survey 1,000 times and histograms the 1,000 means. Bias is the distance of the histogram centre from mu; spread (SD) is its width. Stratified is narrowest, cluster widest, because the cluster estimate depends on which 2 districts happened to be drawn.'],
+  combine: 'Add a sample-size slider: every SD falls like 1/sqrt(n), but the ordering between the three designs does not change.',
+  test: clickChanges('button'),
+  fn(host, K) {
+    const FAC = ['Engineering', 'Economics', 'Humanities', 'Computer Science', 'Natural Sciences'];
+    const FCOL = [K.C[0], K.C[2], K.C[3], K.C[6], K.C[1]];
+    const FMEAN = [14.0, 13.2, 11.4, 14.4, 12.4];
+    const base = K.rng(17);
+    const pop = [];
+    for (let d = 0; d < 8; d++) { const dom = d % 5; for (let i = 0; i < 20; i++) { const f = i < 14 ? dom : (dom + 1 + (i % 3)) % 5; pop.push({ d, f, h: FMEAN[f] + 1.5 * K.normal(base) }); } }
+    const mu = K.mean(pop.map(p => p.h));
+    const shuffle = (a, rng) => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); const t = b[i]; b[i] = b[j]; b[j] = t; } return b; };
+    const srs = rng => shuffle(pop, rng).slice(0, 40);
+    const strat = rng => { const out = []; for (let f = 0; f < 5; f++) { const pool = pop.filter(p => p.f === f); out.push.apply(out, shuffle(pool, rng).slice(0, Math.round(pool.length / pop.length * 40))); } return out; };
+    const cluster = rng => { const ds = shuffle([0, 1, 2, 3, 4, 5, 6, 7], rng).slice(0, 2); return pop.filter(p => ds.indexOf(p.d) >= 0); };
+    const meanOf = s => K.mean(s.map(p => p.h));
+    const bar = document.createElement('div'); bar.style.cssText = 'display:flex;align-items:center;gap:10px;font-size:12px;margin:0 0 6px';
+    bar.innerHTML = '<button>Run again</button><span style="color:var(--muted,#8a8782)">1,000 simulated surveys per design</span>';
+    host.appendChild(bar);
+    const view = document.createElement('div'); host.appendChild(view);
+    let run = 1;
+    const draw = () => {
+      view.innerHTML = '';
+      const rng = K.rng(101 * run);
+      const designs = [['Simple random', 'anyone can be picked', K.C[0]], ['Stratified', 'fixed share from every faculty', K.C[1]], ['Cluster', '2 whole districts of 8', K.C[2]]];
+      const one = [srs(rng), strat(rng), cluster(rng)];
+      const est = [srs, strat, cluster].map((fn, k) => { const r = K.rng(9001 + k * 131 + run * 7), out = []; for (let i = 0; i < 1000; i++) out.push(meanOf(fn(r))); return out; });
+      const st = K.stage(view, 780, 520, { t: 2, r: 2, b: 2, l: 2 }), g = st.g, dx = 11.5, dy = 11.5, rad = 3.2, y0 = 46, x0s = [0, 268, 536];
+      K.text(g, 0, 12, 'Step 1 · one survey with each design. Bright dots are the chosen students; faint dots are not.', { 'font-size': 12.5, fill: 'var(--text)' });
+      designs.forEach((d, k) => {
+        const x0 = x0s[k];
+        K.text(g, x0, 30, d[0], { 'font-size': 12, fill: 'var(--text)' });
+        if (k === 2) { const ds = one[2].map(p => p.d), uniq = ds.filter((v, i) => ds.indexOf(v) === i); uniq.forEach(di => K.el('rect', { x: x0 + 2 * di * dx - 5, y: y0 - 5, width: 2 * dx + 10, height: 10 * dy + 10, rx: 6, fill: 'none', stroke: 'var(--text-2,#52514e)', 'stroke-width': 1, 'stroke-dasharray': '4 3' }, g)); }
+        const chosen = new Set(one[k]);
+        pop.forEach((p, i) => {
+          const di = Math.floor(i / 20), j = i % 20;
+          const cx = x0 + (di * 2 + Math.floor(j / 10)) * dx + dx / 2, cy = y0 + (j % 10) * dy + dy / 2;
+          K.el('circle', { cx, cy, r: rad, fill: chosen.has(p) ? FCOL[p.f] : 'var(--grid,#e4e0d7)' }, g);
+        });
+        K.text(g, x0, y0 + 10 * dy + 15, d[1], { 'font-size': 11 });
+      });
+      FAC.forEach((name, f) => { const lx = f * 152; K.el('rect', { x: lx, y: 196, width: 9, height: 9, rx: 2, fill: FCOL[f] }, g); K.text(g, lx + 14, 204, name, { 'font-size': 10.5 }); });
+      K.text(g, 0, 234, 'Step 2 · repeat each survey 1,000 times and collect the 1,000 means.', { 'font-size': 12.5, fill: 'var(--text)' });
+      const all = est[0].concat(est[1], est[2]), lo = Math.min.apply(null, all), hi = Math.max.apply(null, all), pad = (hi - lo) * 0.05;
+      const x = K.linear(lo - pad, hi + pad, 0, 760), rows = [254, 336, 418];
+      designs.forEach((d, k) => {
+        const y = rows[k], arr = est[k], sd = K.sd(arr), bias = K.mean(arr) - mu, sign = bias >= 0 ? '+' : '−';
+        K.text(g, 0, y, d[0] + ': spread (SD) = ' + sd.toFixed(2) + ' · bias = ' + sign + Math.abs(bias).toFixed(2), { 'font-size': 12, fill: 'var(--text)' });
+        const bins = K.hist(arr, lo - pad, hi + pad, 26), maxN = Math.max.apply(null, bins.map(b => b.n));
+        bins.forEach(b => { const h = Math.max(1, b.n / maxN * 52); K.el('rect', { x: x(b.x0), y: y + 62 - h, width: Math.max(1, x(b.x1) - x(b.x0) - 1), height: h, fill: d[2], 'fill-opacity': 0.85 }, g); });
+        K.el('line', { x1: x(mu), x2: x(mu), y1: y + 6, y2: y + 64, stroke: 'var(--text-2,#52514e)', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' }, g);
+      });
+      K.text(g, 0, 502, 'Dashed line = true mean of all 160 students (mu = ' + mu.toFixed(2) + '). Each histogram is 1,000 surveys; the narrower it is, the more precise one survey tends to be.', { 'font-size': 10.5 });
+    };
+    bar.querySelector('button').addEventListener('click', () => { run += 1; draw(); }); draw();
+  },
+},
+];
+if (typeof module !== 'undefined') module.exports = RECIPES_B7; else window.RECIPES_B7 = RECIPES_B7;
+
+window.__dshRecipePack = RECIPES_B7;
+var __host = document.getElementById('recipe');
+function __fail(error){
+  __host.innerHTML = '<p style="color:var(--danger,#d03b3b);font-size:12px;margin:8px 0">This recipe could not draw: ' + (error && error.message ? error.message : String(error)) + '</p>';
+}
+var __list = window.__dshRecipePack || [];
+var __recipe = null;
+for (var i = 0; i < __list.length; i += 1) { if (__list[i].id === "sampling") { __recipe = __list[i]; break; } }
+function __mount(){
+  if (!__recipe) return __fail(new Error('recipe not found in its pack'));
+  try { __recipe.fn(__host, window.Kit); } catch (error) { __fail(error); }
+}
+  __mount();
+})();
+</script>
+<script>
+(function(){
+  var root = document.documentElement;
+  function post(message){ try { if (parent !== window) parent.postMessage(message, '*'); } catch (e) {} }
+  function theme(){ try { var t = new URLSearchParams(location.search).get('theme'); if (t) root.dataset.theme = t; } catch (e) {} }
+  theme();
+  addEventListener('message', function(event){
+    var data = event.data;
+    if (!data || typeof data !== 'object') return;
+    if (data.type === 'dsh-artifact:theme' && (data.theme === 'light' || data.theme === 'dark')) root.dataset.theme = data.theme;
+  });
+  function height(){
+    var body = document.body;
+    if (!body) return;
+    var value = Math.max(body.scrollHeight, root.scrollHeight);
+    post({ type: 'dsh-artifact:height', height: value });
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(height).observe(document.body);
+  addEventListener('load', height);
+  setTimeout(height, 60); setTimeout(height, 300);
+  var api = {
+    send: function(action, payload){ post({ type: 'dsh-artifact:action', action: String(action), payload: payload || {} }); },
+    prompt: function(text){ post({ type: 'dsh-artifact:prompt', text: String(text) }); },
+    open: function(url){ post({ type: 'dsh-artifact:open', url: String(url) }); },
+    state: {
+      get: function(key){ try { return JSON.parse(localStorage.getItem('dsh-artifact:' + key) || 'null'); } catch (e) { return null; } },
+      set: function(key, value){ try { localStorage.setItem('dsh-artifact:' + key, JSON.stringify(value)); } catch (e) {} }
+    }
+  };
+  window.dshArtifact = api;
+  window.dsh = api;
+})();
+</script>
+</body>
+</html>

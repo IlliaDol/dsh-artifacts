@@ -56,7 +56,7 @@ distribution, relationship, structure, motion. Minimum 23 native recipes (one pe
 form), at least three of them scenes (a dynamical system, a field, a chaotic
 divergence).
 
-THE 164-RECIPE LIBRARY
+THE 165-RECIPE LIBRARY
 Vendor the user's cookbook (9 packs, kit + viz3d, guide chapters, Python
 scripts) under `cookbook/` and generate `manifest.json`, a self-contained
 `gallery.html` and `docs/RECIPES.md` from it. Expose every recipe as a first-class

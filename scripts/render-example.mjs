@@ -124,6 +124,7 @@ hard part; the store, the exports and a single vocabulary are.
 const cases = [
   ['widget-number-line', { kind: 'widget', title: 'Typical random wobble', surface: 'inline', content: numberLine }],
   ['chart-dashboard', { kind: 'chart', title: 'Signups and activations', surface: 'inline', content: JSON.stringify(dashboard) }],
+  ['explainer-sampling', { kind: 'recipe', title: 'Sampling designs', surface: 'inline', content: 'sampling' }],
   ['cards-quiz', { kind: 'cards', title: 'Wobble check', surface: 'inline', content: JSON.stringify(quiz) }],
   ['slides-q3', { kind: 'slides', title: 'Q3 review', surface: 'canvas', content: JSON.stringify(deck) }],
   ['design-checkout', { kind: 'design', title: 'Checkout screens', surface: 'canvas', content: JSON.stringify(design) }],

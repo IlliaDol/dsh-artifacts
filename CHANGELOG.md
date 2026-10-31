@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.4.1 — 2026-10-31
+
+The artifact tool reaches the model again, and the artifact Claude draws for
+"explain this better" is now one call away.
+
+- **The tool was never registered.** `output.schema` put `required: true` on two
+  properties. dsh validates that schema with `assertSupportedJsonSchema`, where
+  `required` is an array of property names on the object — so `register()` threw,
+  cordis swallowed the throw, and every session offered its tools without
+  `artifact`. The model answered "draw me something" with ASCII art and "I can't
+  render images". The schema is valid JSON Schema now, and a rejected
+  registration logs `[dsh-artifacts] artifact tool registration failed: …`
+  instead of vanishing.
+- **A regression test pins the schema.** `test/plugin.test.mjs` checks the tool's
+  `output.schema` with the same rules dsh applies, so a boolean `required` fails
+  the suite instead of disappearing at runtime.
+- **`sampling`: an interactive explainer recipe.** The interactive family now has
+  eight recipes and the library 165. It draws one survey per design — simple
+  random, stratified, cluster — as dot grids, then 1,000 surveys per design as
+  histograms with spread and bias, plus `Run again`. Call it with
+  `kind:"recipe"`, `content:"sampling"`.
+- **The prompt and the skill say what "explain better" means.** An explainer may
+  carry a one-line step title and short panel captions; the argument stays in the
+  reply. A visual request is never answered with ASCII art, and a failed tool
+  call must be reported and retried, not silently downgraded to prose.
+- Verified against the dsh `0.2.1-rc.5` desktop registry: `artifact` appears in
+  the visible tool list, a `recipe` create renders 77 KB of self-contained HTML,
+  and the cookbook rebuilds at 165 recipes. `npm run check`: 64 tests pass and
+  the package shape check is clean.
+
 ## 0.4.0 — 2026-10-30
 
 The 164-recipe cookbook becomes part of the plugin, not just its documentation.

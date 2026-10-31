@@ -1,6 +1,6 @@
 # The recipe index
 
-164 recipes in 15 families. Each row is a real drawing function in `cookbook/`; the id is what `kind:"recipe"` takes.
+165 recipes in 15 families. Each row is a real drawing function in `cookbook/`; the id is what `kind:"recipe"` takes.
 
 The live gallery is at `/plugins/dsh-artifacts/cookbook`; the searchable tool action is `artifact` with `action:"cookbook"`.
 
@@ -17,7 +17,7 @@ The live gallery is at `/plugins/dsh-artifacts/cookbook`; the searchable tool ac
 | Math and science | 16 |
 | Software and process diagrams | 10 |
 | Tables, text and KPI parts | 9 |
-| Interactive explainers | 7 |
+| Interactive explainers | 8 |
 | UI mockups and art | 11 |
 | 3D and animation | 10 |
 | Combining chart types | 9 |
@@ -215,6 +215,7 @@ The live gallery is at `/plugins/dsh-artifacts/cookbook`; the searchable tool ac
 | `quiz` | Quiz with instant feedback | Check understanding while reading. | Log answers to build a per-topic bar chart of strengths. |
 | `flashcards` | Flashcards (flip) | Memorising terms and definitions. | Track which cards were missed and show them again first (spaced repetition). |
 | `timer` | Countdown timer | Pomodoro-style focus sessions or exercises. | Record completed sessions and show them as a calendar heatmap. |
+| `sampling` | Sampling designs explainer | Show why simple random, stratified and cluster sampling all land on the truth but not with the same precision. | Add a sample-size slider: every SD falls like 1/sqrt(n), but the ordering between the three designs does not change. |
 
 ## UI mockups and art
 

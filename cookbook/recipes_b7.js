@@ -362,5 +362,67 @@ const RECIPES_B7 = [
     r.addEventListener('click', () => { if (h) { clearInterval(h); h = null; s.textContent = 'Start'; } left = T; draw(); }); draw();
   },
 },
+{
+  id: 'sampling', family: 'interactive', name: 'Sampling designs explainer',
+  when: 'Show why simple random, stratified and cluster sampling all land on the truth but not with the same precision.',
+  steps: ['Population: 160 students in 8 districts and 5 faculties, study hours drawn around each faculty mean. mu is the mean of all 160.',
+          'Step 1 draws one survey per design: simple random picks 40 students anywhere, stratified picks 40 in the population\'s faculty shares, cluster picks 2 whole districts (40 students).',
+          'Step 2 repeats each survey 1,000 times and histograms the 1,000 means. Bias is the distance of the histogram centre from mu; spread (SD) is its width. Stratified is narrowest, cluster widest, because the cluster estimate depends on which 2 districts happened to be drawn.'],
+  combine: 'Add a sample-size slider: every SD falls like 1/sqrt(n), but the ordering between the three designs does not change.',
+  test: clickChanges('button'),
+  fn(host, K) {
+    const FAC = ['Engineering', 'Economics', 'Humanities', 'Computer Science', 'Natural Sciences'];
+    const FCOL = [K.C[0], K.C[2], K.C[3], K.C[6], K.C[1]];
+    const FMEAN = [14.0, 13.2, 11.4, 14.4, 12.4];
+    const base = K.rng(17);
+    const pop = [];
+    for (let d = 0; d < 8; d++) { const dom = d % 5; for (let i = 0; i < 20; i++) { const f = i < 14 ? dom : (dom + 1 + (i % 3)) % 5; pop.push({ d, f, h: FMEAN[f] + 1.5 * K.normal(base) }); } }
+    const mu = K.mean(pop.map(p => p.h));
+    const shuffle = (a, rng) => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); const t = b[i]; b[i] = b[j]; b[j] = t; } return b; };
+    const srs = rng => shuffle(pop, rng).slice(0, 40);
+    const strat = rng => { const out = []; for (let f = 0; f < 5; f++) { const pool = pop.filter(p => p.f === f); out.push.apply(out, shuffle(pool, rng).slice(0, Math.round(pool.length / pop.length * 40))); } return out; };
+    const cluster = rng => { const ds = shuffle([0, 1, 2, 3, 4, 5, 6, 7], rng).slice(0, 2); return pop.filter(p => ds.indexOf(p.d) >= 0); };
+    const meanOf = s => K.mean(s.map(p => p.h));
+    const bar = document.createElement('div'); bar.style.cssText = 'display:flex;align-items:center;gap:10px;font-size:12px;margin:0 0 6px';
+    bar.innerHTML = '<button>Run again</button><span style="color:var(--muted,#8a8782)">1,000 simulated surveys per design</span>';
+    host.appendChild(bar);
+    const view = document.createElement('div'); host.appendChild(view);
+    let run = 1;
+    const draw = () => {
+      view.innerHTML = '';
+      const rng = K.rng(101 * run);
+      const designs = [['Simple random', 'anyone can be picked', K.C[0]], ['Stratified', 'fixed share from every faculty', K.C[1]], ['Cluster', '2 whole districts of 8', K.C[2]]];
+      const one = [srs(rng), strat(rng), cluster(rng)];
+      const est = [srs, strat, cluster].map((fn, k) => { const r = K.rng(9001 + k * 131 + run * 7), out = []; for (let i = 0; i < 1000; i++) out.push(meanOf(fn(r))); return out; });
+      const st = K.stage(view, 780, 520, { t: 2, r: 2, b: 2, l: 2 }), g = st.g, dx = 11.5, dy = 11.5, rad = 3.2, y0 = 46, x0s = [0, 268, 536];
+      K.text(g, 0, 12, 'Step 1 · one survey with each design. Bright dots are the chosen students; faint dots are not.', { 'font-size': 12.5, fill: 'var(--text)' });
+      designs.forEach((d, k) => {
+        const x0 = x0s[k];
+        K.text(g, x0, 30, d[0], { 'font-size': 12, fill: 'var(--text)' });
+        if (k === 2) { const ds = one[2].map(p => p.d), uniq = ds.filter((v, i) => ds.indexOf(v) === i); uniq.forEach(di => K.el('rect', { x: x0 + 2 * di * dx - 5, y: y0 - 5, width: 2 * dx + 10, height: 10 * dy + 10, rx: 6, fill: 'none', stroke: 'var(--text-2,#52514e)', 'stroke-width': 1, 'stroke-dasharray': '4 3' }, g)); }
+        const chosen = new Set(one[k]);
+        pop.forEach((p, i) => {
+          const di = Math.floor(i / 20), j = i % 20;
+          const cx = x0 + (di * 2 + Math.floor(j / 10)) * dx + dx / 2, cy = y0 + (j % 10) * dy + dy / 2;
+          K.el('circle', { cx, cy, r: rad, fill: chosen.has(p) ? FCOL[p.f] : 'var(--grid,#e4e0d7)' }, g);
+        });
+        K.text(g, x0, y0 + 10 * dy + 15, d[1], { 'font-size': 11 });
+      });
+      FAC.forEach((name, f) => { const lx = f * 152; K.el('rect', { x: lx, y: 196, width: 9, height: 9, rx: 2, fill: FCOL[f] }, g); K.text(g, lx + 14, 204, name, { 'font-size': 10.5 }); });
+      K.text(g, 0, 234, 'Step 2 · repeat each survey 1,000 times and collect the 1,000 means.', { 'font-size': 12.5, fill: 'var(--text)' });
+      const all = est[0].concat(est[1], est[2]), lo = Math.min.apply(null, all), hi = Math.max.apply(null, all), pad = (hi - lo) * 0.05;
+      const x = K.linear(lo - pad, hi + pad, 0, 760), rows = [254, 336, 418];
+      designs.forEach((d, k) => {
+        const y = rows[k], arr = est[k], sd = K.sd(arr), bias = K.mean(arr) - mu, sign = bias >= 0 ? '+' : '−';
+        K.text(g, 0, y, d[0] + ': spread (SD) = ' + sd.toFixed(2) + ' · bias = ' + sign + Math.abs(bias).toFixed(2), { 'font-size': 12, fill: 'var(--text)' });
+        const bins = K.hist(arr, lo - pad, hi + pad, 26), maxN = Math.max.apply(null, bins.map(b => b.n));
+        bins.forEach(b => { const h = Math.max(1, b.n / maxN * 52); K.el('rect', { x: x(b.x0), y: y + 62 - h, width: Math.max(1, x(b.x1) - x(b.x0) - 1), height: h, fill: d[2], 'fill-opacity': 0.85 }, g); });
+        K.el('line', { x1: x(mu), x2: x(mu), y1: y + 6, y2: y + 64, stroke: 'var(--text-2,#52514e)', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' }, g);
+      });
+      K.text(g, 0, 502, 'Dashed line = true mean of all 160 students (mu = ' + mu.toFixed(2) + '). Each histogram is 1,000 surveys; the narrower it is, the more precise one survey tends to be.', { 'font-size': 10.5 });
+    };
+    bar.querySelector('button').addEventListener('click', () => { run += 1; draw(); }); draw();
+  },
+},
 ];
 if (typeof module !== 'undefined') module.exports = RECIPES_B7; else window.RECIPES_B7 = RECIPES_B7;

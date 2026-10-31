@@ -89,7 +89,7 @@ and accessible.
 
 Charts and cards export to SVG-free HTML, CSV/JSON, and (for chart data) XLSX.
 
-### 1.4 Recipes: the 164-drawing library
+### 1.4 Recipes: the 165-drawing library
 
 A `recipe` is a prepared drawing from the vendored cookbook. The id is the whole
 source; the renderer loads the recipe's own pack and calls its exact function.
@@ -112,7 +112,7 @@ This is the path for forms the twenty native charts do not carry.
 | Math and science | `funcplot`, `vectorfield`, `phase`, `surface3d`, `mandelbrot`, `spectrum`, `fourier` |
 | Diagrams | `flowchart`, `sequence`, `classdiagram`, `statemachine`, `swimlane`, `decisiontree`, `gitgraph` |
 | Tables and KPI | `sorttable`, `heattable`, `sparktable`, `kpi`, `gauge`, `wordcloud` |
-| Interactive | `bubblesort`, `gradientdescent`, `binsearch`, `compound`, `quiz`, `flashcards`, `timer` |
+| Interactive | `bubblesort`, `gradientdescent`, `binsearch`, `compound`, `quiz`, `flashcards`, `timer`, `sampling` |
 | UI and art | `uidash`, `form`, `hero`, `poster`, `icons`, `truchet`, `isometric`, `pixelart` |
 | 3D and animation | `cube3d`, `scatter3d`, `particles`, `lorenz`, `starfield`, `wave3d`, `doublependulum` |
 | Combining | `combo-layers`, `combo-violin`, `combo-multiples`, `combo-linked`, `combo-dashboard`, `combo-annotated` |

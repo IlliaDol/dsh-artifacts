@@ -74,7 +74,7 @@ document is opened as a standalone tab.
 | `GET /plugins/dsh-artifacts/view?id=` | rendered document, artifact CSP |
 | `GET /plugins/dsh-artifacts/source?id=` | the stored source, plain text |
 | `GET /plugins/dsh-artifacts/export?id=&format=` | attachment in one of eight formats |
-| `GET /plugins/dsh-artifacts/cookbook` | the generated 164-recipe gallery |
+| `GET /plugins/dsh-artifacts/cookbook` | the generated 165-recipe gallery |
 | `GET /plugins/dsh-artifacts/gallery` | index of every artifact |
 
 `ARTIFACT_CSP` is `default-src 'none'` plus the asset allowlist. There is no

@@ -82,6 +82,8 @@ test('the skill is registered before the first prompt is assembled', async () =>
     assert.equal(log.sections.length, 1);
     assert.equal(log.skills.length, 1);
     assert.match(log.skills[0].content, /# Artifacts/u);
+    // The store opens in the background; let it settle so cleanup cannot race it.
+    await new Promise((resolve) => setTimeout(resolve, 60));
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
@@ -138,6 +140,54 @@ test('the tool creates, lists and exports an artifact', async () => {
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('the tool output schema is strict JSON Schema, so the registry accepts it', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'dsh-artifacts-schema-'));
+  try {
+    const { ctx, log } = fakeContext(directory);
+    apply(ctx, { directory });
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    const tool = log.tools[0];
+
+    // dsh validates output.schema with assertSupportedJsonSchema (a JSON Schema
+    // subset): `required` is an array of property names at the object level.
+    // A `required: true` on a property throws at registration, the tool is
+    // never offered to the model, and every drawing request degrades to prose.
+    assertStrictJsonSchema(tool.output.schema, 'output.schema');
+    assert.deepEqual(tool.output.schema.required.sort(), ['action', 'message']);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+/**
+ * The subset of JSON Schema that dsh's tool registry accepts, checked the way
+ * it checks it: `required` is an array of declared property names, never a
+ * boolean on a property.
+ * @param {any} schema schema to check
+ * @param {string} path location for the failure message
+ * @returns {void} nothing
+ */
+function assertStrictJsonSchema(schema, path) {
+  assert.equal(typeof schema, 'object', `${path} must be a schema object`);
+  assert.ok(schema !== null && !Array.isArray(schema), `${path} must be a schema object`);
+  if (Object.hasOwn(schema, 'required')) {
+    assert.ok(Array.isArray(schema.required), `${path}.required must be an array of property names`);
+    for (const name of schema.required) {
+      assert.ok(Object.hasOwn(schema.properties ?? {}, name), `${path}.required names "${name}", which is not in properties`);
+    }
+  }
+  if (Object.hasOwn(schema, 'additionalProperties')) {
+    assert.equal(typeof schema.additionalProperties, 'boolean', `${path}.additionalProperties must be a boolean`);
+  }
+  for (const [key, value] of Object.entries(schema.properties ?? {})) {
+    const here = `${path}.properties.${key}`;
+    assert.notEqual(value.required, true, `${here}.required must not be a boolean (use the parent required array)`);
+    assert.ok(typeof value.type === 'string' || Array.isArray(value.oneOf), `${here} needs a type or oneOf`);
+    if (value.type === 'object') assertStrictJsonSchema(value, here);
+    if (value.type === 'array' && value.items !== undefined) assertStrictJsonSchema(value.items, `${here}.items`);
+  }
+}
 
 test('the tool rejects an invalid artifact with every reason it can report', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'dsh-artifacts-reject-'));

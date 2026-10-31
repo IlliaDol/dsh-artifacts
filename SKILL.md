@@ -1,6 +1,6 @@
 ---
 name: artifacts
-description: "Build visual artifacts in DeepSeek Harness with the `artifact` tool: inline widgets, native charts, the 164-recipe visualization cookbook, native cards, published pages, slide decks, design canvases, documents and downloadable files. Use when a visual, a deck, a mockup, a document or a file explains better than prose."
+description: "Build visual artifacts in DeepSeek Harness with the `artifact` tool: inline widgets, native charts, the 165-recipe visualization cookbook, native cards, published pages, slide decks, design canvases, documents and downloadable files. Use when a visual, a deck, a mockup, a document or a file explains better than prose."
 ---
 
 # Artifacts
@@ -72,6 +72,17 @@ Use `dshArtifact.send("action-name", {…})` only when the next step needs the m
 `dshArtifact.prompt("text")` posts a message; `dshArtifact.state.get/set` keeps
 per-viewer state.
 
+**Explainers.** For "explain this better", "show me why", or any mechanism with
+steps, the widget is an interactive explainer, not a caption: a one-line step
+title, a short caption per panel, the figure, and one control that recomputes it
+(`Run again`, a slider, a toggle). Small multiples of one idea — three panels,
+one per design or condition — beat one crowded panel. Captions and step titles
+belong in an explainer; paragraphs of argument stay in the reply. Never answer
+such a request with ASCII art, a text diagram or a table of characters.
+
+For sampling designs, `kind:"recipe"` with `"sampling"` is the whole explainer
+(one survey per design, then 1,000 surveys per design, with `Run again`).
+
 ### chart
 
 ```json
@@ -125,7 +136,7 @@ did not say "chart". Full chooser and design rules: [docs/COOKBOOK.md](docs/COOK
 
 ### recipe
 
-One of the **164 recipes in 15 families** vendored from the visualization
+One of the **165 recipes in 15 families** vendored from the visualization
 cookbook. `content` is the id, either bare or as an object:
 
 ```json
@@ -232,8 +243,9 @@ Nothing else in that fence is read.
 
 ## Design rules
 
-- Text belongs in the reply; the artifact carries the visual. No headings or
-  paragraphs of explanation inside it.
+- Charts, cards and decks carry the visual; the reply carries the argument. No
+  paragraphs of explanation inside a chart. An explainer may carry a one-line
+  step title and short panel captions.
 - Sentence case. Two weights (400/500). Headings 22/18/16px (decks scale up).
   Body 16px. No emoji, no gradients, no glow.
 - Pick the form from the question, not from habit. Bars start at zero. One
@@ -255,7 +267,7 @@ Nothing else in that fence is read.
 - Remote assets: `cdnjs.cloudflare.com`, `esm.sh`, `cdn.jsdelivr.net`,
   `unpkg.com`, `fonts.googleapis.com`, `fonts.gstatic.com`. Everything else is
   blocked by CSP. Maps are the main legitimate use (D3 + world-atlas).
-- Cookbook: 164 recipes, 15 families; gallery at
+- Cookbook: 165 recipes, 15 families; gallery at
   `/plugins/dsh-artifacts/cookbook`; full index at
   [docs/RECIPES.md](docs/RECIPES.md).
 - Artifacts live under `$DSH_HOME/artifacts`; `artifact` `list` shows what is there.

@@ -1,7 +1,7 @@
 # dsh-artifacts
 
 One plugin for **DeepSeek Harness (dsh)** that gives the model a single artifact
-surface: inline widgets, native charts, the **164-recipe visualization cookbook**,
+surface: inline widgets, native charts, the **165-recipe visualization cookbook**,
 native cards, published pages, slide decks, a design canvas, documents and
 downloadable files — the Claude artifact classes, implemented over the three dsh
 generative-UI projects.
@@ -52,7 +52,7 @@ the old tool list.
 
 Verify: the browser console prints `[dsh-artifacts] client active;
 channels=toolview+fence`; `/plugins/dsh-artifacts/gallery` lists artifacts and
-`/plugins/dsh-artifacts/cookbook` opens the 164-recipe gallery.
+`/plugins/dsh-artifacts/cookbook` opens the 165-recipe gallery.
 
 ## Use
 
@@ -78,7 +78,7 @@ default). The gallery is the index; every artifact has **Open**, **Source** and
 | --- | --- | --- | --- |
 | `widget` | inline HTML fragment or SVG | yes | html |
 | `chart` | 20 forms: line / area / bar / hbar / stacked / scatter / donut / hist / box / density / ecdf / violin / heat / stat / waterfall / dumbbell / slope / pareto / funnel / bullet | hover, click, legend, bin slider, drag-zoom | html, csv, json, xlsx |
-| `recipe` | one of 164 cookbook drawings by id (`qq`, `sankey`, `treemap`, `globe`, `lorenz`, …) | the recipe's own controls | html, md, json, csv, docx, pptx, xlsx |
+| `recipe` | one of 165 cookbook drawings by id (`qq`, `sankey`, `treemap`, `globe`, `lorenz`, …) | the recipe's own controls | html, md, json, csv, docx, pptx, xlsx |
 | `cards` | recipe, itinerary, quiz, steps, compare, metric, profile, weather, translation, message | quiz scores locally | html, json, csv |
 | `page` | full published document | yes | html, pdf |
 | `slides` | 16:9 deck, arrow-key paging, print pagination | paging | html, pptx, md, pdf |
@@ -121,7 +121,7 @@ shows a running total, `dumbbell` and `slope` show two moments per item,
 narrow stages readable, `bullet` puts a value against a target, and `density`,
 `ecdf` and `violin` compare distributions without hiding the shape behind a box.
 
-The other **164 recipes** are vendored whole: 15 families, from Q-Q plots and
+The other **165 recipes** are vendored whole: 15 families, from Q-Q plots and
 ridgelines to sankeys, treemaps, maps, 3D scenes, diagrams and linked views.
 Each is a first-class `recipe` artifact by id, searchable by the model with
 `action:"cookbook"`, and browsable at `/plugins/dsh-artifacts/cookbook` with
@@ -143,7 +143,7 @@ model ──artifact tool──▶ host half ──▶ $DSH_HOME/artifacts/<id>/
                             ├─ /plugins/dsh-artifacts/view     (CSP-sandboxed doc)
                             ├─ /plugins/dsh-artifacts/export   (attachment)
                             ├─ /plugins/dsh-artifacts/gallery
-                            ├─ /plugins/dsh-artifacts/cookbook (164 recipes)
+                            ├─ /plugins/dsh-artifacts/cookbook (165 recipes)
                             └─ presentationMeta {id, viewUrl, title}
                                         │
 browser ◀── toolview iframe ◀───────────┘

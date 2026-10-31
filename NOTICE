@@ -29,11 +29,12 @@ Docs, downloadable files) is modelled on Anthropic's published behaviour as
 described by the user; this project is not affiliated with Anthropic.
 
 The `cookbook/` directory is the user's Claude-authored visualization cookbook
-(164 recipes, 9 recipe packs, 18 guide chapters, 7 Python scripts and the
+(165 recipes, 9 recipe packs, 18 guide chapters, 7 Python scripts and the
 standalone visual examples), included at the user's direction as the plugin's
-source library. It is not an Anthropic product and carries no separate licence
-file; the repository's MIT licence applies to the plugin code, while the
-cookbook material remains the user's.
+source library. The `sampling` recipe (interactive family) was written for this
+package in 0.4.1; the rest is the user's material. It is not an Anthropic product
+and carries no separate licence file; the repository's MIT licence applies to the
+plugin code, while the cookbook material remains the user's.
 
 License texts of the upstream projects
 --------------------------------------

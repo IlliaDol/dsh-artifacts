@@ -25,9 +25,9 @@ for (const file of ['lib/index.js', 'lib/client.js', 'lib/render.js', 'lib/store
 }
 
 const manifest = JSON.parse(await readFile(join(root, 'cookbook', 'manifest.json'), 'utf8'));
-assert.equal(manifest.count, 164, 'the vendored cookbook has 164 recipes');
-assert.equal(manifest.recipes.length, 164);
-assert.equal(new Set(manifest.recipes.map((recipe) => recipe.id)).size, 164, 'recipe ids are unique');
+assert.equal(manifest.count, 165, 'the vendored cookbook has 165 recipes');
+assert.equal(manifest.recipes.length, 165);
+assert.equal(new Set(manifest.recipes.map((recipe) => recipe.id)).size, 165, 'recipe ids are unique');
 assert.equal(manifest.recipes.every((recipe) => typeof recipe.code === 'string' && recipe.code.length > 0), true, 'every recipe has code');
 
 const client = await readFile(join(root, 'lib', 'client.js'), 'utf8');

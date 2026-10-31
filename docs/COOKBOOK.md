@@ -5,7 +5,7 @@ Two layers, one vocabulary:
 1. **The native renderer** — `VC.render(host, spec)` with twenty forms. Every
    form is interactive, self-contained and accessible; the wire shape is
    `labels` + `series[].values`, with a few documented exceptions.
-2. **The recipe library** — 164 proven drawings in `cookbook/`, exposed as
+2. **The recipe library** — 165 proven drawings in `cookbook/`, exposed as
    `kind:"recipe"` artifacts. The exact function that draws the gallery is the
    function that draws the artifact.
 
@@ -25,7 +25,7 @@ exact picture and the drawing itself is the answer.
 
 ## The recipe library
 
-**164 recipes, 15 families.** Call `artifact` with `action:"cookbook"`:
+**165 recipes, 15 families.** Call `artifact` with `action:"cookbook"`:
 
 ```json
 {"action":"cookbook","family":"distribution","limit":8}
@@ -55,7 +55,7 @@ use and combinations is [RECIPES.md](RECIPES.md). Families:
 | Math and science | 16 | function plot, Lissajous, polar, ternary, vector field, phase portrait, function heatmap, surface, Mandelbrot, life, spectrum, pendulum, Venn, geometry, unit circle, Fourier |
 | Software and process diagrams | 10 | flow chart, sequence, class, state machine, swimlane, decision tree, topology, git graph, architecture, kanban |
 | Tables, text and KPI parts | 9 | sortable table, heat table, spark table, KPI, gauge, word cloud, plans, month calendar, filter list |
-| Interactive explainers | 7 | bubble sort, gradient descent, binary search, compound interest, quiz, flashcards, timer |
+| Interactive explainers | 8 | bubble sort, gradient descent, binary search, compound interest, quiz, flashcards, timer, sampling designs |
 | UI mockups and art | 11 | dashboard, form, hero, poster, icons, Truchet, flow field, mandala, isometric, pixel art, sunset |
 | 3D and animation | 10 | cube, scatter 3D, particles, Lorenz, starfield, wave surface, double pendulum, shapes, solar system, SMIL |
 | Combining | 9 | layers, violin + box + points, small multiples, linked views, dashboard, annotations, tile + bar, table + chart, spark grid |
@@ -205,4 +205,6 @@ What to check before trusting the test:
   correct, and generated data is not a measurement.
 - The cookbook's own honesty note still applies: its author tested in a
   simulated browser and converted SVG to PNG, not in a real browser. This
-  vendored copy was mounted in Chromium (164/164, zero failures) before shipping.
+  vendored copy was mounted in Chromium (164/164, zero failures) before
+  shipping; the `sampling` recipe added in 0.4.1 was checked in Chromium through
+  the artifact tool.

@@ -17,7 +17,7 @@ be read before trusting a claim in the README.
 | Editable docs, export to Word/PDF/Markdown | `doc`, `docx`/print/`md` exports |
 | Downloadable Word/Excel/PowerPoint/PDF/CSV | `export` and `file` |
 | Native line/bar/scatter charts | `chart` |
-| A large library of prepared visual forms | 164 `recipe` artifacts + `/cookbook` gallery |
+| A large library of prepared visual forms | 165 `recipe` artifacts + `/cookbook` gallery |
 | Native cards (recipe, itinerary, quiz, steps, comparison, …) | `cards` |
 | Strict design system, sentence case, 400/500 weights, no gradients | token sheet + prompt + skill |
 | CSS theme variables that follow light/dark | `--text`, `--surface`, … plus `data-theme` flips from the host |

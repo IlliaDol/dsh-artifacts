@@ -20,7 +20,7 @@ const parts = {
   KIT_3D: guard(read('kit/viz3d.js')),
   KIT_CHARTS: guard(read('kit/charts.js')),
   // The cookbook's own kit and 3D helpers are exposed as `Kit` and `C3`, so
-  // every one of its 164 recipes runs unchanged in a widget or a recipe
+  // every one of its 165 recipes runs unchanged in a widget or a recipe
   // artifact. They are not loaded into chart documents, which never need them.
   KIT_COOKBOOK: guard(read('cookbook/viz-kit.js')),
   KIT_COOKBOOK_3D: guard(read('cookbook/viz3d.js')),

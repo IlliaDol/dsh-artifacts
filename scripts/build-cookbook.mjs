@@ -150,7 +150,7 @@ ol.steps li{margin:0 0 3px}
   <span id="families" style="display:flex;gap:6px;flex-wrap:wrap"></span>
 </div>
 <main class="grid" id="grid"></main>
-<div class="foot">Vendored from the 164-recipe visualization cookbook. The plugin also exposes these as <code>kind:"recipe"</code> artifacts and through the <code>artifact</code> tool's <code>action:"cookbook"</code> lookup.</div>
+<div class="foot">Vendored from the 165-recipe visualization cookbook. The plugin also exposes these as <code>kind:"recipe"</code> artifacts and through the <code>artifact</code> tool's <code>action:"cookbook"</code> lookup.</div>
 </div>
 <script>${guard(read('viz-kit.js'))}</script>
 <script>${guard(read('viz3d.js'))}</script>
@@ -283,7 +283,7 @@ ${PACKS.map((pack) => `<script>(function(){\n${guard(read(pack))}\n})();</script
   paint();
   if (geoQueue.length) mountGeo();
   /* A verification hook: lets a real-browser check mount every recipe without
-     scrolling through 164 cards. It is inert unless called. */
+     scrolling through 165 cards. It is inert unless called. */
   window.__cookbook = {
     count: ALL.length,
     recipes: ALL,
